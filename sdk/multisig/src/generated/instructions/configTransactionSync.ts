@@ -7,81 +7,81 @@
 
 import * as beet from '@metaplex-foundation/beet'
 import * as web3 from '@solana/web3.js'
+import {
+  ConfigTransactionSyncArgs,
+  configTransactionSyncArgsBeet,
+} from '../types/ConfigTransactionSyncArgs'
 
 /**
  * @category Instructions
- * @category ConfigTransactionExecute
+ * @category ConfigTransactionSync
  * @category generated
  */
-export const configTransactionExecuteStruct = new beet.BeetArgsStruct<{
-  instructionDiscriminator: number[] /* size: 8 */
-}>(
-  [['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)]],
-  'ConfigTransactionExecuteInstructionArgs'
+export type ConfigTransactionSyncInstructionArgs = {
+  args: ConfigTransactionSyncArgs
+}
+/**
+ * @category Instructions
+ * @category ConfigTransactionSync
+ * @category generated
+ */
+export const configTransactionSyncStruct = new beet.FixableBeetArgsStruct<
+  ConfigTransactionSyncInstructionArgs & {
+    instructionDiscriminator: number[] /* size: 8 */
+  }
+>(
+  [
+    ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['args', configTransactionSyncArgsBeet],
+  ],
+  'ConfigTransactionSyncInstructionArgs'
 )
 /**
- * Accounts required by the _configTransactionExecute_ instruction
+ * Accounts required by the _configTransactionSync_ instruction
  *
  * @property [_writable_] multisig
- * @property [**signer**] member
- * @property [_writable_] proposal
- * @property [] transaction
  * @property [_writable_, **signer**] rentPayer (optional)
  * @category Instructions
- * @category ConfigTransactionExecute
+ * @category ConfigTransactionSync
  * @category generated
  */
-export type ConfigTransactionExecuteInstructionAccounts = {
+export type ConfigTransactionSyncInstructionAccounts = {
   multisig: web3.PublicKey
-  member: web3.PublicKey
-  proposal: web3.PublicKey
-  transaction: web3.PublicKey
   rentPayer?: web3.PublicKey
   systemProgram?: web3.PublicKey
   anchorRemainingAccounts?: web3.AccountMeta[]
 }
 
-export const configTransactionExecuteInstructionDiscriminator = [
-  114, 146, 244, 189, 252, 140, 36, 40,
+export const configTransactionSyncInstructionDiscriminator = [
+  71, 128, 206, 217, 177, 128, 41, 123,
 ]
 
 /**
- * Creates a _ConfigTransactionExecute_ instruction.
+ * Creates a _ConfigTransactionSync_ instruction.
  *
  * Optional accounts that are not provided default to the program ID since
  * this was indicated in the IDL from which this instruction was generated.
  *
  * @param accounts that will be accessed while the instruction is processed
+ * @param args to provide as instruction data to the program
+ *
  * @category Instructions
- * @category ConfigTransactionExecute
+ * @category ConfigTransactionSync
  * @category generated
  */
-export function createConfigTransactionExecuteInstruction(
-  accounts: ConfigTransactionExecuteInstructionAccounts,
+export function createConfigTransactionSyncInstruction(
+  accounts: ConfigTransactionSyncInstructionAccounts,
+  args: ConfigTransactionSyncInstructionArgs,
   programId = new web3.PublicKey('SMRTe6bnZAgJmXt9aJin7XgAzDn1XMHGNy95QATyzpk')
 ) {
-  const [data] = configTransactionExecuteStruct.serialize({
-    instructionDiscriminator: configTransactionExecuteInstructionDiscriminator,
+  const [data] = configTransactionSyncStruct.serialize({
+    instructionDiscriminator: configTransactionSyncInstructionDiscriminator,
+    ...args,
   })
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.multisig,
       isWritable: true,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.member,
-      isWritable: false,
-      isSigner: true,
-    },
-    {
-      pubkey: accounts.proposal,
-      isWritable: true,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.transaction,
-      isWritable: false,
       isSigner: false,
     },
     {

@@ -1,6 +1,6 @@
 {
-  "version": "2.1.0",
-  "name": "squads_multisig_program",
+  "version": "0.1.0",
+  "name": "squads_smart_account_program",
   "instructions": [
     {
       "name": "programConfigInit",
@@ -1598,7 +1598,7 @@
       "args": []
     },
     {
-      "name": "vaultTransactionSynchronous",
+      "name": "vaultTransactionSync",
       "docs": [
         "Synchronously execute a transaction"
       ],
@@ -1613,7 +1613,48 @@
         {
           "name": "args",
           "type": {
-            "defined": "VaultTransactionSynchronousArgs"
+            "defined": "VaultTransactionSyncArgs"
+          }
+        }
+      ]
+    },
+    {
+      "name": "configTransactionSync",
+      "docs": [
+        "Synchronously execute a config transaction"
+      ],
+      "accounts": [
+        {
+          "name": "multisig",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "rentPayer",
+          "isMut": true,
+          "isSigner": true,
+          "isOptional": true,
+          "docs": [
+            "The account that will be charged/credited in case the config transaction causes space reallocation,",
+            "for example when adding a new member, adding or removing a spending limit.",
+            "This is usually the same as `member`, but can be a different account if needed."
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true,
+          "docs": [
+            "We might need it in case reallocation is needed."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": "ConfigTransactionSyncArgs"
           }
         }
       ]
@@ -2289,6 +2330,38 @@
       }
     },
     {
+      "name": "ConfigTransactionSyncArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "numSigners",
+            "docs": [
+              "The number of signers to reach threshold and adequate permissions"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "actions",
+            "docs": [
+              "The configuration actions to execute"
+            ],
+            "type": {
+              "vec": {
+                "defined": "ConfigAction"
+              }
+            }
+          },
+          {
+            "name": "memo",
+            "type": {
+              "option": "string"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "MultisigAddSpendingLimitArgs",
       "type": {
         "kind": "struct",
@@ -2799,134 +2872,7 @@
       }
     },
     {
-      "name": "TransactionMessage",
-      "docs": [
-        "Unvalidated instruction data, must be treated as untrusted."
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "numSigners",
-            "docs": [
-              "The number of signer pubkeys in the account_keys vec."
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "numWritableSigners",
-            "docs": [
-              "The number of writable signer pubkeys in the account_keys vec."
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "numWritableNonSigners",
-            "docs": [
-              "The number of writable non-signer pubkeys in the account_keys vec."
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "accountKeys",
-            "docs": [
-              "The list of unique account public keys (including program IDs) that will be used in the provided instructions."
-            ],
-            "type": {
-              "defined": "SmallVec<u8,Pubkey>"
-            }
-          },
-          {
-            "name": "instructions",
-            "docs": [
-              "The list of instructions to execute."
-            ],
-            "type": {
-              "defined": "SmallVec<u8,CompiledInstruction>"
-            }
-          },
-          {
-            "name": "addressTableLookups",
-            "docs": [
-              "List of address table lookups used to load additional accounts",
-              "for this transaction."
-            ],
-            "type": {
-              "defined": "SmallVec<u8,MessageAddressTableLookup>"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "CompiledInstruction",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "programIdIndex",
-            "type": "u8"
-          },
-          {
-            "name": "accountIndexes",
-            "docs": [
-              "Indices into the tx's `account_keys` list indicating which accounts to pass to the instruction."
-            ],
-            "type": {
-              "defined": "SmallVec<u8,u8>"
-            }
-          },
-          {
-            "name": "data",
-            "docs": [
-              "Instruction data."
-            ],
-            "type": {
-              "defined": "SmallVec<u16,u8>"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "MessageAddressTableLookup",
-      "docs": [
-        "Address table lookups describe an on-chain address lookup table to use",
-        "for loading more readonly and writable accounts in a single tx."
-      ],
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "accountKey",
-            "docs": [
-              "Address lookup table account key"
-            ],
-            "type": "publicKey"
-          },
-          {
-            "name": "writableIndexes",
-            "docs": [
-              "List of indexes used to load writable account addresses"
-            ],
-            "type": {
-              "defined": "SmallVec<u8,u8>"
-            }
-          },
-          {
-            "name": "readonlyIndexes",
-            "docs": [
-              "List of indexes used to load readonly account addresses"
-            ],
-            "type": {
-              "defined": "SmallVec<u8,u8>"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "VaultTransactionSynchronousArgs",
+      "name": "VaultTransactionSyncArgs",
       "type": {
         "kind": "struct",
         "fields": [
@@ -3267,23 +3213,6 @@
       }
     },
     {
-      "name": "Permission",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Initiate"
-          },
-          {
-            "name": "Vote"
-          },
-          {
-            "name": "Execute"
-          }
-        ]
-      }
-    },
-    {
       "name": "ProposalStatus",
       "docs": [
         "The status of a proposal.",
@@ -3610,7 +3539,7 @@
     {
       "code": 6046,
       "name": "InvalidSignerCount",
-      "msg": "Invalid number of signer accounts. Must be exactly the threshold"
+      "msg": "Invalid number of signer accounts. Must be greater or equal to the threshold"
     },
     {
       "code": 6047,
@@ -3631,6 +3560,17 @@
       "code": 6050,
       "name": "InsufficientVotePermissions",
       "msg": "Insufficient vote permissions across signing members"
+    },
+    {
+      "code": 6051,
+      "name": "TimeLockNotZero",
+      "msg": "Multisig must not be time locked"
     }
-  ]
+  ],
+  "metadata": {
+    "address": "SMRTe6bnZAgJmXt9aJin7XgAzDn1XMHGNy95QATyzpk",
+    "origin": "anchor",
+    "binaryVersion": "0.29.0",
+    "libVersion": "=0.29.0"
+  }
 }
