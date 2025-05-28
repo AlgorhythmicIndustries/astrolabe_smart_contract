@@ -44,7 +44,7 @@ impl SmartAccountEvent {
         instruction_data.extend_from_slice(&crate::instruction::LogEvent::DISCRIMINATOR);
         instruction_data.extend_from_slice(&data.try_to_vec()?);
 
-        let ix = solana_program::instruction::Instruction {
+        let ix = anchor_lang::solana_program::instruction::Instruction {
             program_id: authority_info.program.key(),
             accounts: vec![AccountMeta::new_readonly(
                 authority_info.authority.key(),

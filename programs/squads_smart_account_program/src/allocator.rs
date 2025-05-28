@@ -92,7 +92,7 @@ but with changes to its HEAP_LENGTH and its
 starting allocation address.
 */
 
-use solana_program::entrypoint::HEAP_START_ADDRESS;
+use anchor_lang::solana_program::entrypoint::HEAP_START_ADDRESS;
 use std::{alloc::Layout, mem::size_of, ptr::null_mut};
 
 /// Length of the memory region used for program heap.
