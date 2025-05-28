@@ -11,20 +11,17 @@ use anchor_lang::idl::{IdlBuild};
 #[derive(Clone, Debug, Default)]
 pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
 
-#[cfg(feature = "idl-build")]
-impl<L: IdlBuild, T: IdlBuild> IdlBuild for SmallVec<L, T> {
-    fn create_type() -> IdlType {
-        IdlType::Vec(Box::new(T::create_type()))
-    }
+// #[cfg(feature = "idl-build")]
+// impl<L: IdlBuild, T: IdlBuild> IdlBuild for SmallVec<L, T> {
+//     fn create_type() -> IdlType {
+//         IdlType::Vec(Box::new(T::create_type()))
+//     }
 
-    fn get_full_path() -> String {
-        format!("Vec<{}>", T::get_full_path())
-    }
+//     fn get_full_path() -> String {
+//         format!("Vec<{}>", T::get_full_path())
+//     }
 
-    fn insert_types(ty_defs: &mut Vec<IdlTypeDefinition>) {
-        T::insert_types(ty_defs);
-    }
-}
+// }
 
 impl<L, T> SmallVec<L, T> {
     pub fn len(&self) -> usize {

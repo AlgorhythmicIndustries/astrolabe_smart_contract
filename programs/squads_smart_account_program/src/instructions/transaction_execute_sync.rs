@@ -44,7 +44,7 @@ impl SyncTransaction<'_> {
         let settings_key = settings.key();
         // Deserialize the instructions
         let compiled_instructions =
-            SmallVec::<u8, CompiledInstruction>::try_from_slice(&args.instructions)
+            Vec::<CompiledInstruction>::try_from_slice(&args.instructions)
                 .map_err(|_| SmartAccountError::InvalidInstructionArgs)?;
         // Convert to SmartAccountCompiledInstruction
         let settings_compiled_instructions: Vec<SmartAccountCompiledInstruction> =
