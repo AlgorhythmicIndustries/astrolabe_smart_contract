@@ -3,11 +3,28 @@ use std::marker::PhantomData;
 
 use anchor_lang::prelude::*;
 
+#[cfg(feature = "idl-build")]
+use anchor_lang::idl::{IdlBuild};
 /// Concise serialization schema for vectors where the length can be represented
 /// by any type `L` (typically unsigned integer like `u8` or `u16`)
 /// that implements AnchorDeserialize and can be converted to `u32`.
 #[derive(Clone, Debug, Default)]
 pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+
+#[cfg(feature = "idl-build")]
+impl<L: IdlBuild, T: IdlBuild> IdlBuild for SmallVec<L, T> {
+    fn create_type() -> IdlType {
+        IdlType::Vec(Box::new(T::create_type()))
+    }
+
+    fn get_full_path() -> String {
+        format!("Vec<{}>", T::get_full_path())
+    }
+
+    fn insert_types(ty_defs: &mut Vec<IdlTypeDefinition>) {
+        T::insert_types(ty_defs);
+    }
+}
 
 impl<L, T> SmallVec<L, T> {
     pub fn len(&self) -> usize {

@@ -4,7 +4,7 @@ use std::borrow::Borrow;
 use account_events::CreateSmartAccountEvent;
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
-use solana_program::native_token::LAMPORTS_PER_SOL;
+use anchor_lang::solana_program::native_token::LAMPORTS_PER_SOL;
 
 use crate::errors::SmartAccountError;
 use crate::events::*;
