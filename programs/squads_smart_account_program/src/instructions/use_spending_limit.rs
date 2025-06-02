@@ -268,6 +268,7 @@ impl UseSpendingLimit<'_> {
         let smart_account_token_account = ctx.accounts.smart_account_token_account.as_ref();
         let destination_token_account = ctx.accounts.destination_token_account.as_ref();
         let mint = ctx.accounts.mint.as_ref();
+        
         let event = UseSpendingLimitEvent {
             settings_pubkey: settings_key,
             spending_limit_pubkey: spending_limit.key(),
@@ -279,7 +280,7 @@ impl UseSpendingLimit<'_> {
             mint: mint.map_or(Pubkey::default(),|account| account.key()),
             mint_decimals: args.decimals,
             amount: args.amount,
-            spending_limit: SpendingLimit::try_from_slice(&spending_limit.try_to_vec()?)?,
+            spending_limit: (**spending_limit).clone(),
         };
         let settings = &ctx.accounts.settings;
         let log_authority_info = LogAuthorityInfo {
