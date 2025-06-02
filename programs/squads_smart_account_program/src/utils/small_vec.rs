@@ -147,8 +147,8 @@ mod test {
             let pubkey2 = Pubkey::new_unique();
             let mut input = &[
                 &[0x02], // len (2)
-                &pubkey1.try_to_vec().unwrap()[..],
-                &pubkey2.try_to_vec().unwrap()[..],
+                &pubkey1.to_bytes()[..],
+                &pubkey2.to_bytes()[..],
             ]
             .concat()[..];
 
@@ -176,8 +176,8 @@ mod test {
             let pubkey2 = Pubkey::new_unique();
             let mut input = &[
                 &[0x02, 0x00], // len (2)
-                &pubkey1.try_to_vec().unwrap()[..],
-                &pubkey2.try_to_vec().unwrap()[..],
+                &pubkey1.to_bytes()[..],
+                &pubkey2.to_bytes()[..],
             ]
             .concat()[..];
 
