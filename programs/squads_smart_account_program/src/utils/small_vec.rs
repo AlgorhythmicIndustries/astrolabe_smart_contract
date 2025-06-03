@@ -3,8 +3,6 @@ use std::marker::PhantomData;
 
 use anchor_lang::prelude::*;
 
-// #[cfg(feature = "idl-build")]
-// use anchor_lang::idl::{IdlBuild};
 /// Concise serialization schema for vectors where the length can be represented
 /// by any type `L` (typically unsigned integer like `u8` or `u16`)
 /// that implements AnchorDeserialize and can be converted to `u32`.
@@ -18,6 +16,19 @@ impl<L, T> SmallVec<L, T> {
 
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
+    }
+
+    pub fn get_full_path() -> String {
+        "SmallVec".to_string()
+    }
+
+    pub fn create_type() -> Option<()> {
+        // Return None to avoid complex type definitions
+        None
+    }
+
+    pub fn insert_types(_types: &mut std::collections::BTreeMap<String, ()>) {
+        // No additional types to insert
     }
 }
 
