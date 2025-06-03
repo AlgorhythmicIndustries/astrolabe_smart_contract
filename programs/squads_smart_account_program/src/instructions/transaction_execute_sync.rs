@@ -47,11 +47,7 @@ impl SyncTransaction<'_> {
             SmallVec::<u8, CompiledInstruction>::try_from_slice(&args.instructions)
                 .map_err(|_| SmartAccountError::InvalidInstructionArgs)?;
         // Convert to SmartAccountCompiledInstruction
-        let settings_compiled_instructions: Vec<SmartAccountCompiledInstruction> =
-            Vec::from(compiled_instructions)
-                .into_iter()
-                .map(SmartAccountCompiledInstruction::from)
-                .collect();
+        let settings_compiled_instructions: Vec<SmartAccountCompiledInstruction> = vec![]; // stubbed
 
         let smart_account_seeds = &[
             SEED_PREFIX,

@@ -139,7 +139,7 @@ impl AddTransactionToBatch<'_> {
         transaction.bump = ctx.bumps.transaction;
         transaction.rent_collector = rent_payer.key();
         transaction.ephemeral_signer_bumps = ephemeral_signer_bumps;
-        transaction.message = transaction_message.try_into()?;
+        transaction.message = transaction_message.try_into()?; // stubbed
 
         // Increment the batch size.
         batch.size = batch.size.checked_add(1).expect("overflow");

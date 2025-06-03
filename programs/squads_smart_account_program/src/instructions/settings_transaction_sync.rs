@@ -74,7 +74,7 @@ impl<'info> SyncSettingsTransaction<'info> {
                 &settings_key,
                 action,
                 &rent,
-                &ctx.accounts.rent_payer,
+                ctx.accounts.rent_payer.clone(),
                 &ctx.accounts.system_program,
                 &ctx.remaining_accounts,
                 &ctx.program_id,

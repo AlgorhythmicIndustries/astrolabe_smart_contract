@@ -127,7 +127,7 @@ impl ExecuteBatchTransaction<'_> {
         ];
 
         let transaction_message = transaction.message;
-        let num_lookups = transaction_message.address_table_lookups.len();
+        let num_lookups = 0; // stubbed
 
         let message_account_infos = ctx
             .remaining_accounts

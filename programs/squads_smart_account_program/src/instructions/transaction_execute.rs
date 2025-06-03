@@ -129,7 +129,7 @@ impl ExecuteTransaction<'_> {
             message_account_infos,
             address_lookup_table_account_infos,
             &smart_account_pubkey,
-            &ephemeral_signer_keys,
+            &ephemeral_signer_keys[..],
         )?;
 
         let protected_accounts = &[proposal.key()];
