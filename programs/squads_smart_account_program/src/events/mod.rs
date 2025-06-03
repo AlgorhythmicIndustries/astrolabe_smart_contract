@@ -18,6 +18,7 @@ pub enum SmartAccountEvent {
     AuthoritySettingsEvent(AuthoritySettingsEvent),
     AuthorityChangeEvent(AuthorityChangeEvent)
 }
+
 pub struct LogAuthorityInfo<'info> {
     pub authority: AccountInfo<'info>,
     pub authority_seeds: Vec<Vec<u8>>,
