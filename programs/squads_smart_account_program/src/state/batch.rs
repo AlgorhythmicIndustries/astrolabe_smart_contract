@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::borsh0_10::get_instance_packed_len;
 
 use crate::{TransactionMessage, SmartAccountTransactionMessage};
 
@@ -64,15 +65,7 @@ impl BatchTransaction {
         let transaction_message: SmartAccountTransactionMessage =
             TransactionMessage::deserialize(&mut &transaction_message[..])?.try_into()?;
 
-        // Calculate size manually since we can't use get_instance_packed_len
-        let message_size = std::mem::size_of::<SmartAccountTransactionMessage>() 
-            + transaction_message.account_keys.len() * 32 
-            + transaction_message.instructions.iter().map(|ix| {
-                8 + 1 + (4 + ix.account_indexes.len()) + (4 + ix.data.len())
-            }).sum::<usize>()
-            + transaction_message.address_table_lookups.iter().map(|lookup| {
-                32 + (4 + lookup.writable_indexes.len()) + (4 + lookup.readonly_indexes.len())
-            }).sum::<usize>();
+        let message_size = get_instance_packed_len(&transaction_message).unwrap_or_default();
 
         Ok(
             8 +   // anchor account discriminator

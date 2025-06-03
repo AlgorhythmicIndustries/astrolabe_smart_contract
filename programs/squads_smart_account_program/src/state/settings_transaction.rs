@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::borsh0_10::get_instance_packed_len;
 
 use super::*;
 
@@ -23,26 +24,9 @@ pub struct SettingsTransaction {
 
 impl SettingsTransaction {
     pub fn size(actions: &[SettingsAction]) -> usize {
-        // Calculate the size of actions manually
         let actions_size: usize = actions
             .iter()
-            .map(|action| match action {
-                SettingsAction::AddSigner { .. } => 1 + 32 + 4, // enum discriminant + pubkey + length
-                SettingsAction::RemoveSigner { .. } => 1 + 32, // enum discriminant + pubkey
-                SettingsAction::ChangeThreshold { .. } => 1 + 2, // enum discriminant + u16
-                SettingsAction::SetTimeLock { .. } => 1 + 4, // enum discriminant + u32
-                SettingsAction::AddSpendingLimit { 
-                    signers, 
-                    destinations, 
-                    .. 
-                } => {
-                    1 + 32 + 1 + 32 + 8 + 4 + 4 + (4 + signers.len() * 32) + (4 + destinations.len() * 32) + 8
-                }, // enum discriminant + all fields
-                SettingsAction::RemoveSpendingLimit { .. } => 1 + 32, // enum discriminant + pubkey
-                SettingsAction::SetArchivalAuthority { new_archival_authority } => {
-                    1 + 1 + if new_archival_authority.is_some() { 32 } else { 0 } // enum discriminant + option flag + optional pubkey
-                },
-            })
+            .map(|action| get_instance_packed_len(action).unwrap())
             .sum();
 
         8 +   // anchor account discriminator

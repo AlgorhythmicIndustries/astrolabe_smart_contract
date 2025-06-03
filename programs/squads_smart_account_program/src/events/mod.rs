@@ -1,5 +1,5 @@
 use anchor_lang::{
-    prelude::borsh::*, prelude::*, solana_program::program::invoke_signed, Discriminator,
+    prelude::*, solana_program::program::invoke_signed, Discriminator,
 };
 
 use crate::LogEventArgs;
