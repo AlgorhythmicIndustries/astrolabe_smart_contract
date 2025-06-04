@@ -10,11 +10,6 @@ import * as beet from '@metaplex-foundation/beet'
 import * as beetSolana from '@metaplex-foundation/beet-solana'
 import { Period, periodBeet } from '../types/Period'
 
-/**
- * Arguments used to create {@link SpendingLimit}
- * @category Accounts
- * @category generated
- */
 export type SpendingLimitArgs = {
   settings: web3.PublicKey
   seed: web3.PublicKey
@@ -179,58 +174,18 @@ export class SpendingLimit implements SpendingLimitArgs {
    */
   pretty() {
     return {
-      settings: this.settings.toBase58(),
-      seed: this.seed.toBase58(),
+      settings: this.settings,
+      seed: this.seed,
       accountIndex: this.accountIndex,
-      mint: this.mint.toBase58(),
-      amount: (() => {
-        const x = <{ toNumber: () => number }>this.amount
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
-      period: 'Period.' + Period[this.period],
-      remainingAmount: (() => {
-        const x = <{ toNumber: () => number }>this.remainingAmount
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
-      lastReset: (() => {
-        const x = <{ toNumber: () => number }>this.lastReset
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
+      mint: this.mint,
+      amount: this.amount,
+      period: this.period,
+      remainingAmount: this.remainingAmount,
+      lastReset: this.lastReset,
       bump: this.bump,
       signers: this.signers,
       destinations: this.destinations,
-      expiration: (() => {
-        const x = <{ toNumber: () => number }>this.expiration
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
+      expiration: this.expiration,
     }
   }
 }
@@ -249,12 +204,12 @@ export const spendingLimitBeet = new beet.FixableBeetStruct<
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['settings', beetSolana.publicKey],
     ['seed', beetSolana.publicKey],
-    ['accountIndex', beet.u8],
+    ['account_index', beet.u8],
     ['mint', beetSolana.publicKey],
     ['amount', beet.u64],
     ['period', periodBeet],
-    ['remainingAmount', beet.u64],
-    ['lastReset', beet.i64],
+    ['remaining_amount', beet.u64],
+    ['last_reset', beet.i64],
     ['bump', beet.u8],
     ['signers', beet.array(beetSolana.publicKey)],
     ['destinations', beet.array(beetSolana.publicKey)],

@@ -21,7 +21,7 @@ export type AddSignerArgs = {
  */
 export const addSignerArgsBeet = new beet.FixableBeetArgsStruct<AddSignerArgs>(
   [
-    ['newSigner', smartAccountSignerBeet],
+    ['new_signer', smartAccountSignerBeet],
     ['memo', beet.coption(beet.utf8String)],
   ],
   'AddSignerArgs'

@@ -18,7 +18,7 @@ export type CreateBatchArgs = {
 export const createBatchArgsBeet =
   new beet.FixableBeetArgsStruct<CreateBatchArgs>(
     [
-      ['accountIndex', beet.u8],
+      ['account_index', beet.u8],
       ['memo', beet.coption(beet.utf8String)],
     ],
     'CreateBatchArgs'

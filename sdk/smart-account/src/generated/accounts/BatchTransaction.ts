@@ -13,11 +13,6 @@ import {
   smartAccountTransactionMessageBeet,
 } from '../types/SmartAccountTransactionMessage'
 
-/**
- * Arguments used to create {@link BatchTransaction}
- * @category Accounts
- * @category generated
- */
 export type BatchTransactionArgs = {
   bump: number
   rentCollector: web3.PublicKey
@@ -159,7 +154,7 @@ export class BatchTransaction implements BatchTransactionArgs {
   pretty() {
     return {
       bump: this.bump,
-      rentCollector: this.rentCollector.toBase58(),
+      rentCollector: this.rentCollector,
       ephemeralSignerBumps: this.ephemeralSignerBumps,
       message: this.message,
     }
@@ -179,8 +174,8 @@ export const batchTransactionBeet = new beet.FixableBeetStruct<
   [
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['bump', beet.u8],
-    ['rentCollector', beetSolana.publicKey],
-    ['ephemeralSignerBumps', beet.bytes],
+    ['rent_collector', beetSolana.publicKey],
+    ['ephemeral_signer_bumps', beet.bytes],
     ['message', smartAccountTransactionMessageBeet],
   ],
   BatchTransaction.fromArgs,

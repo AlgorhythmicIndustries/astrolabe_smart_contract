@@ -18,7 +18,7 @@ pub fn emergency_exit(ctx: Context<RestrictedEmergencyExit>) -> Result<()> {
     let signer_key = ctx.accounts.restricted_signer.key();
     // Check if the signer is a restricted signer with EmergencyExit permission
     let allowed = settings.restricted_signers.iter().any(|rs| {
-        rs.key == signer_key && rs.permissions.has(RestrictedPermission::EmergencyExit)
+        rs.key == signer_key && rs.restricted_permissions.has(RestrictedPermission::EmergencyExit)
     });
     require!(allowed, CustomError::UnauthorizedRestrictedSigner);
     // Stub: actual emergency exit logic goes here

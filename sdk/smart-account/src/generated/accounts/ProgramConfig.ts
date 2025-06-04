@@ -9,17 +9,12 @@ import * as beet from '@metaplex-foundation/beet'
 import * as web3 from '@solana/web3.js'
 import * as beetSolana from '@metaplex-foundation/beet-solana'
 
-/**
- * Arguments used to create {@link ProgramConfig}
- * @category Accounts
- * @category generated
- */
 export type ProgramConfigArgs = {
   smartAccountIndex: beet.bignum
   authority: web3.PublicKey
   smartAccountCreationFee: beet.bignum
   treasury: web3.PublicKey
-  reserved: number[] /* size: 64 */
+  Reserved: number[] /* size: 64 */
 }
 
 export const programConfigDiscriminator = [196, 210, 90, 231, 144, 149, 140, 63]
@@ -36,7 +31,7 @@ export class ProgramConfig implements ProgramConfigArgs {
     readonly authority: web3.PublicKey,
     readonly smartAccountCreationFee: beet.bignum,
     readonly treasury: web3.PublicKey,
-    readonly reserved: number[] /* size: 64 */
+    readonly Reserved: number[] /* size: 64 */
   ) {}
 
   /**
@@ -48,7 +43,7 @@ export class ProgramConfig implements ProgramConfigArgs {
       args.authority,
       args.smartAccountCreationFee,
       args.treasury,
-      args.reserved
+      args.Reserved
     )
   }
 
@@ -155,31 +150,11 @@ export class ProgramConfig implements ProgramConfigArgs {
    */
   pretty() {
     return {
-      smartAccountIndex: (() => {
-        const x = <{ toNumber: () => number }>this.smartAccountIndex
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
-      authority: this.authority.toBase58(),
-      smartAccountCreationFee: (() => {
-        const x = <{ toNumber: () => number }>this.smartAccountCreationFee
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
-      treasury: this.treasury.toBase58(),
-      reserved: this.reserved,
+      smartAccountIndex: this.smartAccountIndex,
+      authority: this.authority,
+      smartAccountCreationFee: this.smartAccountCreationFee,
+      treasury: this.treasury,
+      Reserved: this.Reserved,
     }
   }
 }
@@ -196,11 +171,11 @@ export const programConfigBeet = new beet.BeetStruct<
 >(
   [
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['smartAccountIndex', beet.u128],
+    ['smart_account_index', beet.u128],
     ['authority', beetSolana.publicKey],
-    ['smartAccountCreationFee', beet.u64],
+    ['smart_account_creation_fee', beet.u64],
     ['treasury', beetSolana.publicKey],
-    ['reserved', beet.uniformFixedSizeArray(beet.u8, 64)],
+    ['_reserved', beet.uniformFixedSizeArray(beet.u8, 64)],
   ],
   ProgramConfig.fromArgs,
   'ProgramConfig'

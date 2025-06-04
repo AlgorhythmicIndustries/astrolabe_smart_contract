@@ -13,11 +13,6 @@ import {
   smartAccountTransactionMessageBeet,
 } from '../types/SmartAccountTransactionMessage'
 
-/**
- * Arguments used to create {@link Transaction}
- * @category Accounts
- * @category generated
- */
 export type TransactionArgs = {
   settings: web3.PublicKey
   creator: web3.PublicKey
@@ -173,20 +168,10 @@ export class Transaction implements TransactionArgs {
    */
   pretty() {
     return {
-      settings: this.settings.toBase58(),
-      creator: this.creator.toBase58(),
-      rentCollector: this.rentCollector.toBase58(),
-      index: (() => {
-        const x = <{ toNumber: () => number }>this.index
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
+      settings: this.settings,
+      creator: this.creator,
+      rentCollector: this.rentCollector,
+      index: this.index,
       bump: this.bump,
       accountIndex: this.accountIndex,
       accountBump: this.accountBump,
@@ -210,12 +195,12 @@ export const transactionBeet = new beet.FixableBeetStruct<
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['settings', beetSolana.publicKey],
     ['creator', beetSolana.publicKey],
-    ['rentCollector', beetSolana.publicKey],
+    ['rent_collector', beetSolana.publicKey],
     ['index', beet.u64],
     ['bump', beet.u8],
-    ['accountIndex', beet.u8],
-    ['accountBump', beet.u8],
-    ['ephemeralSignerBumps', beet.bytes],
+    ['account_index', beet.u8],
+    ['account_bump', beet.u8],
+    ['ephemeral_signer_bumps', beet.bytes],
     ['message', smartAccountTransactionMessageBeet],
   ],
   Transaction.fromArgs,

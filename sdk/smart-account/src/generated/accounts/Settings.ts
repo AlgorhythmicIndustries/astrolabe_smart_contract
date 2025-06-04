@@ -12,12 +12,11 @@ import {
   SmartAccountSigner,
   smartAccountSignerBeet,
 } from '../types/SmartAccountSigner'
+import {
+  RestrictedSmartAccountSigner,
+  restrictedSmartAccountSignerBeet,
+} from '../types/RestrictedSmartAccountSigner'
 
-/**
- * Arguments used to create {@link Settings}
- * @category Accounts
- * @category generated
- */
 export type SettingsArgs = {
   seed: beet.bignum
   settingsAuthority: web3.PublicKey
@@ -29,9 +28,10 @@ export type SettingsArgs = {
   archivableAfter: beet.bignum
   bump: number
   signers: SmartAccountSigner[]
+  restrictedSigners: RestrictedSmartAccountSigner[]
   accountUtilization: number
-  reserved1: number
-  reserved2: number
+  Reserved1: number
+  Reserved2: number
 }
 
 export const settingsDiscriminator = [223, 179, 163, 190, 177, 224, 67, 173]
@@ -54,9 +54,10 @@ export class Settings implements SettingsArgs {
     readonly archivableAfter: beet.bignum,
     readonly bump: number,
     readonly signers: SmartAccountSigner[],
+    readonly restrictedSigners: RestrictedSmartAccountSigner[],
     readonly accountUtilization: number,
-    readonly reserved1: number,
-    readonly reserved2: number
+    readonly Reserved1: number,
+    readonly Reserved2: number
   ) {}
 
   /**
@@ -74,9 +75,10 @@ export class Settings implements SettingsArgs {
       args.archivableAfter,
       args.bump,
       args.signers,
+      args.restrictedSigners,
       args.accountUtilization,
-      args.reserved1,
-      args.reserved2
+      args.Reserved1,
+      args.Reserved2
     )
   }
 
@@ -185,59 +187,20 @@ export class Settings implements SettingsArgs {
    */
   pretty() {
     return {
-      seed: (() => {
-        const x = <{ toNumber: () => number }>this.seed
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
-      settingsAuthority: this.settingsAuthority.toBase58(),
+      seed: this.seed,
+      settingsAuthority: this.settingsAuthority,
       threshold: this.threshold,
       timeLock: this.timeLock,
-      transactionIndex: (() => {
-        const x = <{ toNumber: () => number }>this.transactionIndex
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
-      staleTransactionIndex: (() => {
-        const x = <{ toNumber: () => number }>this.staleTransactionIndex
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
+      transactionIndex: this.transactionIndex,
+      staleTransactionIndex: this.staleTransactionIndex,
       archivalAuthority: this.archivalAuthority,
-      archivableAfter: (() => {
-        const x = <{ toNumber: () => number }>this.archivableAfter
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
+      archivableAfter: this.archivableAfter,
       bump: this.bump,
       signers: this.signers,
+      restrictedSigners: this.restrictedSigners,
       accountUtilization: this.accountUtilization,
-      reserved1: this.reserved1,
-      reserved2: this.reserved2,
+      Reserved1: this.Reserved1,
+      Reserved2: this.Reserved2,
     }
   }
 }
@@ -255,18 +218,19 @@ export const settingsBeet = new beet.FixableBeetStruct<
   [
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['seed', beet.u128],
-    ['settingsAuthority', beetSolana.publicKey],
+    ['settings_authority', beetSolana.publicKey],
     ['threshold', beet.u16],
-    ['timeLock', beet.u32],
-    ['transactionIndex', beet.u64],
-    ['staleTransactionIndex', beet.u64],
-    ['archivalAuthority', beet.coption(beetSolana.publicKey)],
-    ['archivableAfter', beet.u64],
+    ['time_lock', beet.u32],
+    ['transaction_index', beet.u64],
+    ['stale_transaction_index', beet.u64],
+    ['archival_authority', beet.coption(beetSolana.publicKey)],
+    ['archivable_after', beet.u64],
     ['bump', beet.u8],
     ['signers', beet.array(smartAccountSignerBeet)],
-    ['accountUtilization', beet.u8],
-    ['reserved1', beet.u8],
-    ['reserved2', beet.u8],
+    ['restricted_signers', beet.array(restrictedSmartAccountSignerBeet)],
+    ['account_utilization', beet.u8],
+    ['_reserved1', beet.u8],
+    ['_reserved2', beet.u8],
   ],
   Settings.fromArgs,
   'Settings'

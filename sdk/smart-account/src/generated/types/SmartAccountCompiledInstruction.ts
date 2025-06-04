@@ -19,8 +19,8 @@ export type SmartAccountCompiledInstruction = {
 export const smartAccountCompiledInstructionBeet =
   new beet.FixableBeetArgsStruct<SmartAccountCompiledInstruction>(
     [
-      ['programIdIndex', beet.u8],
-      ['accountIndexes', beet.bytes],
+      ['program_id_index', beet.u8],
+      ['account_indexes', beet.bytes],
       ['data', beet.bytes],
     ],
     'SmartAccountCompiledInstruction'

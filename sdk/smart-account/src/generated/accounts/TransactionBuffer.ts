@@ -9,11 +9,6 @@ import * as web3 from '@solana/web3.js'
 import * as beetSolana from '@metaplex-foundation/beet-solana'
 import * as beet from '@metaplex-foundation/beet'
 
-/**
- * Arguments used to create {@link TransactionBuffer}
- * @category Accounts
- * @category generated
- */
 export type TransactionBufferArgs = {
   settings: web3.PublicKey
   creator: web3.PublicKey
@@ -165,8 +160,8 @@ export class TransactionBuffer implements TransactionBufferArgs {
    */
   pretty() {
     return {
-      settings: this.settings.toBase58(),
-      creator: this.creator.toBase58(),
+      settings: this.settings,
+      creator: this.creator,
       bufferIndex: this.bufferIndex,
       accountIndex: this.accountIndex,
       finalBufferHash: this.finalBufferHash,
@@ -190,10 +185,10 @@ export const transactionBufferBeet = new beet.FixableBeetStruct<
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['settings', beetSolana.publicKey],
     ['creator', beetSolana.publicKey],
-    ['bufferIndex', beet.u8],
-    ['accountIndex', beet.u8],
-    ['finalBufferHash', beet.uniformFixedSizeArray(beet.u8, 32)],
-    ['finalBufferSize', beet.u16],
+    ['buffer_index', beet.u8],
+    ['account_index', beet.u8],
+    ['final_buffer_hash', beet.uniformFixedSizeArray(beet.u8, 32)],
+    ['final_buffer_size', beet.u16],
     ['buffer', beet.bytes],
   ],
   TransactionBuffer.fromArgs,
