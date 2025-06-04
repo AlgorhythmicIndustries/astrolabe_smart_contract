@@ -12,10 +12,15 @@ import {
   SmartAccountSigner,
   smartAccountSignerBeet,
 } from './SmartAccountSigner'
+import {
+  RestrictedSmartAccountSigner,
+  restrictedSmartAccountSignerBeet,
+} from './RestrictedSmartAccountSigner'
 export type CreateSmartAccountArgs = {
   settingsAuthority: beet.COption<web3.PublicKey>
   threshold: number
   signers: SmartAccountSigner[]
+  restrictedSigners: RestrictedSmartAccountSigner[]
   timeLock: number
   rentCollector: beet.COption<web3.PublicKey>
   memo: beet.COption<string>
@@ -31,6 +36,7 @@ export const createSmartAccountArgsBeet =
       ['settingsAuthority', beet.coption(beetSolana.publicKey)],
       ['threshold', beet.u16],
       ['signers', beet.array(smartAccountSignerBeet)],
+      ['restrictedSigners', beet.array(restrictedSmartAccountSignerBeet)],
       ['timeLock', beet.u32],
       ['rentCollector', beet.coption(beetSolana.publicKey)],
       ['memo', beet.coption(beet.utf8String)],

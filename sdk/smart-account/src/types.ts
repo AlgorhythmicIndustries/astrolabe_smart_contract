@@ -28,7 +28,12 @@ export const Permission = {
   Execute: 0b0000_0100,
 } as const;
 
+export const RestrictedPermission = {
+  EmergencyExit: 0b0000_0001,
+} as const;
+
 export type Permission = typeof Permission[keyof typeof Permission];
+export type RestrictedPermission = typeof RestrictedPermission[keyof typeof RestrictedPermission];
 
 export class Permissions implements IPermissions {
   private constructor(readonly mask: number) {}
@@ -49,6 +54,29 @@ export class Permissions implements IPermissions {
   }
 
   static has(permissions: IPermissions, permission: Permission) {
+    return (permissions.mask & permission) === permission;
+  }
+}
+
+export class RestrictedPermissions implements IPermissions {
+  private constructor(readonly mask: number) {}
+
+  static fromRestrictedPermissions(permissions: RestrictedPermission[]) {
+    return new RestrictedPermissions(
+      permissions.reduce((mask, permission) => mask | permission, 0)
+    );
+  }
+
+  static all() {
+    return new RestrictedPermissions(
+      Object.values(RestrictedPermission).reduce(
+        (mask, permission) => mask | permission, 
+        0
+      )
+    );
+  }
+
+  static has(permissions: IPermissions, permission: RestrictedPermission) {
     return (permissions.mask & permission) === permission;
   }
 }

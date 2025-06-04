@@ -21,10 +21,10 @@ export type CreateTransactionBufferArgs = {
 export const createTransactionBufferArgsBeet =
   new beet.FixableBeetArgsStruct<CreateTransactionBufferArgs>(
     [
-      ['bufferIndex', beet.u8],
-      ['accountIndex', beet.u8],
-      ['finalBufferHash', beet.uniformFixedSizeArray(beet.u8, 32)],
-      ['finalBufferSize', beet.u16],
+      ['buffer_index', beet.u8],
+      ['account_index', beet.u8],
+      ['final_buffer_hash', beet.uniformFixedSizeArray(beet.u8, 32)],
+      ['final_buffer_size', beet.u16],
       ['buffer', beet.bytes],
     ],
     'CreateTransactionBufferArgs'

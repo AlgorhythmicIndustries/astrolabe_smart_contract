@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import {
   SettingsAction,
-  createCreateSettingsTransactionInstruction,
+  createSettingsTransactionInstruction,
   PROGRAM_ID,
 } from "../generated";
 import { getTransactionPda } from "../pda";
@@ -31,7 +31,7 @@ export function createSettingsTransaction({
     programId,
   });
 
-  return createCreateSettingsTransactionInstruction(
+  return createSettingsTransactionInstruction(
     {
       settings: settingsPda,
       transaction: transactionPda,

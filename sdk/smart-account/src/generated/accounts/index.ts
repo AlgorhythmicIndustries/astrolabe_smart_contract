@@ -12,20 +12,20 @@ import { Batch } from './Batch'
 import { BatchTransaction } from './BatchTransaction'
 import { ProgramConfig } from './ProgramConfig'
 import { Proposal } from './Proposal'
-import { SettingsTransaction } from './SettingsTransaction'
 import { Settings } from './Settings'
+import { SettingsTransaction } from './SettingsTransaction'
 import { SpendingLimit } from './SpendingLimit'
-import { TransactionBuffer } from './TransactionBuffer'
 import { Transaction } from './Transaction'
+import { TransactionBuffer } from './TransactionBuffer'
 
 export const accountProviders = {
   Batch,
   BatchTransaction,
   ProgramConfig,
   Proposal,
-  SettingsTransaction,
   Settings,
+  SettingsTransaction,
   SpendingLimit,
-  TransactionBuffer,
   Transaction,
+  TransactionBuffer,
 }

@@ -491,4 +491,8 @@ impl RestrictedPermissions {
         }
         Self { mask }
     }
+
+    pub fn has(&self, restricted_permission: RestrictedPermission) -> bool {
+        self.mask & (restricted_permission as u8) != 0
+    }
 }

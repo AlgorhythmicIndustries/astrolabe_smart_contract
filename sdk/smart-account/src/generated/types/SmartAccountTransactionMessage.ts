@@ -32,13 +32,13 @@ export type SmartAccountTransactionMessage = {
 export const smartAccountTransactionMessageBeet =
   new beet.FixableBeetArgsStruct<SmartAccountTransactionMessage>(
     [
-      ['numSigners', beet.u8],
-      ['numWritableSigners', beet.u8],
-      ['numWritableNonSigners', beet.u8],
-      ['accountKeys', beet.array(beetSolana.publicKey)],
+      ['num_signers', beet.u8],
+      ['num_writable_signers', beet.u8],
+      ['num_writable_non_signers', beet.u8],
+      ['account_keys', beet.array(beetSolana.publicKey)],
       ['instructions', beet.array(smartAccountCompiledInstructionBeet)],
       [
-        'addressTableLookups',
+        'address_table_lookups',
         beet.array(smartAccountMessageAddressTableLookupBeet),
       ],
     ],
