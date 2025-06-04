@@ -9,11 +9,6 @@ import * as web3 from '@solana/web3.js'
 import * as beet from '@metaplex-foundation/beet'
 import * as beetSolana from '@metaplex-foundation/beet-solana'
 
-/**
- * Arguments used to create {@link Batch}
- * @category Accounts
- * @category generated
- */
 export type BatchArgs = {
   settings: web3.PublicKey
   creator: web3.PublicKey
@@ -167,20 +162,10 @@ export class Batch implements BatchArgs {
    */
   pretty() {
     return {
-      settings: this.settings.toBase58(),
-      creator: this.creator.toBase58(),
-      rentCollector: this.rentCollector.toBase58(),
-      index: (() => {
-        const x = <{ toNumber: () => number }>this.index
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
+      settings: this.settings,
+      creator: this.creator,
+      rentCollector: this.rentCollector,
+      index: this.index,
       bump: this.bump,
       accountIndex: this.accountIndex,
       accountBump: this.accountBump,
@@ -204,13 +189,13 @@ export const batchBeet = new beet.BeetStruct<
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['settings', beetSolana.publicKey],
     ['creator', beetSolana.publicKey],
-    ['rentCollector', beetSolana.publicKey],
+    ['rent_collector', beetSolana.publicKey],
     ['index', beet.u64],
     ['bump', beet.u8],
-    ['accountIndex', beet.u8],
-    ['accountBump', beet.u8],
+    ['account_index', beet.u8],
+    ['account_bump', beet.u8],
     ['size', beet.u32],
-    ['executedTransactionIndex', beet.u32],
+    ['executed_transaction_index', beet.u32],
   ],
   Batch.fromArgs,
   'Batch'

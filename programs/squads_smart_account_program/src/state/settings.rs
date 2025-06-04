@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
-
 use crate::{errors::*, id, state::*, utils::*, SettingsAction};
+
 pub const MAX_TIME_LOCK: u32 = 3 * 30 * 24 * 60 * 60; // 3 months
 
 #[account]
@@ -45,6 +45,8 @@ pub struct Settings {
     pub bump: u8,
     /// Signers attached to the smart account
     pub signers: Vec<SmartAccountSigner>,
+    // Restricted signers attached to the smart account
+    pub restricted_signers: Vec<RestrictedSmartAccountSigner>,
     /// Counter for how many sub accounts are in use (improves off-chain indexing)
     pub account_utilization: u8,
     // Reserved for future use
@@ -290,7 +292,7 @@ impl Settings {
         self_key: &Pubkey,
         action: &SettingsAction,
         rent: &Rent,
-        rent_payer: &Option<Signer<'info>>,
+        rent_payer: Option<anchor_lang::prelude::Signer<'info>>,
         system_program: &Option<Program<'info, System>>,
         remaining_accounts: &'info [AccountInfo<'info>],
         program_id: &Pubkey,
@@ -432,6 +434,12 @@ pub struct SmartAccountSigner {
     pub permissions: Permissions,
 }
 
+#[derive(AnchorDeserialize, AnchorSerialize, InitSpace, Eq, PartialEq, Clone)]
+pub struct RestrictedSmartAccountSigner {
+    pub key: Pubkey,
+    pub restricted_permissions: RestrictedPermissions,
+}
+
 #[derive(Clone, Copy)]
 pub enum Permission {
     Initiate = 1 << 0,
@@ -439,11 +447,24 @@ pub enum Permission {
     Execute = 1 << 2,
 }
 
+#[derive(Clone, Copy)]
+pub enum RestrictedPermission {
+    EmergencyExit = 1 << 3,
+}
+
 /// Bitmask for permissions.
 #[derive(
     AnchorSerialize, AnchorDeserialize, InitSpace, Eq, PartialEq, Clone, Copy, Default, Debug,
 )]
 pub struct Permissions {
+    pub mask: u8,
+}
+
+#[derive(
+    AnchorSerialize, AnchorDeserialize, InitSpace, Eq, PartialEq, Clone, Copy, Default, Debug,
+)]
+// Bitmask for restricted permissions
+pub struct RestrictedPermissions {
     pub mask: u8,
 }
 
@@ -459,5 +480,19 @@ impl Permissions {
 
     pub fn has(&self, permission: Permission) -> bool {
         self.mask & (permission as u8) != 0
+    }
+}
+
+impl RestrictedPermissions {
+    pub fn from_vec(restricted_permissions: &[RestrictedPermission]) -> Self {
+        let mut mask = 0;
+        for restricted_permission in restricted_permissions {
+            mask |= *restricted_permission as u8;
+        }
+        Self { mask }
+    }
+
+    pub fn has(&self, restricted_permission: RestrictedPermission) -> bool {
+        self.mask & (restricted_permission as u8) != 0
     }
 }

@@ -20,7 +20,7 @@ export type RemoveSignerArgs = {
 export const removeSignerArgsBeet =
   new beet.FixableBeetArgsStruct<RemoveSignerArgs>(
     [
-      ['oldSigner', beetSolana.publicKey],
+      ['old_signer', beetSolana.publicKey],
       ['memo', beet.coption(beet.utf8String)],
     ],
     'RemoveSignerArgs'

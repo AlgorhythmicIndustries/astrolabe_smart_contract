@@ -1,0 +1,391 @@
+   Compiling squads-smart-account-program v0.1.0 (/home/user/Code/squads_SA_fork/programs/squads_smart_account_program)
+warning: unused import: `std::borrow::Borrow`
+ --> programs/squads_smart_account_program/src/instructions/smart_account_create.rs:2:5
+  |
+2 | use std::borrow::Borrow;
+  |     ^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `crate::utils`
+  --> programs/squads_smart_account_program/src/instructions/transaction_close.rs:16:5
+   |
+16 | use crate::utils;
+   |     ^^^^^^^^^^^^
+
+warning: unused import: `anchor_lang::system_program`
+ --> programs/squads_smart_account_program/src/state/proposal.rs:9:5
+  |
+9 | use anchor_lang::system_program;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `anchor_lang::AnchorSerialize`
+ --> programs/squads_smart_account_program/src/state/seeds.rs:1:5
+  |
+1 | use anchor_lang::AnchorSerialize;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `super::Settings`
+ --> programs/squads_smart_account_program/src/state/seeds.rs:3:5
+  |
+3 | use super::Settings;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `SmartAccountSigner`
+ --> programs/squads_smart_account_program/src/events/account_events.rs:3:79
+  |
+3 | use crate::{state::SettingsAction, Settings, SmartAccountCompiledInstruction, SmartAccountSigner, SpendingLimit};
+  |                                                                               ^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated function `anchor_lang::solana_program::borsh0_10::get_instance_packed_len`: Please upgrade to Borsh 1.X and use `v1::get_instance_packed_len` instead
+ --> programs/squads_smart_account_program/src/state/batch.rs:2:45
+  |
+2 | use anchor_lang::solana_program::borsh0_10::get_instance_packed_len;
+  |                                             ^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated function `anchor_lang::solana_program::borsh0_10::get_instance_packed_len`: Please upgrade to Borsh 1.X and use `v1::get_instance_packed_len` instead
+  --> programs/squads_smart_account_program/src/state/batch.rs:68:28
+   |
+68 |         let message_size = get_instance_packed_len(&transaction_message).unwrap_or_default();
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated function `anchor_lang::solana_program::borsh0_10::get_instance_packed_len`: Please upgrade to Borsh 1.X and use `v1::get_instance_packed_len` instead
+ --> programs/squads_smart_account_program/src/state/settings_transaction.rs:2:45
+  |
+2 | use anchor_lang::solana_program::borsh0_10::get_instance_packed_len;
+  |                                             ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated function `anchor_lang::solana_program::borsh0_10::get_instance_packed_len`: Please upgrade to Borsh 1.X and use `v1::get_instance_packed_len` instead
+  --> programs/squads_smart_account_program/src/state/settings_transaction.rs:29:27
+   |
+29 |             .map(|action| get_instance_packed_len(action).unwrap())
+   |                           ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated function `anchor_lang::solana_program::borsh0_10::get_instance_packed_len`: Please upgrade to Borsh 1.X and use `v1::get_instance_packed_len` instead
+ --> programs/squads_smart_account_program/src/state/transaction.rs:2:45
+  |
+2 | use anchor_lang::solana_program::borsh0_10::get_instance_packed_len;
+  |                                             ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated function `anchor_lang::solana_program::borsh0_10::get_instance_packed_len`: Please upgrade to Borsh 1.X and use `v1::get_instance_packed_len` instead
+  --> programs/squads_smart_account_program/src/state/transaction.rs:46:28
+   |
+46 |         let message_size = get_instance_packed_len(&transaction_message).unwrap_or_default();
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused variable: `compiled_instructions`
+  --> programs/squads_smart_account_program/src/instructions/transaction_execute_sync.rs:46:13
+   |
+46 |         let compiled_instructions =
+   |             ^^^^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_compiled_instructions`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `new_archival_authority`
+   --> programs/squads_smart_account_program/src/state/settings.rs:414:17
+    |
+414 |                 new_archival_authority,
+    |                 ^^^^^^^^^^^^^^^^^^^^^^ help: try ignoring the field: `new_archival_authority: _`
+
+warning: unused variable: `i`
+  --> programs/squads_smart_account_program/src/utils/synchronous_transaction_message.rs:39:14
+   |
+39 |         for (i, account) in remaining_accounts.iter().enumerate() {
+   |              ^ help: if this is intentional, prefix it with an underscore: `_i`
+
+warning: `squads-smart-account-program` (lib) generated 15 warnings (run `cargo fix --lib -p squads-smart-account-program` to apply 6 suggestions)
+    Finished `release` profile [optimized] target(s) in 5.18s
+   Compiling squads-smart-account-program v0.1.0 (/home/user/Code/squads_SA_fork/programs/squads_smart_account_program)
+error[E0599]: no function or associated item named `get_full_path` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:135:10
+    |
+135 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u8, anchor_lang::prelude::Pubkey>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `get_full_path` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `get_full_path`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `get_full_path` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:135:10
+    |
+135 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u8, transaction_create::CompiledInstruction>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `get_full_path` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `get_full_path`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `get_full_path` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:135:10
+    |
+135 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u8, transaction_create::MessageAddressTableLookup>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `get_full_path` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `get_full_path`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `create_type` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:135:10
+    |
+135 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u8, anchor_lang::prelude::Pubkey>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `create_type` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `create_type`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `insert_types` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:135:10
+    |
+135 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u8, anchor_lang::prelude::Pubkey>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `insert_types` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `insert_types`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `create_type` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:135:10
+    |
+135 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u8, transaction_create::CompiledInstruction>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `create_type` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `create_type`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `insert_types` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:135:10
+    |
+135 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u8, transaction_create::CompiledInstruction>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `insert_types` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `insert_types`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `create_type` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:135:10
+    |
+135 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u8, transaction_create::MessageAddressTableLookup>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `create_type` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `create_type`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `insert_types` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:135:10
+    |
+135 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u8, transaction_create::MessageAddressTableLookup>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `insert_types` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `insert_types`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `get_full_path` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:153:10
+    |
+153 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u8, u8>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `get_full_path` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `get_full_path`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `get_full_path` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:153:10
+    |
+153 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u16, u8>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `get_full_path` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `get_full_path`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `create_type` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:153:10
+    |
+153 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u8, u8>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `create_type` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `create_type`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `insert_types` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:153:10
+    |
+153 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u8, u8>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `insert_types` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `insert_types`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `create_type` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:153:10
+    |
+153 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u16, u8>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `create_type` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `create_type`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `insert_types` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:153:10
+    |
+153 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u16, u8>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `insert_types` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `insert_types`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `get_full_path` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:164:10
+    |
+164 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u8, u8>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `get_full_path` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `get_full_path`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `create_type` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:164:10
+    |
+164 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u8, u8>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `create_type` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `create_type`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `insert_types` found for struct `small_vec::SmallVec` in the current scope
+   --> programs/squads_smart_account_program/src/instructions/transaction_create.rs:164:10
+    |
+164 | #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+    |          ^^^^^^^^^^^^^^^ function or associated item not found in `small_vec::SmallVec<u8, u8>`
+    |
+   ::: programs/squads_smart_account_program/src/utils/small_vec.rs:12:1
+    |
+12  | pub struct SmallVec<L, T>(Vec<T>, PhantomData<L>);
+    | ------------------------- function or associated item `insert_types` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `insert_types`, perhaps you need to implement it:
+            candidate #1: `anchor_lang::IdlBuild`
+    = note: this error originates in the derive macro `AnchorSerialize` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `squads-smart-account-program` (lib test) due to 24 previous errors
+Error: Building IDL failed. Run `ANCHOR_LOG=true anchor idl build` to see the logs.

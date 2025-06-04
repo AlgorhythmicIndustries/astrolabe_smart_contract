@@ -16,7 +16,6 @@ pub use state::*;
 pub use utils::SmallVec;
 pub use events::*;
 
-pub mod allocator;
 pub mod errors;
 pub mod instructions;
 pub mod state;
@@ -35,10 +34,10 @@ security_txt! {
 }
 
 #[cfg(not(feature = "testing"))]
-declare_id!("SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG");
+declare_id!("7tWVnAHd8LLNDx3nWEzBF3dWYUAVRsASxnTqdhJ9aMML");
 
 #[cfg(feature = "testing")]
-declare_id!("GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD");
+declare_id!("7tWVnAHd8LLNDx3nWEzBF3dWYUAVRsASxnTqdhJ9aMML");
 
 #[program]
 pub mod squads_smart_account_program {

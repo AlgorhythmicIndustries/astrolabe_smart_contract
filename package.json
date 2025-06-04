@@ -28,6 +28,7 @@
 		"typescript": "4.9.4"
 	},
 	"dependencies": {
+		"@metaplex-foundation/solita": "^0.20.1",
 		"@solana/web3.js": "^1.95.5"
 	}
 }

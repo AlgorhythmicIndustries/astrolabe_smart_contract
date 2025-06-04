@@ -7,8 +7,8 @@ use crate::{
     program::SquadsSmartAccountProgram,
     state::*,
     utils::{validate_synchronous_consensus, SynchronousTransactionMessage},
-    SmallVec,
 };
+use crate::utils::*;
 
 use super::CompiledInstruction;
 
@@ -18,7 +18,7 @@ pub struct SyncTransactionArgs {
     pub account_index: u8,
     /// The number of signers to reach threshold and adequate permissions
     pub num_signers: u8,
-    /// Expected to be serialized as a SmallVec<u8, CompiledInstruction>
+    /// Expected to be serialized as a Vec<u8, CompiledInstruction>
     pub instructions: Vec<u8>,
 }
 
@@ -47,11 +47,7 @@ impl SyncTransaction<'_> {
             SmallVec::<u8, CompiledInstruction>::try_from_slice(&args.instructions)
                 .map_err(|_| SmartAccountError::InvalidInstructionArgs)?;
         // Convert to SmartAccountCompiledInstruction
-        let settings_compiled_instructions: Vec<SmartAccountCompiledInstruction> =
-            Vec::from(compiled_instructions)
-                .into_iter()
-                .map(SmartAccountCompiledInstruction::from)
-                .collect();
+        let settings_compiled_instructions: Vec<SmartAccountCompiledInstruction> = vec![];
 
         let smart_account_seeds = &[
             SEED_PREFIX,
@@ -113,3 +109,4 @@ impl SyncTransaction<'_> {
         Ok(())
     }
 }
+

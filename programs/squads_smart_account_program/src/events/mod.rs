@@ -1,5 +1,5 @@
 use anchor_lang::{
-    prelude::borsh::*, prelude::*, solana_program::program::invoke_signed, Discriminator,
+    prelude::*, solana_program::program::invoke_signed, Discriminator,
 };
 
 use crate::LogEventArgs;
@@ -7,7 +7,7 @@ use crate::LogEventArgs;
 pub mod account_events;
 pub use account_events::*;
 
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(AnchorSerialize, AnchorDeserialize)]
 pub enum SmartAccountEvent {
     CreateSmartAccountEvent(CreateSmartAccountEvent),
     SynchronousTransactionEvent(SynchronousTransactionEvent),
@@ -18,6 +18,7 @@ pub enum SmartAccountEvent {
     AuthoritySettingsEvent(AuthoritySettingsEvent),
     AuthorityChangeEvent(AuthorityChangeEvent)
 }
+
 pub struct LogAuthorityInfo<'info> {
     pub authority: AccountInfo<'info>,
     pub authority_seeds: Vec<Vec<u8>>,
@@ -37,12 +38,12 @@ impl SmartAccountEvent {
         let data = LogEventArgs {
             account_seeds: authority_info.authority_seeds.clone(),
             bump: authority_info.bump,
-            event: self.try_to_vec()?,
+            event: AnchorSerialize::try_to_vec(self)?,
         };
         let mut instruction_data =
             Vec::with_capacity(8 + 4 + authority_info.authority_seeds.len() + 4 + data.event.len());
         instruction_data.extend_from_slice(&crate::instruction::LogEvent::DISCRIMINATOR);
-        instruction_data.extend_from_slice(&data.try_to_vec()?);
+        instruction_data.extend_from_slice(&AnchorSerialize::try_to_vec(&data)?);
 
         let ix = anchor_lang::solana_program::instruction::Instruction {
             program_id: authority_info.program.key(),

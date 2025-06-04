@@ -10,11 +10,6 @@ import * as beet from '@metaplex-foundation/beet'
 import * as beetSolana from '@metaplex-foundation/beet-solana'
 import { ProposalStatus, proposalStatusBeet } from '../types/ProposalStatus'
 
-/**
- * Arguments used to create {@link Proposal}
- * @category Accounts
- * @category generated
- */
 export type ProposalArgs = {
   settings: web3.PublicKey
   transactionIndex: beet.bignum
@@ -167,20 +162,10 @@ export class Proposal implements ProposalArgs {
    */
   pretty() {
     return {
-      settings: this.settings.toBase58(),
-      transactionIndex: (() => {
-        const x = <{ toNumber: () => number }>this.transactionIndex
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
-      rentCollector: this.rentCollector.toBase58(),
-      status: this.status.__kind,
+      settings: this.settings,
+      transactionIndex: this.transactionIndex,
+      rentCollector: this.rentCollector,
+      status: this.status,
       bump: this.bump,
       approved: this.approved,
       rejected: this.rejected,
@@ -202,8 +187,8 @@ export const proposalBeet = new beet.FixableBeetStruct<
   [
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['settings', beetSolana.publicKey],
-    ['transactionIndex', beet.u64],
-    ['rentCollector', beetSolana.publicKey],
+    ['transaction_index', beet.u64],
+    ['rent_collector', beetSolana.publicKey],
     ['status', proposalStatusBeet],
     ['bump', beet.u8],
     ['approved', beet.array(beetSolana.publicKey)],
