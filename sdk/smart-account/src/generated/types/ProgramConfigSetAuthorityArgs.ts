@@ -18,6 +18,6 @@ export type ProgramConfigSetAuthorityArgs = {
  */
 export const programConfigSetAuthorityArgsBeet =
   new beet.BeetArgsStruct<ProgramConfigSetAuthorityArgs>(
-    [['newAuthority', beetSolana.publicKey]],
+    [['new_authority', beetSolana.publicKey]],
     'ProgramConfigSetAuthorityArgs'
   )

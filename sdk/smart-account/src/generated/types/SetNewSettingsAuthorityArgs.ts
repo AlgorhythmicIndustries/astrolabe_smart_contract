@@ -20,7 +20,7 @@ export type SetNewSettingsAuthorityArgs = {
 export const setNewSettingsAuthorityArgsBeet =
   new beet.FixableBeetArgsStruct<SetNewSettingsAuthorityArgs>(
     [
-      ['newSettingsAuthority', beetSolana.publicKey],
+      ['new_settings_authority', beetSolana.publicKey],
       ['memo', beet.coption(beet.utf8String)],
     ],
     'SetNewSettingsAuthorityArgs'

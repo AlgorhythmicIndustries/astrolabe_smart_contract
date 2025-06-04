@@ -74,7 +74,7 @@ impl<'info> SyncSettingsTransaction<'info> {
                 &settings_key,
                 action,
                 &rent,
-                &ctx.accounts.rent_payer,
+                ctx.accounts.rent_payer.clone(),
                 &ctx.accounts.system_program,
                 &ctx.remaining_accounts,
                 &ctx.program_id,
@@ -105,9 +105,10 @@ impl<'info> SyncSettingsTransaction<'info> {
                 .iter()
                 .map(|acc| acc.key.clone())
                 .collect::<Vec<_>>(),
-            settings: Settings::try_from_slice(&settings.try_to_vec()?)?,
+            settings: (***settings).clone(),
             changes: args.actions.clone(),
         };
+        
         let log_authority_info = LogAuthorityInfo {
             authority: settings.to_account_info(),
             authority_seeds: get_settings_signer_seeds(settings.seed),

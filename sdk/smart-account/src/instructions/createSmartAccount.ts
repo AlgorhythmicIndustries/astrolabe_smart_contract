@@ -4,7 +4,7 @@ import {
   TransactionInstruction,
 } from "@solana/web3.js";
 import {
-  createCreateSmartAccountInstruction,
+  createSmartAccountInstruction,
   PROGRAM_ID,
   SmartAccountSigner,
 } from "../generated";
@@ -17,6 +17,7 @@ export function createSmartAccount({
   settingsAuthority,
   threshold,
   signers,
+  restrictedSigners,
   timeLock,
   rentCollector,
   memo,
@@ -29,6 +30,7 @@ export function createSmartAccount({
   settingsAuthority: PublicKey | null;
   threshold: number;
   signers: SmartAccountSigner[];
+  restrictedSigners: SmartAccountSigner[];
   timeLock: number;
   rentCollector: PublicKey | null;
   memo?: string;
@@ -41,11 +43,12 @@ export function createSmartAccount({
     isSigner: false,
     isWritable: true,
   };
-  return createCreateSmartAccountInstruction(
+  return createSmartAccountInstruction(
     {
       programConfig: programConfigPda,
       treasury,
       creator,
+      systemProgram: SystemProgram.programId,
       program: programId,
       anchorRemainingAccounts: [
         settingsAccountMeta,

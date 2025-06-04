@@ -117,7 +117,7 @@ impl AddSpendingLimitAsAuthority<'_> {
 
         // Log the event
         let event = AuthoritySettingsEvent {
-            settings: Settings::try_from_slice(&settings.try_to_vec()?)?,
+            settings: (**settings).clone(),
             settings_pubkey: ctx.accounts.settings.key(),
             authority: ctx.accounts.settings_authority.key(),
             change: SettingsAction::AddSpendingLimit {

@@ -19,8 +19,8 @@ export type SyncTransactionArgs = {
 export const syncTransactionArgsBeet =
   new beet.FixableBeetArgsStruct<SyncTransactionArgs>(
     [
-      ['accountIndex', beet.u8],
-      ['numSigners', beet.u8],
+      ['account_index', beet.u8],
+      ['num_signers', beet.u8],
       ['instructions', beet.bytes],
     ],
     'SyncTransactionArgs'

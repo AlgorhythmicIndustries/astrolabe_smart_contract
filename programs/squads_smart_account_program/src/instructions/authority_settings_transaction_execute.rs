@@ -119,7 +119,7 @@ impl ExecuteSettingsTransactionAsAuthority<'_> {
 
         // Log the event
         let event = AuthoritySettingsEvent {
-            settings: Settings::try_from_slice(&settings.try_to_vec()?)?,
+            settings: (**settings).clone(),
             settings_pubkey: settings.key(),
             authority: ctx.accounts.settings_authority.key(),
             change: SettingsAction::AddSigner {
@@ -157,7 +157,7 @@ impl ExecuteSettingsTransactionAsAuthority<'_> {
 
         // Log the event
         let event = AuthoritySettingsEvent {
-            settings: Settings::try_from_slice(&settings.try_to_vec()?)?,
+            settings: (**settings).clone(),
             settings_pubkey: settings.key(),
             authority: ctx.accounts.settings_authority.key(),
             change: SettingsAction::RemoveSigner {
@@ -190,7 +190,7 @@ impl ExecuteSettingsTransactionAsAuthority<'_> {
 
         // Log the event
         let event = AuthoritySettingsEvent {
-            settings: Settings::try_from_slice(&settings.try_to_vec()?)?,
+            settings: (**settings).clone(),
             settings_pubkey: settings.key(),
             authority: ctx.accounts.settings_authority.key(),
             change: SettingsAction::ChangeThreshold {
@@ -223,7 +223,7 @@ impl ExecuteSettingsTransactionAsAuthority<'_> {
 
         // Log the event
         let event = AuthoritySettingsEvent {
-            settings: Settings::try_from_slice(&settings.try_to_vec()?)?,
+            settings: (**settings).clone(),
             settings_pubkey: settings.key(),
             authority: ctx.accounts.settings_authority.key(),
             change: SettingsAction::SetTimeLock {
@@ -259,7 +259,7 @@ impl ExecuteSettingsTransactionAsAuthority<'_> {
 
         // Log the event
         let event = AuthorityChangeEvent {
-            settings: Settings::try_from_slice(&settings.try_to_vec()?)?,
+            settings: (**settings).clone(),
             settings_pubkey: settings.key(),
             authority: ctx.accounts.settings_authority.key(),
             new_authority: Some(args.new_settings_authority),

@@ -20,6 +20,8 @@ pub struct CreateSmartAccountArgs {
     pub threshold: u16,
     /// The signers on the smart account.
     pub signers: Vec<SmartAccountSigner>,
+    /// The restricted signers on the smart account.
+    pub restricted_signers: Vec<RestrictedSmartAccountSigner>,
     /// How many seconds must pass between transaction voting, settlement, and execution.
     pub time_lock: u32,
     /// The address where the rent for the accounts related to executed, rejected, or cancelled
@@ -73,6 +75,9 @@ impl<'info> CreateSmartAccount<'info> {
         let mut signers = args.signers;
         signers.sort_by_key(|m| m.key);
 
+        let mut restricted_signers = args.restricted_signers;
+        restricted_signers.sort_by_key(|m| m.key);
+
         let settings_seed = program_config.smart_account_index.checked_add(1).unwrap();
         let (settings_pubkey, settings_bump) = Pubkey::find_program_address(
             &[
@@ -96,6 +101,7 @@ impl<'info> CreateSmartAccount<'info> {
             archivable_after: 0,
             bump: settings_bump,
             signers,
+            restricted_signers,
             account_utilization: 0,
             _reserved1: 0,
             _reserved2: 0,

@@ -18,7 +18,7 @@ export type SetTimeLockArgs = {
 export const setTimeLockArgsBeet =
   new beet.FixableBeetArgsStruct<SetTimeLockArgs>(
     [
-      ['timeLock', beet.u32],
+      ['time_lock', beet.u32],
       ['memo', beet.coption(beet.utf8String)],
     ],
     'SetTimeLockArgs'

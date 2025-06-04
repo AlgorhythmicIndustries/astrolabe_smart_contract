@@ -22,7 +22,7 @@ export const initProgramConfigArgsBeet =
   new beet.BeetArgsStruct<InitProgramConfigArgs>(
     [
       ['authority', beetSolana.publicKey],
-      ['smartAccountCreationFee', beet.u64],
+      ['smart_account_creation_fee', beet.u64],
       ['treasury', beetSolana.publicKey],
     ],
     'InitProgramConfigArgs'

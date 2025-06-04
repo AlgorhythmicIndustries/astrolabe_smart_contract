@@ -1,16 +1,15 @@
 use anchor_lang::prelude::*;
-use borsh::{BorshDeserialize, BorshSerialize};
 
 use crate::{state::SettingsAction, Settings, SmartAccountCompiledInstruction, SmartAccountSigner, SpendingLimit};
 
 
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct CreateSmartAccountEvent {
     pub new_settings_pubkey: Pubkey,
     pub new_settings_content: Settings,
 }
 
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct SynchronousTransactionEvent {
     pub settings_pubkey: Pubkey,
     pub account_index: u8,
@@ -20,7 +19,7 @@ pub struct SynchronousTransactionEvent {
 }
 
 
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct SynchronousSettingsTransactionEvent {
     pub settings_pubkey: Pubkey,
     pub signers: Vec<Pubkey>,
@@ -28,20 +27,20 @@ pub struct SynchronousSettingsTransactionEvent {
     pub changes: Vec<SettingsAction>
 }
 
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct AddSpendingLimitEvent {
     pub settings_pubkey: Pubkey,
     pub spending_limit_pubkey: Pubkey,
     pub spending_limit: SpendingLimit,
 }
 
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct RemoveSpendingLimitEvent {
     pub settings_pubkey: Pubkey,
     pub spending_limit_pubkey: Pubkey,
 }
 
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct UseSpendingLimitEvent {
     pub settings_pubkey: Pubkey,
     pub spending_limit_pubkey: Pubkey,
@@ -56,7 +55,7 @@ pub struct UseSpendingLimitEvent {
     pub spending_limit: SpendingLimit,
 }
 
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct AuthoritySettingsEvent {
     pub settings: Settings,
     pub settings_pubkey: Pubkey,
@@ -64,7 +63,7 @@ pub struct AuthoritySettingsEvent {
     pub change: SettingsAction
 }
 
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct AuthorityChangeEvent {
     pub settings: Settings,
     pub settings_pubkey: Pubkey,
