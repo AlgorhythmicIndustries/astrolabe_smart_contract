@@ -18,8 +18,8 @@ export type AddTransactionToBatchArgs = {
 export const addTransactionToBatchArgsBeet =
   new beet.FixableBeetArgsStruct<AddTransactionToBatchArgs>(
     [
-      ['ephemeral_signers', beet.u8],
-      ['transaction_message', beet.bytes],
+      ['ephemeralSigners', beet.u8],
+      ['transactionMessage', beet.bytes],
     ],
     'AddTransactionToBatchArgs'
   )

@@ -59,7 +59,7 @@ export const logEventInstructionDiscriminator = [
 export function createLogEventInstruction(
   accounts: LogEventInstructionAccounts,
   args: LogEventInstructionArgs,
-  programId = new web3.PublicKey('SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG')
+  programId = new web3.PublicKey('97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c')
 ) {
   const [data] = log_eventStruct.serialize({
     instructionDiscriminator: logEventInstructionDiscriminator,

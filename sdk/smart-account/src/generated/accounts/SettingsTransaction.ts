@@ -95,7 +95,7 @@ export class SettingsTransaction implements SettingsTransactionArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG'
+      '97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, settingsTransactionBeet)
@@ -184,7 +184,7 @@ export const settingsTransactionBeet = new beet.FixableBeetStruct<
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['settings', beetSolana.publicKey],
     ['creator', beetSolana.publicKey],
-    ['rent_collector', beetSolana.publicKey],
+    ['rentCollector', beetSolana.publicKey],
     ['index', beet.u64],
     ['bump', beet.u8],
     ['actions', beet.array(settingsActionBeet)],

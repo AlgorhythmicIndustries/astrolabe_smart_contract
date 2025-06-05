@@ -20,7 +20,7 @@ export type SyncSettingsTransactionArgs = {
 export const syncSettingsTransactionArgsBeet =
   new beet.FixableBeetArgsStruct<SyncSettingsTransactionArgs>(
     [
-      ['num_signers', beet.u8],
+      ['numSigners', beet.u8],
       ['actions', beet.array(settingsActionBeet)],
       ['memo', beet.coption(beet.utf8String)],
     ],

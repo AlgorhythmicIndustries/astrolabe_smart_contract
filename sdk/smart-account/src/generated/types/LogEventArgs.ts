@@ -18,7 +18,7 @@ export type LogEventArgs = {
  */
 export const logEventArgsBeet = new beet.FixableBeetArgsStruct<LogEventArgs>(
   [
-    ['account_seeds', beet.array(beet.bytes)],
+    ['accountSeeds', beet.array(beet.bytes)],
     ['bump', beet.u8],
     ['event', beet.bytes],
   ],

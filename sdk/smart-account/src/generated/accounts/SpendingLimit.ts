@@ -109,7 +109,7 @@ export class SpendingLimit implements SpendingLimitArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG'
+      '97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, spendingLimitBeet)
@@ -204,12 +204,12 @@ export const spendingLimitBeet = new beet.FixableBeetStruct<
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['settings', beetSolana.publicKey],
     ['seed', beetSolana.publicKey],
-    ['account_index', beet.u8],
+    ['accountIndex', beet.u8],
     ['mint', beetSolana.publicKey],
     ['amount', beet.u64],
     ['period', periodBeet],
-    ['remaining_amount', beet.u64],
-    ['last_reset', beet.i64],
+    ['remainingAmount', beet.u64],
+    ['lastReset', beet.i64],
     ['bump', beet.u8],
     ['signers', beet.array(beetSolana.publicKey)],
     ['destinations', beet.array(beetSolana.publicKey)],

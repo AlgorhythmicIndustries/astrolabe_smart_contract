@@ -73,7 +73,7 @@ export const addSpendingLimitAsAuthorityInstructionDiscriminator = [
 export function createAddSpendingLimitAsAuthorityInstruction(
   accounts: AddSpendingLimitAsAuthorityInstructionAccounts,
   args: AddSpendingLimitAsAuthorityInstructionArgs,
-  programId = new web3.PublicKey('SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG')
+  programId = new web3.PublicKey('97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c')
 ) {
   const [data] = add_spending_limit_as_authorityStruct.serialize({
     instructionDiscriminator:

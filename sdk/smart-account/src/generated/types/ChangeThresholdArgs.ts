@@ -18,7 +18,7 @@ export type ChangeThresholdArgs = {
 export const changeThresholdArgsBeet =
   new beet.FixableBeetArgsStruct<ChangeThresholdArgs>(
     [
-      ['new_threshold', beet.u16],
+      ['newThreshold', beet.u16],
       ['memo', beet.coption(beet.utf8String)],
     ],
     'ChangeThresholdArgs'

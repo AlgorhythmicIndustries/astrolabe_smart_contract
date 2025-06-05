@@ -67,10 +67,10 @@ export const smartAccountInstructionDiscriminator = [
  * @category SmartAccount
  * @category generated
  */
-export function createSmartAccountInstruction(
+export function SmartAccountInstruction(
   accounts: SmartAccountInstructionAccounts,
   args: SmartAccountInstructionArgs,
-  programId = new web3.PublicKey('SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG')
+  programId = new web3.PublicKey('97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c')
 ) {
   const [data] = create_smart_accountStruct.serialize({
     instructionDiscriminator: smartAccountInstructionDiscriminator,
@@ -79,18 +79,18 @@ export function createSmartAccountInstruction(
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.programConfig,
-      isWritable: false,
+      isWritable: true,
       isSigner: false,
     },
     {
       pubkey: accounts.treasury,
-      isWritable: false,
+      isWritable: true,
       isSigner: false,
     },
     {
       pubkey: accounts.creator,
-      isWritable: false,
-      isSigner: false,
+      isWritable: true,
+      isSigner: true,
     },
     {
       pubkey: accounts.systemProgram,

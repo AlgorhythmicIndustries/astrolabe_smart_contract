@@ -87,7 +87,7 @@ export class ProgramConfig implements ProgramConfigArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG'
+      '97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, programConfigBeet)
@@ -171,11 +171,11 @@ export const programConfigBeet = new beet.BeetStruct<
 >(
   [
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['smart_account_index', beet.u128],
+    ['smartAccountIndex', beet.u128],
     ['authority', beetSolana.publicKey],
-    ['smart_account_creation_fee', beet.u64],
+    ['smartAccountCreationFee', beet.u64],
     ['treasury', beetSolana.publicKey],
-    ['_reserved', beet.uniformFixedSizeArray(beet.u8, 64)],
+    ['Reserved', beet.uniformFixedSizeArray(beet.u8, 64)],
   ],
   ProgramConfig.fromArgs,
   'ProgramConfig'

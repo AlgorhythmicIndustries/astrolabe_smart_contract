@@ -67,10 +67,10 @@ export const settingsTransactionInstructionDiscriminator = [
  * @category SettingsTransaction
  * @category generated
  */
-export function createSettingsTransactionInstruction(
+export function SettingsTransactionInstruction(
   accounts: SettingsTransactionInstructionAccounts,
   args: SettingsTransactionInstructionArgs,
-  programId = new web3.PublicKey('SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG')
+  programId = new web3.PublicKey('97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c')
 ) {
   const [data] = create_settings_transactionStruct.serialize({
     instructionDiscriminator: settingsTransactionInstructionDiscriminator,
