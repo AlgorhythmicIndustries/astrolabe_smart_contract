@@ -16,6 +16,6 @@ export type ProgramConfigSetSmartAccountCreationFeeArgs = {
  */
 export const programConfigSetSmartAccountCreationFeeArgsBeet =
   new beet.BeetArgsStruct<ProgramConfigSetSmartAccountCreationFeeArgs>(
-    [['new_smart_account_creation_fee', beet.u64]],
+    [['newSmartAccountCreationFee', beet.u64]],
     'ProgramConfigSetSmartAccountCreationFeeArgs'
   )

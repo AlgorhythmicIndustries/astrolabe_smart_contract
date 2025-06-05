@@ -47,7 +47,7 @@ export const activateProposalInstructionDiscriminator = [
  */
 export function createActivateProposalInstruction(
   accounts: ActivateProposalInstructionAccounts,
-  programId = new web3.PublicKey('SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG')
+  programId = new web3.PublicKey('97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c')
 ) {
   const [data] = activate_proposalStruct.serialize({
     instructionDiscriminator: activateProposalInstructionDiscriminator,

@@ -1,14 +1,17 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "es2022",
+    "module": "commonjs",
     "moduleResolution": "node",
     "lib": ["es2015", "DOM"],
     "allowJs": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true,
     "outDir": "lib",
     "declaration": true,
-    "strict": true
+    "strict": true,
+    "types": ["node","mocha"]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "createSmartAccount.ts"]
 }

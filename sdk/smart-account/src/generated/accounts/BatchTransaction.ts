@@ -88,7 +88,7 @@ export class BatchTransaction implements BatchTransactionArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG'
+      '97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, batchTransactionBeet)
@@ -174,8 +174,8 @@ export const batchTransactionBeet = new beet.FixableBeetStruct<
   [
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['bump', beet.u8],
-    ['rent_collector', beetSolana.publicKey],
-    ['ephemeral_signer_bumps', beet.bytes],
+    ['rentCollector', beetSolana.publicKey],
+    ['ephemeralSignerBumps', beet.bytes],
     ['message', smartAccountTransactionMessageBeet],
   ],
   BatchTransaction.fromArgs,

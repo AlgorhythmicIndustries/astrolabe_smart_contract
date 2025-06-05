@@ -20,9 +20,9 @@ export type CreateTransactionArgs = {
 export const createTransactionArgsBeet =
   new beet.FixableBeetArgsStruct<CreateTransactionArgs>(
     [
-      ['account_index', beet.u8],
-      ['ephemeral_signers', beet.u8],
-      ['transaction_message', beet.bytes],
+      ['accountIndex', beet.u8],
+      ['ephemeralSigners', beet.u8],
+      ['transactionMessage', beet.bytes],
       ['memo', beet.coption(beet.utf8String)],
     ],
     'CreateTransactionArgs'

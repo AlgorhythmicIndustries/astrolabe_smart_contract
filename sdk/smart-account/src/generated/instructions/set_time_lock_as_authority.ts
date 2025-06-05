@@ -70,7 +70,7 @@ export const setTimeLockAsAuthorityInstructionDiscriminator = [
 export function createSetTimeLockAsAuthorityInstruction(
   accounts: SetTimeLockAsAuthorityInstructionAccounts,
   args: SetTimeLockAsAuthorityInstructionArgs,
-  programId = new web3.PublicKey('SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG')
+  programId = new web3.PublicKey('97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c')
 ) {
   const [data] = set_time_lock_as_authorityStruct.serialize({
     instructionDiscriminator: setTimeLockAsAuthorityInstructionDiscriminator,
