@@ -99,7 +99,7 @@ export class Batch implements BatchArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG'
+      '97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, batchBeet)
@@ -189,13 +189,13 @@ export const batchBeet = new beet.BeetStruct<
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['settings', beetSolana.publicKey],
     ['creator', beetSolana.publicKey],
-    ['rent_collector', beetSolana.publicKey],
+    ['rentCollector', beetSolana.publicKey],
     ['index', beet.u64],
     ['bump', beet.u8],
-    ['account_index', beet.u8],
-    ['account_bump', beet.u8],
+    ['accountIndex', beet.u8],
+    ['accountBump', beet.u8],
     ['size', beet.u32],
-    ['executed_transaction_index', beet.u32],
+    ['executedTransactionIndex', beet.u32],
   ],
   Batch.fromArgs,
   'Batch'

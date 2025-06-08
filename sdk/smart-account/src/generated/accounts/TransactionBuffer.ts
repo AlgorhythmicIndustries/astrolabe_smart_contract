@@ -95,7 +95,7 @@ export class TransactionBuffer implements TransactionBufferArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG'
+      '97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, transactionBufferBeet)
@@ -185,10 +185,10 @@ export const transactionBufferBeet = new beet.FixableBeetStruct<
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['settings', beetSolana.publicKey],
     ['creator', beetSolana.publicKey],
-    ['buffer_index', beet.u8],
-    ['account_index', beet.u8],
-    ['final_buffer_hash', beet.uniformFixedSizeArray(beet.u8, 32)],
-    ['final_buffer_size', beet.u16],
+    ['bufferIndex', beet.u8],
+    ['accountIndex', beet.u8],
+    ['finalBufferHash', beet.uniformFixedSizeArray(beet.u8, 32)],
+    ['finalBufferSize', beet.u16],
     ['buffer', beet.bytes],
   ],
   TransactionBuffer.fromArgs,

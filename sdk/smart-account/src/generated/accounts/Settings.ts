@@ -122,7 +122,7 @@ export class Settings implements SettingsArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG'
+      '97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, settingsBeet)
@@ -218,19 +218,19 @@ export const settingsBeet = new beet.FixableBeetStruct<
   [
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['seed', beet.u128],
-    ['settings_authority', beetSolana.publicKey],
+    ['settingsAuthority', beetSolana.publicKey],
     ['threshold', beet.u16],
-    ['time_lock', beet.u32],
-    ['transaction_index', beet.u64],
-    ['stale_transaction_index', beet.u64],
-    ['archival_authority', beet.coption(beetSolana.publicKey)],
-    ['archivable_after', beet.u64],
+    ['timeLock', beet.u32],
+    ['transactionIndex', beet.u64],
+    ['staleTransactionIndex', beet.u64],
+    ['archivalAuthority', beet.coption(beetSolana.publicKey)],
+    ['archivableAfter', beet.u64],
     ['bump', beet.u8],
     ['signers', beet.array(smartAccountSignerBeet)],
-    ['restricted_signers', beet.array(restrictedSmartAccountSignerBeet)],
-    ['account_utilization', beet.u8],
-    ['_reserved1', beet.u8],
-    ['_reserved2', beet.u8],
+    ['restrictedSigners', beet.array(restrictedSmartAccountSignerBeet)],
+    ['accountUtilization', beet.u8],
+    ['Reserved1', beet.u8],
+    ['Reserved2', beet.u8],
   ],
   Settings.fromArgs,
   'Settings'

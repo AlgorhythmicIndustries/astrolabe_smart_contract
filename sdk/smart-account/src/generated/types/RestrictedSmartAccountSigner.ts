@@ -25,7 +25,7 @@ export const restrictedSmartAccountSignerBeet =
   new beet.BeetArgsStruct<RestrictedSmartAccountSigner>(
     [
       ['key', beetSolana.publicKey],
-      ['restricted_permissions', restrictedPermissionsBeet],
+      ['restrictedPermissions', restrictedPermissionsBeet],
     ],
     'RestrictedSmartAccountSigner'
   )

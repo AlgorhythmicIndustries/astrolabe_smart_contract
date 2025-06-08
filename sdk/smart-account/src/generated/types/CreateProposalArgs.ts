@@ -18,7 +18,7 @@ export type CreateProposalArgs = {
 export const createProposalArgsBeet =
   new beet.BeetArgsStruct<CreateProposalArgs>(
     [
-      ['transaction_index', beet.u64],
+      ['transactionIndex', beet.u64],
       ['draft', beet.bool],
     ],
     'CreateProposalArgs'

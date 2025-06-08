@@ -21,9 +21,9 @@ export type SmartAccountMessageAddressTableLookup = {
 export const smartAccountMessageAddressTableLookupBeet =
   new beet.FixableBeetArgsStruct<SmartAccountMessageAddressTableLookup>(
     [
-      ['account_key', beetSolana.publicKey],
-      ['writable_indexes', beet.bytes],
-      ['readonly_indexes', beet.bytes],
+      ['accountKey', beetSolana.publicKey],
+      ['writableIndexes', beet.bytes],
+      ['readonlyIndexes', beet.bytes],
     ],
     'SmartAccountMessageAddressTableLookup'
   )

@@ -74,7 +74,7 @@ export const setNewSettingsAuthorityAsAuthorityInstructionDiscriminator = [
 export function createSetNewSettingsAuthorityAsAuthorityInstruction(
   accounts: SetNewSettingsAuthorityAsAuthorityInstructionAccounts,
   args: SetNewSettingsAuthorityAsAuthorityInstructionArgs,
-  programId = new web3.PublicKey('SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG')
+  programId = new web3.PublicKey('97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c')
 ) {
   const [data] = set_new_settings_authority_as_authorityStruct.serialize({
     instructionDiscriminator:
