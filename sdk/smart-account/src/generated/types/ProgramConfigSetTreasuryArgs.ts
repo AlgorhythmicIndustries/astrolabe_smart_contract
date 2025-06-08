@@ -18,6 +18,6 @@ export type ProgramConfigSetTreasuryArgs = {
  */
 export const programConfigSetTreasuryArgsBeet =
   new beet.BeetArgsStruct<ProgramConfigSetTreasuryArgs>(
-    [['new_treasury', beetSolana.publicKey]],
+    [['newTreasury', beetSolana.publicKey]],
     'ProgramConfigSetTreasuryArgs'
   )

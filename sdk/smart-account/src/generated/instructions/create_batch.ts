@@ -64,10 +64,10 @@ export const batchInstructionDiscriminator = [
  * @category Batch
  * @category generated
  */
-export function createBatchInstruction(
+export function BatchInstruction(
   accounts: BatchInstructionAccounts,
   args: BatchInstructionArgs,
-  programId = new web3.PublicKey('SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG')
+  programId = new web3.PublicKey('97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c')
 ) {
   const [data] = create_batchStruct.serialize({
     instructionDiscriminator: batchInstructionDiscriminator,

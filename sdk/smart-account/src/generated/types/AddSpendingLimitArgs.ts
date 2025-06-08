@@ -29,7 +29,7 @@ export const addSpendingLimitArgsBeet =
   new beet.FixableBeetArgsStruct<AddSpendingLimitArgs>(
     [
       ['seed', beetSolana.publicKey],
-      ['account_index', beet.u8],
+      ['accountIndex', beet.u8],
       ['mint', beetSolana.publicKey],
       ['amount', beet.u64],
       ['period', periodBeet],

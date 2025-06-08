@@ -97,7 +97,7 @@ export class Proposal implements ProposalArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG'
+      '97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, proposalBeet)
@@ -187,8 +187,8 @@ export const proposalBeet = new beet.FixableBeetStruct<
   [
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['settings', beetSolana.publicKey],
-    ['transaction_index', beet.u64],
-    ['rent_collector', beetSolana.publicKey],
+    ['transactionIndex', beet.u64],
+    ['rentCollector', beetSolana.publicKey],
     ['status', proposalStatusBeet],
     ['bump', beet.u8],
     ['approved', beet.array(beetSolana.publicKey)],

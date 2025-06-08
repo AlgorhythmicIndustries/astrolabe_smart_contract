@@ -66,7 +66,7 @@ export const initializeProgramConfigInstructionDiscriminator = [
 export function createInitializeProgramConfigInstruction(
   accounts: InitializeProgramConfigInstructionAccounts,
   args: InitializeProgramConfigInstructionArgs,
-  programId = new web3.PublicKey('SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG')
+  programId = new web3.PublicKey('97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c')
 ) {
   const [data] = initialize_program_configStruct.serialize({
     instructionDiscriminator: initializeProgramConfigInstructionDiscriminator,
@@ -75,13 +75,13 @@ export function createInitializeProgramConfigInstruction(
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.programConfig,
-      isWritable: false,
+      isWritable: true,
       isSigner: false,
     },
     {
       pubkey: accounts.initializer,
-      isWritable: false,
-      isSigner: false,
+      isWritable: true,
+      isSigner: true,
     },
     {
       pubkey: accounts.systemProgram,

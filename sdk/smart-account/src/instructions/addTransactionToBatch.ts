@@ -2,6 +2,7 @@ import {
   AddressLookupTableAccount,
   PublicKey,
   TransactionMessage,
+  SystemProgram,
 } from "@solana/web3.js";
 import { createAddTransactionToBatchInstruction, PROGRAM_ID } from "../generated";
 import {
@@ -22,7 +23,7 @@ export function addTransactionToBatch({
   ephemeralSigners,
   transactionMessage,
   addressLookupTableAccounts,
-  programId = PROGRAM_ID,
+  programId = SystemProgram.programId,
 }: {
   accountIndex: number;
   settingsPda: PublicKey;

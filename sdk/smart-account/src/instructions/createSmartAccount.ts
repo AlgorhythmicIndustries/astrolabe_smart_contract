@@ -2,11 +2,13 @@ import {
   AccountMeta,
   PublicKey,
   TransactionInstruction,
+  SystemProgram,
 } from "@solana/web3.js";
 import {
-  createSmartAccountInstruction,
+  SmartAccountInstruction,
   PROGRAM_ID,
   SmartAccountSigner,
+  RestrictedSmartAccountSigner,
 } from "../generated";
 import { getProgramConfigPda } from "../pda";
 
@@ -30,7 +32,7 @@ export function createSmartAccount({
   settingsAuthority: PublicKey | null;
   threshold: number;
   signers: SmartAccountSigner[];
-  restrictedSigners: SmartAccountSigner[];
+  restrictedSigners: RestrictedSmartAccountSigner[];
   timeLock: number;
   rentCollector: PublicKey | null;
   memo?: string;
@@ -38,28 +40,33 @@ export function createSmartAccount({
   remainingAccounts?: AccountMeta[];
 }): TransactionInstruction {
   const programConfigPda = getProgramConfigPda({ programId })[0];
-  const settingsAccountMeta: AccountMeta = {
-    pubkey: settings ?? PublicKey.default,
-    isSigner: false,
-    isWritable: true,
-  };
-  return createSmartAccountInstruction(
+  const anchorRemainingAccounts: AccountMeta[] = [
+    ...(settings
+      ? [
+          {
+            pubkey: settings,
+            isSigner: false,
+            isWritable: true,
+          },
+        ]
+      : []),
+    ...(remainingAccounts ?? []),
+  ];
+  return SmartAccountInstruction(
     {
       programConfig: programConfigPda,
       treasury,
       creator,
       systemProgram: SystemProgram.programId,
       program: programId,
-      anchorRemainingAccounts: [
-        settingsAccountMeta,
-        ...(remainingAccounts ?? []),
-      ],
+      anchorRemainingAccounts,
     },
     {
       args: {
         settingsAuthority,
         threshold,
         signers,
+        restrictedSigners,
         timeLock,
         rentCollector,
         memo: memo ?? null,

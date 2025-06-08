@@ -20,7 +20,7 @@ export type SetArchivalAuthorityArgs = {
 export const setArchivalAuthorityArgsBeet =
   new beet.FixableBeetArgsStruct<SetArchivalAuthorityArgs>(
     [
-      ['new_archival_authority', beet.coption(beetSolana.publicKey)],
+      ['newArchivalAuthority', beet.coption(beetSolana.publicKey)],
       ['memo', beet.coption(beet.utf8String)],
     ],
     'SetArchivalAuthorityArgs'

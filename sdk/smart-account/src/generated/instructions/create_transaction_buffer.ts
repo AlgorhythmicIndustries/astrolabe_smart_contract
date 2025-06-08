@@ -67,10 +67,10 @@ export const transactionBufferInstructionDiscriminator = [
  * @category TransactionBuffer
  * @category generated
  */
-export function createTransactionBufferInstruction(
+export function TransactionBufferInstruction(
   accounts: TransactionBufferInstructionAccounts,
   args: TransactionBufferInstructionArgs,
-  programId = new web3.PublicKey('SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG')
+  programId = new web3.PublicKey('97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c')
 ) {
   const [data] = create_transaction_bufferStruct.serialize({
     instructionDiscriminator: transactionBufferInstructionDiscriminator,

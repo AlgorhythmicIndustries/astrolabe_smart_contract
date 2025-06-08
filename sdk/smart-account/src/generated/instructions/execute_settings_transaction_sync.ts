@@ -72,7 +72,7 @@ export const executeSettingsTransactionSyncInstructionDiscriminator = [
 export function createExecuteSettingsTransactionSyncInstruction(
   accounts: ExecuteSettingsTransactionSyncInstructionAccounts,
   args: ExecuteSettingsTransactionSyncInstructionArgs,
-  programId = new web3.PublicKey('SMRTzfY6DfH5ik3TKiyLFfXexV8uSG3d2UksSCYdunG')
+  programId = new web3.PublicKey('97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c')
 ) {
   const [data] = execute_settings_transaction_syncStruct.serialize({
     instructionDiscriminator:
