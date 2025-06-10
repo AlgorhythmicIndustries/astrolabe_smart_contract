@@ -4,7 +4,7 @@ use anchor_lang::prelude::*;
 use crate::{
     errors::*,
     events::*,
-    program::SquadsSmartAccountProgram,
+    program::AstrolabeSmartAccountProgram,
     state::*,
     utils::{validate_synchronous_consensus, SynchronousTransactionMessage},
 };
@@ -29,7 +29,7 @@ pub struct SyncTransaction<'info> {
         bump = settings.bump,
     )]
     pub settings: Box<Account<'info, Settings>>,
-    pub program: Program<'info, SquadsSmartAccountProgram>,
+    pub program: Program<'info, AstrolabeSmartAccountProgram>,
     // `remaining_accounts` must include the following accounts in the exact order:
     // 1. The exact amount of signers required to reach the threshold
     // 2. Any remaining accounts associated with the instructions

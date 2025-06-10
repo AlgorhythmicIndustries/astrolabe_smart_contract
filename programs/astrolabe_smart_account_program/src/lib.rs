@@ -33,7 +33,7 @@ use pinocchio::{
   
 // lazy_program_entrypoint!(process_instruction);
 default_allocator!();
-default_panic_handler!();
+//default_panic_handler!();
 
 // pub fn process_instruction(
 // mut context: InstructionContext
@@ -65,23 +65,23 @@ default_panic_handler!();
 
 #[cfg(not(feature = "no-entrypoint"))]
 security_txt! {
-    name: "Squads Smart Account Program",
-    project_url: "https://squads.so",
-    contacts: "email:security@sqds.io,email:contact@osec.io",
-    policy: "https://github.com/Squads-Protocol/smart-account-program/blob/main/SECURITY.md",
+    name: "Astrolabe Smart Account Program",
+    project_url: "https://astrolabefinance.com",
+    contacts: "email:security@astrolabefinance.com",
+    policy: "",
     preferred_languages: "en",
-    source_code: "https://github.com/squads-protocol/smart-account-program",
-    auditors: "OtterSec, Certora"
+    source_code: "https://github.com/greefum/squads_SA_fork",
+    auditors: ""
 }
 
 #[cfg(not(feature = "testing"))]
-declare_id!("7tWVnAHd8LLNDx3nWEzBF3dWYUAVRsASxnTqdhJ9aMML");
+declare_id!("97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c");
 
 #[cfg(feature = "testing")]
 declare_id!("7tWVnAHd8LLNDx3nWEzBF3dWYUAVRsASxnTqdhJ9aMML");
 
 #[program]
-pub mod squads_smart_account_program {
+pub mod astrolabe_smart_account_program {
 
     use super::*;
 

@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 use crate::{
-    errors::*, program::SquadsSmartAccountProgram, state::*, AuthorityChangeEvent,
+    errors::*, program::AstrolabeSmartAccountProgram, state::*, AuthorityChangeEvent,
     AuthoritySettingsEvent, LogAuthorityInfo, SmartAccountEvent,
 };
 
@@ -67,7 +67,7 @@ pub struct ExecuteSettingsTransactionAsAuthority<'info> {
 
     /// We might need it in case reallocation is needed.
     pub system_program: Option<Program<'info, System>>,
-    pub program: Program<'info, SquadsSmartAccountProgram>,
+    pub program: Program<'info, AstrolabeSmartAccountProgram>,
 }
 
 impl ExecuteSettingsTransactionAsAuthority<'_> {

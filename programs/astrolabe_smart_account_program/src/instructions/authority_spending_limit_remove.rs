@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 use crate::errors::*;
-use crate::program::SquadsSmartAccountProgram;
+use crate::program::AstrolabeSmartAccountProgram;
 use crate::state::*;
 use crate::AuthoritySettingsEvent;
 use crate::LogAuthorityInfo;
@@ -32,7 +32,7 @@ pub struct RemoveSpendingLimitAsAuthority<'info> {
     #[account(mut)]
     pub rent_collector: AccountInfo<'info>,
 
-    pub program: Program<'info, SquadsSmartAccountProgram>,
+    pub program: Program<'info, AstrolabeSmartAccountProgram>,
 }
 
 impl RemoveSpendingLimitAsAuthority<'_> {

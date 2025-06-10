@@ -5,7 +5,7 @@ use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
 
 use crate::errors::*;
 use crate::events::*;
-use crate::program::SquadsSmartAccountProgram;
+use crate::program::AstrolabeSmartAccountProgram;
 use crate::state::*;
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
@@ -87,7 +87,7 @@ pub struct UseSpendingLimit<'info> {
     /// In case `spending_limit.mint` is an SPL token.
     pub token_program: Option<Interface<'info, TokenInterface>>,
 
-    pub program: Program<'info, SquadsSmartAccountProgram>,
+    pub program: Program<'info, AstrolabeSmartAccountProgram>,
 }
 
 impl UseSpendingLimit<'_> {

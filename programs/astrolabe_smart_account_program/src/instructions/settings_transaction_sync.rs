@@ -1,7 +1,7 @@
 use account_events::{AddSpendingLimitEvent, RemoveSpendingLimitEvent};
 use anchor_lang::prelude::*;
 
-use crate::{errors::*, events::*, program::SquadsSmartAccountProgram, state::*, utils::*};
+use crate::{errors::*, events::*, program::AstrolabeSmartAccountProgram, state::*, utils::*};
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct SyncSettingsTransactionArgs {
@@ -32,7 +32,7 @@ pub struct SyncSettingsTransaction<'info> {
     // `remaining_accounts` must include the following accounts in the exact order:
     // 1. The amount of signers specified in `num_signers`
     // 2. Any SpendingLimit accounts that need to be initialized/closed based on actions
-    pub program: Program<'info, SquadsSmartAccountProgram>,
+    pub program: Program<'info, AstrolabeSmartAccountProgram>,
 }
 
 impl<'info> SyncSettingsTransaction<'info> {

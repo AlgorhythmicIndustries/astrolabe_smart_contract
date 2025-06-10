@@ -89,7 +89,7 @@ impl Settings {
             system_program,
             &crate::ID,
             &rent,
-            Settings::size(self.signers.len()),
+            Settings::size(self.signers.len(), self.restricted_signers.len()),
             vec![
                 SEED_PREFIX.to_vec(),
                 SEED_SETTINGS.to_vec(),
@@ -101,7 +101,7 @@ impl Settings {
         Ok(settings_account_info)
     }
 
-    pub fn size(signers_length: usize) -> usize {
+    pub fn size(signers_length: usize, restricted_signers_length: usize) -> usize {
         8  + // anchor account discriminator
         16 + // seed
         32 + // settings_authority
@@ -115,6 +115,8 @@ impl Settings {
         1  + // bump
         4  + // signers vector length
         signers_length * SmartAccountSigner::INIT_SPACE + // signers
+        4  + // restricted_signers vector length
+        restricted_signers_length * RestrictedSmartAccountSigner::INIT_SPACE + // restricted_signers
         1  + // sub_account_utilization
         1  + // _reserved_1
         1 // _reserved_2
@@ -157,7 +159,7 @@ impl Settings {
         );
 
         let current_account_size = settings.data.borrow().len();
-        let account_size_to_fit_signers = Settings::size(signers_length);
+        let account_size_to_fit_signers = Settings::size(signers_length, 0); // Note: This function doesn't handle restricted signers reallocation
 
         // Check if we need to reallocate space.
         if current_account_size >= account_size_to_fit_signers {
