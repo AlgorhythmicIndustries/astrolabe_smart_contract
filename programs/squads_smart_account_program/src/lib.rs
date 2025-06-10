@@ -33,7 +33,7 @@ use pinocchio::{
   
 // lazy_program_entrypoint!(process_instruction);
 default_allocator!();
-default_panic_handler!();
+//default_panic_handler!();
 
 // pub fn process_instruction(
 // mut context: InstructionContext

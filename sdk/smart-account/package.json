@@ -28,6 +28,7 @@
     "@solana/spl-token": "^0.3.6",
     "@solana/web3.js": "^1.70.3",
     "assert": "^2.0.0",
+    "bn.js": "^5.2.2",
     "buffer": "6.0.3",
     "invariant": "2.2.4"
   },
