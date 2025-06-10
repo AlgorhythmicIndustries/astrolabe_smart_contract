@@ -1,13 +1,13 @@
 [package]
-name = "squads-smart-account-program"
+name = "astrolabe-smart-account-program"
 version = "0.1.0"
-description = "Squads Smart Account Program V0.1"
+description = "Astrolabe Smart Account Program V0.1"
 edition = "2021"
 license-file = "../../LICENSE"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "squads_smart_account_program"
+name = "astrolabe_smart_account_program"
 
 [features]
 default = ["custom-heap"]

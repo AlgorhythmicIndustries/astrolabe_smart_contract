@@ -13,9 +13,10 @@
 	"devDependencies": {
 		"@solana/spl-memo": "^0.2.3",
 		"@solana/spl-token": "*",
-		"@types/bn.js": "5.1.0",
+		"@types/bn.js": "^5.1.0",
 		"@types/mocha": "10.0.1",
 		"@types/node-fetch": "2.6.2",
+		"bn.js": "^5.2.2",
 		"mocha": "10.2.0",
 		"prettier": "2.6.2",
 		"ts-node": "10.9.1",

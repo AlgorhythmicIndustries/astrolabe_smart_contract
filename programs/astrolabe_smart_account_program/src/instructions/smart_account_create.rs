@@ -8,7 +8,7 @@ use anchor_lang::solana_program::native_token::LAMPORTS_PER_SOL;
 
 use crate::errors::SmartAccountError;
 use crate::events::*;
-use crate::program::SquadsSmartAccountProgram;
+use crate::program::AstrolabeSmartAccountProgram;
 use crate::state::*;
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
@@ -48,7 +48,7 @@ pub struct CreateSmartAccount<'info> {
     pub creator: Signer<'info>,
 
     pub system_program: Program<'info, System>,
-    pub program: Program<'info, SquadsSmartAccountProgram>,
+    pub program: Program<'info, AstrolabeSmartAccountProgram>,
 }
 
 impl<'info> CreateSmartAccount<'info> {

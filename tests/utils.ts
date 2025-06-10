@@ -24,7 +24,7 @@ export function getTestProgramId() {
         readFileSync(
           path.join(
             __dirname,
-            "../target/deploy/squads_smart_account_program-keypair.json"
+            "../target/deploy/astrolabe_smart_account_program-keypair.json"
           ),
           "utf-8"
         )

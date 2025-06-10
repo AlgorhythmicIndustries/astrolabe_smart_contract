@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::program::SquadsSmartAccountProgram;
+use crate::program::AstrolabeSmartAccountProgram;
 use crate::{state::*, LogAuthorityInfo, SmartAccountEvent};
 use crate::{errors::*, AuthoritySettingsEvent};
 
@@ -63,7 +63,7 @@ pub struct AddSpendingLimitAsAuthority<'info> {
     pub rent_payer: Signer<'info>,
 
     pub system_program: Program<'info, System>,
-    pub program: Program<'info, SquadsSmartAccountProgram>,
+    pub program: Program<'info, AstrolabeSmartAccountProgram>,
 }
 
 impl AddSpendingLimitAsAuthority<'_> {

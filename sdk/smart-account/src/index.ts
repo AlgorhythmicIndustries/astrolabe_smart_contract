@@ -1,5 +1,9 @@
 export * as generated from "./generated/index.js";
 export { PROGRAM_ID, PROGRAM_ADDRESS } from "./generated/index.js";
+/** Simplified client for smart account operations */
+export { SmartAccountClient } from "./SmartAccountClient.js";
+/** Transaction builder for cross-service workflows */
+export { TransactionBuilder, SerializableTransaction } from "./TransactionBuilder.js";
 /** Program accounts */
 export * as accounts from "./accounts.js";
 /** Error parsing utils for the multisig program. */
