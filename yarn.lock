@@ -253,7 +253,7 @@
     rpc-websockets "^9.0.2"
     superstruct "^2.0.2"
 
-"@sqds/smart-account@file:/home/user/Code/squads_SA_fork/sdk/smart-account":
+"@sqds/smart-account@file:/home/pdm/smart-account-program/sdk/smart-account":
   version "2.1.2"
   resolved "file:sdk/smart-account"
   dependencies:
@@ -263,6 +263,7 @@
     "@solana/spl-token" "^0.3.6"
     "@solana/web3.js" "^1.70.3"
     assert "^2.0.0"
+    bn.js "^5.2.2"
     buffer "6.0.3"
     invariant "2.2.4"
 
