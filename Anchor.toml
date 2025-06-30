@@ -1,13 +1,13 @@
 [toolchain]
 anchor_version = "0.31.1" # `anchor-cli` version to use
-solana_version = "2.2.1" # Solana version to use
+solana_version = "2.1.21" # Solana version to use
 
 [features]
 seeds = false
 skip-lint = false
 
 [programs.localnet]
-multisig = "SMRTe6bnZAgJmXt9aJin7XgAzDn1XMHGNy95QATyzpk"
+astrolabe_smart_account_program = "GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD"
 
 [registry]
 url = "https://api.apr.dev"
@@ -15,13 +15,6 @@ url = "https://api.apr.dev"
 [provider]
 cluster = "localnet"
 wallet = "~/.config/solana/id.json"
-
-[test.validator]
-url = "https://api.devnet.solana.com"
-
-[[test.validator.account]]
-address = "8UuqDAqe9UQx9e9Sjj4Gs3msrWGfzb4CJHGK3U3tcCEX"
-filename = "tests/fixtures/pre-rent-collector/multisig-account.json"
 
 [scripts]
 test = "npx mocha --node-option require=ts-node/register --extension ts -t 1000000 tests/index.ts"
