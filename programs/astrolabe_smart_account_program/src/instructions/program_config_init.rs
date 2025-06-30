@@ -4,10 +4,10 @@ use anchor_lang::solana_program::pubkey;
 
 use crate::state::*;
 
-/// This is a key controlled by the Squads team and is intended to use for the single
+/// This is a key controlled by the Astrolabe team and is intended to use for the single
 /// transaction that initializes the global program config. It is not used for anything else.
 #[cfg(not(feature = "testing"))]
-const INITIALIZER: Pubkey = pubkey!("3NPYW4hb519Zs4MpDZE84wKtWmxpFBd7Qic9XdAccyGU");
+const INITIALIZER: Pubkey = pubkey!("BrQAbGdWQ9YUHmWWgKFdFe4miTURH71jkYFPXfaosqDv");
 
 #[cfg(feature = "testing")]
 const INITIALIZER: Pubkey = pubkey!("BrQAbGdWQ9YUHmWWgKFdFe4miTURH71jkYFPXfaosqDv");

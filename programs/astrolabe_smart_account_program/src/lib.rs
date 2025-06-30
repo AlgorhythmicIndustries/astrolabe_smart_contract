@@ -75,10 +75,10 @@ security_txt! {
 }
 
 #[cfg(not(feature = "testing"))]
-declare_id!("97Xsunnsy4C6EET3V3cd2bSd1ArLcdUcihD8CKEjdS4c");
+declare_id!("GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD");
 
 #[cfg(feature = "testing")]
-declare_id!("7tWVnAHd8LLNDx3nWEzBF3dWYUAVRsASxnTqdhJ9aMML");
+declare_id!("GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD");
 
 #[program]
 pub mod astrolabe_smart_account_program {
