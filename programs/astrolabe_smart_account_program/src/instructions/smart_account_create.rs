@@ -38,6 +38,20 @@ pub struct CreateSmartAccount<'info> {
     #[account(mut, seeds = [SEED_PREFIX, SEED_PROGRAM_CONFIG], bump)]
     pub program_config: Account<'info, ProgramConfig>,
 
+    /// The settings account for the smart account.
+    #[account(
+        init,
+        payer = creator,
+        seeds = [
+            SEED_PREFIX,
+            SEED_SETTINGS,
+            (program_config.smart_account_index + 1).to_le_bytes().as_ref()
+        ],
+        bump,
+        space = 8 + 1016
+    )]
+    pub settings: Account<'info, Settings>,
+
     /// The treasury where the creation fee is transferred to.
     /// CHECK: validation is performed in the `MultisigCreate::validate()` method.
     #[account(mut)]
@@ -70,6 +84,16 @@ impl<'info> CreateSmartAccount<'info> {
         ctx: Context<'_, '_, 'info, 'info, Self>,
         args: CreateSmartAccountArgs,
     ) -> Result<()> {
+        msg!("--- Debug: CreateSmartAccount ---");
+        msg!("Required accounts:");
+        msg!("  program_config: {}", ctx.accounts.program_config.key());
+        msg!("  treasury: {}", ctx.accounts.treasury.key());
+        msg!("  creator: {}", ctx.accounts.creator.key());
+        msg!("  system_program: {}", ctx.accounts.system_program.key());
+        msg!("  program: {}", ctx.accounts.program.key());
+        msg!("  settings: {}", ctx.accounts.settings.key());
+        msg!("--- End Debug: CreateSmartAccount ---");
+
         let program_config = &mut ctx.accounts.program_config;
         // Sort the members by pubkey.
         let mut signers = args.signers;
@@ -78,47 +102,23 @@ impl<'info> CreateSmartAccount<'info> {
         let mut restricted_signers = args.restricted_signers;
         restricted_signers.sort_by_key(|m| m.key);
 
-        let settings_seed = program_config.smart_account_index.checked_add(1).unwrap();
-        let (settings_pubkey, settings_bump) = Pubkey::find_program_address(
-            &[
-                SEED_PREFIX,
-                SEED_SETTINGS,
-                settings_seed.to_le_bytes().as_ref(),
-            ],
-            &crate::ID,
-        );
-        // Initialize the settings
-        let settings_configuration = Settings {
-            seed: settings_seed,
-            settings_authority: args.settings_authority.unwrap_or_default(),
-            threshold: args.threshold,
-            time_lock: args.time_lock,
-            transaction_index: 0,
-            stale_transaction_index: 0,
-            // Preset to Pubkey::default() until archival feature is implemented.
-            archival_authority: Some(Pubkey::default()),
-            // Preset to 0 until archival feature is implemented.
-            archivable_after: 0,
-            bump: settings_bump,
-            signers,
-            restricted_signers,
-            account_utilization: 0,
-            _reserved1: 0,
-            _reserved2: 0,
-        };
+        let settings = &mut ctx.accounts.settings;
+        settings.seed = program_config.smart_account_index.checked_add(1).unwrap();
+        settings.settings_authority = args.settings_authority.unwrap_or_default();
+        settings.threshold = args.threshold;
+        settings.time_lock = args.time_lock;
+        settings.transaction_index = 0;
+        settings.stale_transaction_index = 0;
+        settings.archival_authority = Some(Pubkey::default());
+        settings.archivable_after = 0;
+        settings.bump = ctx.bumps.settings;
+        settings.signers = signers;
+        settings.restricted_signers = restricted_signers;
+        settings.account_utilization = 0;
+        settings._reserved1 = 0;
+        settings._reserved2 = 0;
 
-        // Initialize the settings account with the configuration.
-        let settings_account_info = settings_configuration.find_and_initialize_settings_account(
-            settings_pubkey,
-            &ctx.accounts.creator.to_account_info(),
-            &ctx.remaining_accounts,
-            &ctx.accounts.system_program,
-        )?;
-        // Serialize the settings account.
-        settings_configuration
-            .try_serialize(&mut &mut settings_account_info.data.borrow_mut()[..])?;
-
-        settings_configuration.invariant()?;
+        settings.invariant()?;
 
         // Check if the creation fee is set and transfer the fee to the treasury if necessary.
         let creation_fee = program_config.smart_account_creation_fee;
@@ -142,13 +142,13 @@ impl<'info> CreateSmartAccount<'info> {
 
         // Log Smart Account Creation
         let event = CreateSmartAccountEvent {
-            new_settings_pubkey: settings_pubkey,
-            new_settings_content: settings_configuration.clone(),
+            new_settings_pubkey: settings.key(),
+            new_settings_content: settings.clone().into_inner(),
         };
         let log_authority_info = LogAuthorityInfo {
-            authority: settings_account_info.clone(),
-            authority_seeds: get_settings_signer_seeds(settings_seed),
-            bump: settings_bump,
+            authority: settings.to_account_info(),
+            authority_seeds: get_settings_signer_seeds(settings.seed),
+            bump: settings.bump,
             program: ctx.accounts.program.to_account_info(),
         };
         SmartAccountEvent::CreateSmartAccountEvent(event).log(&log_authority_info)?;

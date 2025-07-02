@@ -1,0 +1,11 @@
+{
+    "name": "squads-sa-sdk",
+    "version": "0.1.0",
+    "main": "index.js",
+    "types": "index.d.ts",
+    "license": "MIT",
+    "dependencies": {
+        "@solana-program/compute-budget": "^0.8.0",
+        "@solana/kit": "^2.1.1"
+    }
+}

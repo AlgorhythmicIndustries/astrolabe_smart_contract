@@ -12,7 +12,7 @@ import {
   type SOLANA_ERROR__INSTRUCTION_ERROR__CUSTOM,
   type SolanaError,
 } from '@solana/kit';
-import { ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS } from '../programs';
+import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 
 /** AccountNotEmpty: Account is not empty */
 export const ASTROLABE_SMART_ACCOUNT_PROGRAM_ERROR__ACCOUNT_NOT_EMPTY = 0x1770; // 6000
@@ -269,7 +269,7 @@ export function isAstrolabeSmartAccountProgramError<
   return isProgramError<TProgramErrorCode>(
     error,
     transactionMessage,
-    ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
     code
   );
 }

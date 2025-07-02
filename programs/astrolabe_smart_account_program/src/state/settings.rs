@@ -442,16 +442,16 @@ pub struct RestrictedSmartAccountSigner {
     pub restricted_permissions: RestrictedPermissions,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, AnchorSerialize, AnchorDeserialize)]
 pub enum Permission {
     Initiate = 1 << 0,
     Vote = 1 << 1,
     Execute = 1 << 2,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, AnchorSerialize, AnchorDeserialize)]
 pub enum RestrictedPermission {
-    EmergencyExit = 1 << 3,
+    EmergencyExit = 1 << 0,
 }
 
 /// Bitmask for permissions.
