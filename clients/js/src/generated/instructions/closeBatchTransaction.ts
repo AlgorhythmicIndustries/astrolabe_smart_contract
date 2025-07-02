@@ -27,7 +27,7 @@ import {
   type ReadonlyUint8Array,
   type WritableAccount,
 } from '@solana/kit';
-import { ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS } from '../programs';
+import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
 export const CLOSE_BATCH_TRANSACTION_DISCRIMINATOR = new Uint8Array([
@@ -42,7 +42,7 @@ export function getCloseBatchTransactionDiscriminatorBytes() {
 
 export type CloseBatchTransactionInstruction<
   TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | IAccountMeta<string> = string,
   TAccountProposal extends string | IAccountMeta<string> = string,
   TAccountBatch extends string | IAccountMeta<string> = string,
@@ -142,7 +142,7 @@ export function getCloseBatchTransactionInstruction<
   TAccountTransactionRentCollector extends string,
   TAccountSystemProgram extends string,
   TProgramAddress extends
-    Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
 >(
   input: CloseBatchTransactionInput<
     TAccountSettings,
@@ -164,7 +164,7 @@ export function getCloseBatchTransactionInstruction<
 > {
   // Program address.
   const programAddress =
-    config?.programAddress ?? ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS;
+    config?.programAddress ?? ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
 
   // Original accounts.
   const originalAccounts = {
@@ -216,7 +216,7 @@ export function getCloseBatchTransactionInstruction<
 
 export type ParsedCloseBatchTransactionInstruction<
   TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;

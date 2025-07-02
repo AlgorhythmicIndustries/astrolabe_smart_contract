@@ -41,7 +41,7 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
-import { ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS } from '../programs';
+import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 import {
   getSmartAccountSignerDecoder,
@@ -62,7 +62,7 @@ export function getAddSignerAsAuthorityDiscriminatorBytes() {
 
 export type AddSignerAsAuthorityInstruction<
   TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | IAccountMeta<string> = string,
   TAccountSettingsAuthority extends string | IAccountMeta<string> = string,
   TAccountRentPayer extends string | IAccountMeta<string> = string,
@@ -181,7 +181,7 @@ export function getAddSignerAsAuthorityInstruction<
   TAccountSystemProgram extends string,
   TAccountProgram extends string,
   TProgramAddress extends
-    Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
 >(
   input: AddSignerAsAuthorityInput<
     TAccountSettings,
@@ -201,7 +201,7 @@ export function getAddSignerAsAuthorityInstruction<
 > {
   // Program address.
   const programAddress =
-    config?.programAddress ?? ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS;
+    config?.programAddress ?? ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
 
   // Original accounts.
   const originalAccounts = {
@@ -259,7 +259,7 @@ export function getAddSignerAsAuthorityInstruction<
 
 export type ParsedAddSignerAsAuthorityInstruction<
   TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;
@@ -302,7 +302,7 @@ export function parseAddSignerAsAuthorityInstruction<
   const getNextOptionalAccount = () => {
     const accountMeta = getNextAccount();
     return accountMeta.address ===
-      ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS
+      ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS
       ? undefined
       : accountMeta;
   };

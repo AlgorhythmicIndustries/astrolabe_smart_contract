@@ -34,7 +34,7 @@ import {
   type TransactionSigner,
   type WritableAccount,
 } from '@solana/kit';
-import { ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS } from '../programs';
+import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
 export const EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR = new Uint8Array([
@@ -49,7 +49,7 @@ export function getExtendTransactionBufferDiscriminatorBytes() {
 
 export type ExtendTransactionBufferInstruction<
   TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | IAccountMeta<string> = string,
   TAccountTransactionBuffer extends string | IAccountMeta<string> = string,
   TAccountCreator extends string | IAccountMeta<string> = string,
@@ -128,7 +128,7 @@ export function getExtendTransactionBufferInstruction<
   TAccountTransactionBuffer extends string,
   TAccountCreator extends string,
   TProgramAddress extends
-    Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
 >(
   input: ExtendTransactionBufferInput<
     TAccountSettings,
@@ -144,7 +144,7 @@ export function getExtendTransactionBufferInstruction<
 > {
   // Program address.
   const programAddress =
-    config?.programAddress ?? ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS;
+    config?.programAddress ?? ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
 
   // Original accounts.
   const originalAccounts = {
@@ -186,7 +186,7 @@ export function getExtendTransactionBufferInstruction<
 
 export type ParsedExtendTransactionBufferInstruction<
   TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;

@@ -53,7 +53,7 @@ import {
   type ParsedUseSpendingLimitInstruction,
 } from '../instructions';
 
-export const ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS =
+export const ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS =
   'GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD' as Address<'GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD'>;
 
 export enum AstrolabeSmartAccountProgramAccount {

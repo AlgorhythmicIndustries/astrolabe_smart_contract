@@ -35,7 +35,7 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
-import { ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS } from '../programs';
+import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
 export const INITIALIZE_PROGRAM_CONFIG_DISCRIMINATOR = new Uint8Array([
@@ -50,7 +50,7 @@ export function getInitializeProgramConfigDiscriminatorBytes() {
 
 export type InitializeProgramConfigInstruction<
   TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountProgramConfig extends string | IAccountMeta<string> = string,
   TAccountInitializer extends
     | string
@@ -149,7 +149,7 @@ export async function getInitializeProgramConfigInstructionAsync<
   TAccountInitializer extends string,
   TAccountSystemProgram extends string,
   TProgramAddress extends
-    Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
 >(
   input: InitializeProgramConfigAsyncInput<
     TAccountProgramConfig,
@@ -167,7 +167,7 @@ export async function getInitializeProgramConfigInstructionAsync<
 > {
   // Program address.
   const programAddress =
-    config?.programAddress ?? ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS;
+    config?.programAddress ?? ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
 
   // Original accounts.
   const originalAccounts = {
@@ -250,7 +250,7 @@ export function getInitializeProgramConfigInstruction<
   TAccountInitializer extends string,
   TAccountSystemProgram extends string,
   TProgramAddress extends
-    Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
 >(
   input: InitializeProgramConfigInput<
     TAccountProgramConfig,
@@ -266,7 +266,7 @@ export function getInitializeProgramConfigInstruction<
 > {
   // Program address.
   const programAddress =
-    config?.programAddress ?? ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS;
+    config?.programAddress ?? ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
 
   // Original accounts.
   const originalAccounts = {
@@ -315,7 +315,7 @@ export function getInitializeProgramConfigInstruction<
 
 export type ParsedInitializeProgramConfigInstruction<
   TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;

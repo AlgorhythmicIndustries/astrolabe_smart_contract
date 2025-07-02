@@ -19,7 +19,7 @@ const {
     getInitializeProgramConfigInstruction,
   } = require('../clients/js/src/generated/instructions');
   const {
-    ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   } = require('../clients/js/src/generated/programs');
   
   (async () => {
@@ -33,14 +33,14 @@ const {
     const authoritySigner = await createSignerFromKeyPair(authorityKeypair);
   
     // Initializer: ../test-program-config-initializer-keypair.json (relative to sdk/)
-    const initializerKeypairFile = fs.readFileSync('../test-program-config-initializer-keypair.json');
+    const initializerKeypairFile = fs.readFileSync('/home/user/Code/squads_SA_fork/test-program-config-initializer-keypair.json');
     const initializerKeypairBytes = new Uint8Array(JSON.parse(initializerKeypairFile.toString()));
     const initializerKeypair = await createKeyPairFromBytes(initializerKeypairBytes);
     const initializerSigner = await createSignerFromKeyPair(initializerKeypair);
   
     // Derive PDAs
     const [programConfigPda] = await getProgramDerivedAddress({
-      programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+      programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
       seeds: [
         new Uint8Array(Buffer.from('smart_account')),
         new Uint8Array(Buffer.from('program_config')),
@@ -48,7 +48,7 @@ const {
     });
   
     const [treasuryPda] = await getProgramDerivedAddress({
-      programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+      programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
       seeds: [
         new Uint8Array(Buffer.from('smart_account')),
         new Uint8Array(Buffer.from('treasury')),

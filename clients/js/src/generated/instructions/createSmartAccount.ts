@@ -47,7 +47,7 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
-import { ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS } from '../programs';
+import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 import {
   getRestrictedSmartAccountSignerDecoder,
@@ -72,8 +72,9 @@ export function getCreateSmartAccountDiscriminatorBytes() {
 
 export type CreateSmartAccountInstruction<
   TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountProgramConfig extends string | IAccountMeta<string> = string,
+  TAccountSettings extends string | IAccountMeta<string> = string,
   TAccountTreasury extends string | IAccountMeta<string> = string,
   TAccountCreator extends string | IAccountMeta<string> = string,
   TAccountSystemProgram extends
@@ -90,6 +91,9 @@ export type CreateSmartAccountInstruction<
       TAccountProgramConfig extends string
         ? WritableAccount<TAccountProgramConfig>
         : TAccountProgramConfig,
+      TAccountSettings extends string
+        ? WritableAccount<TAccountSettings>
+        : TAccountSettings,
       TAccountTreasury extends string
         ? WritableAccount<TAccountTreasury>
         : TAccountTreasury,
@@ -209,6 +213,7 @@ export function getCreateSmartAccountInstructionDataCodec(): Codec<
 
 export type CreateSmartAccountAsyncInput<
   TAccountProgramConfig extends string = string,
+  TAccountSettings extends string = string,
   TAccountTreasury extends string = string,
   TAccountCreator extends string = string,
   TAccountSystemProgram extends string = string,
@@ -216,6 +221,8 @@ export type CreateSmartAccountAsyncInput<
 > = {
   /** Global program config account. */
   programConfig?: Address<TAccountProgramConfig>;
+  /** The settings account for the smart account. */
+  settings: Address<TAccountSettings>;
   /** The treasury where the creation fee is transferred to. */
   treasury: Address<TAccountTreasury>;
   /** The creator of the smart account. */
@@ -233,15 +240,17 @@ export type CreateSmartAccountAsyncInput<
 
 export async function getCreateSmartAccountInstructionAsync<
   TAccountProgramConfig extends string,
+  TAccountSettings extends string,
   TAccountTreasury extends string,
   TAccountCreator extends string,
   TAccountSystemProgram extends string,
   TAccountProgram extends string,
   TProgramAddress extends
-    Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
 >(
   input: CreateSmartAccountAsyncInput<
     TAccountProgramConfig,
+    TAccountSettings,
     TAccountTreasury,
     TAccountCreator,
     TAccountSystemProgram,
@@ -252,6 +261,7 @@ export async function getCreateSmartAccountInstructionAsync<
   CreateSmartAccountInstruction<
     TProgramAddress,
     TAccountProgramConfig,
+    TAccountSettings,
     TAccountTreasury,
     TAccountCreator,
     TAccountSystemProgram,
@@ -260,11 +270,12 @@ export async function getCreateSmartAccountInstructionAsync<
 > {
   // Program address.
   const programAddress =
-    config?.programAddress ?? ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS;
+    config?.programAddress ?? ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
 
   // Original accounts.
   const originalAccounts = {
     programConfig: { value: input.programConfig ?? null, isWritable: true },
+    settings: { value: input.settings ?? null, isWritable: true },
     treasury: { value: input.treasury ?? null, isWritable: true },
     creator: { value: input.creator ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
@@ -309,6 +320,7 @@ export async function getCreateSmartAccountInstructionAsync<
   const instruction = {
     accounts: [
       getAccountMeta(accounts.programConfig),
+      getAccountMeta(accounts.settings),
       getAccountMeta(accounts.treasury),
       getAccountMeta(accounts.creator),
       getAccountMeta(accounts.systemProgram),
@@ -321,6 +333,7 @@ export async function getCreateSmartAccountInstructionAsync<
   } as CreateSmartAccountInstruction<
     TProgramAddress,
     TAccountProgramConfig,
+    TAccountSettings,
     TAccountTreasury,
     TAccountCreator,
     TAccountSystemProgram,
@@ -332,6 +345,7 @@ export async function getCreateSmartAccountInstructionAsync<
 
 export type CreateSmartAccountInput<
   TAccountProgramConfig extends string = string,
+  TAccountSettings extends string = string,
   TAccountTreasury extends string = string,
   TAccountCreator extends string = string,
   TAccountSystemProgram extends string = string,
@@ -339,6 +353,8 @@ export type CreateSmartAccountInput<
 > = {
   /** Global program config account. */
   programConfig: Address<TAccountProgramConfig>;
+  /** The settings account for the smart account. */
+  settings: Address<TAccountSettings>;
   /** The treasury where the creation fee is transferred to. */
   treasury: Address<TAccountTreasury>;
   /** The creator of the smart account. */
@@ -356,15 +372,17 @@ export type CreateSmartAccountInput<
 
 export function getCreateSmartAccountInstruction<
   TAccountProgramConfig extends string,
+  TAccountSettings extends string,
   TAccountTreasury extends string,
   TAccountCreator extends string,
   TAccountSystemProgram extends string,
   TAccountProgram extends string,
   TProgramAddress extends
-    Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
 >(
   input: CreateSmartAccountInput<
     TAccountProgramConfig,
+    TAccountSettings,
     TAccountTreasury,
     TAccountCreator,
     TAccountSystemProgram,
@@ -374,6 +392,7 @@ export function getCreateSmartAccountInstruction<
 ): CreateSmartAccountInstruction<
   TProgramAddress,
   TAccountProgramConfig,
+  TAccountSettings,
   TAccountTreasury,
   TAccountCreator,
   TAccountSystemProgram,
@@ -381,11 +400,12 @@ export function getCreateSmartAccountInstruction<
 > {
   // Program address.
   const programAddress =
-    config?.programAddress ?? ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS;
+    config?.programAddress ?? ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
 
   // Original accounts.
   const originalAccounts = {
     programConfig: { value: input.programConfig ?? null, isWritable: true },
+    settings: { value: input.settings ?? null, isWritable: true },
     treasury: { value: input.treasury ?? null, isWritable: true },
     creator: { value: input.creator ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
@@ -413,6 +433,7 @@ export function getCreateSmartAccountInstruction<
   const instruction = {
     accounts: [
       getAccountMeta(accounts.programConfig),
+      getAccountMeta(accounts.settings),
       getAccountMeta(accounts.treasury),
       getAccountMeta(accounts.creator),
       getAccountMeta(accounts.systemProgram),
@@ -425,6 +446,7 @@ export function getCreateSmartAccountInstruction<
   } as CreateSmartAccountInstruction<
     TProgramAddress,
     TAccountProgramConfig,
+    TAccountSettings,
     TAccountTreasury,
     TAccountCreator,
     TAccountSystemProgram,
@@ -436,19 +458,21 @@ export function getCreateSmartAccountInstruction<
 
 export type ParsedCreateSmartAccountInstruction<
   TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_PROGRAM_ADDRESS,
+    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;
   accounts: {
     /** Global program config account. */
     programConfig: TAccountMetas[0];
+    /** The settings account for the smart account. */
+    settings: TAccountMetas[1];
     /** The treasury where the creation fee is transferred to. */
-    treasury: TAccountMetas[1];
+    treasury: TAccountMetas[2];
     /** The creator of the smart account. */
-    creator: TAccountMetas[2];
-    systemProgram: TAccountMetas[3];
-    program: TAccountMetas[4];
+    creator: TAccountMetas[3];
+    systemProgram: TAccountMetas[4];
+    program: TAccountMetas[5];
   };
   data: CreateSmartAccountInstructionData;
 };
@@ -461,7 +485,7 @@ export function parseCreateSmartAccountInstruction<
     IInstructionWithAccounts<TAccountMetas> &
     IInstructionWithData<Uint8Array>
 ): ParsedCreateSmartAccountInstruction<TProgram, TAccountMetas> {
-  if (instruction.accounts.length < 5) {
+  if (instruction.accounts.length < 6) {
     // TODO: Coded error.
     throw new Error('Not enough accounts');
   }
@@ -475,6 +499,7 @@ export function parseCreateSmartAccountInstruction<
     programAddress: instruction.programAddress,
     accounts: {
       programConfig: getNextAccount(),
+      settings: getNextAccount(),
       treasury: getNextAccount(),
       creator: getNextAccount(),
       systemProgram: getNextAccount(),
