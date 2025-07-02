@@ -48,8 +48,7 @@ export function getExtendTransactionBufferDiscriminatorBytes() {
 }
 
 export type ExtendTransactionBufferInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | IAccountMeta<string> = string,
   TAccountTransactionBuffer extends string | IAccountMeta<string> = string,
   TAccountCreator extends string | IAccountMeta<string> = string,
@@ -185,8 +184,7 @@ export function getExtendTransactionBufferInstruction<
 }
 
 export type ParsedExtendTransactionBufferInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;

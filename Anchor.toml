@@ -7,7 +7,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-astrolabe_smart_account_program = "GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD"
+astrolabe_smart_account = "BNz2Ja9gXc6WSWJo1zsTBcbX6uDERZk9ExKJFBi862BS"
 
 [registry]
 url = "https://api.apr.dev"

@@ -61,8 +61,7 @@ export function getAddSignerAsAuthorityDiscriminatorBytes() {
 }
 
 export type AddSignerAsAuthorityInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | IAccountMeta<string> = string,
   TAccountSettingsAuthority extends string | IAccountMeta<string> = string,
   TAccountRentPayer extends string | IAccountMeta<string> = string,
@@ -258,8 +257,7 @@ export function getAddSignerAsAuthorityInstruction<
 }
 
 export type ParsedAddSignerAsAuthorityInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;
@@ -301,8 +299,7 @@ export function parseAddSignerAsAuthorityInstruction<
   };
   const getNextOptionalAccount = () => {
     const accountMeta = getNextAccount();
-    return accountMeta.address ===
-      ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS
+    return accountMeta.address === ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS
       ? undefined
       : accountMeta;
   };

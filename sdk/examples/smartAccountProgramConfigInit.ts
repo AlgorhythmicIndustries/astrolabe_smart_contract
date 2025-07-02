@@ -70,6 +70,8 @@ async function main() {
     console.error('Initializer has no balance. Airdrop may have failed.');
     return;
   }
+
+  console.log('Astrolabe Smart Account Program Address:', ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS);
   // --- End Balance Check ---
 
   // Derive program config PDA

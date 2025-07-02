@@ -45,8 +45,7 @@ export function getSetProgramConfigSmartAccountCreationFeeDiscriminatorBytes() {
 }
 
 export type SetProgramConfigSmartAccountCreationFeeInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountProgramConfig extends string | IAccountMeta<string> = string,
   TAccountAuthority extends string | IAccountMeta<string> = string,
   TRemainingAccounts extends readonly IAccountMeta<string>[] = [],
@@ -249,8 +248,7 @@ export function getSetProgramConfigSmartAccountCreationFeeInstruction<
 }
 
 export type ParsedSetProgramConfigSmartAccountCreationFeeInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;

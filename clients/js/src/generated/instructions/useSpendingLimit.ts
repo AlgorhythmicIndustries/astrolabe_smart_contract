@@ -58,8 +58,7 @@ export function getUseSpendingLimitDiscriminatorBytes() {
 }
 
 export type UseSpendingLimitInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | IAccountMeta<string> = string,
   TAccountSigner extends string | IAccountMeta<string> = string,
   TAccountSpendingLimit extends string | IAccountMeta<string> = string,
@@ -341,8 +340,7 @@ export function getUseSpendingLimitInstruction<
 }
 
 export type ParsedUseSpendingLimitInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;
@@ -391,8 +389,7 @@ export function parseUseSpendingLimitInstruction<
   };
   const getNextOptionalAccount = () => {
     const accountMeta = getNextAccount();
-    return accountMeta.address ===
-      ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS
+    return accountMeta.address === ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS
       ? undefined
       : accountMeta;
   };

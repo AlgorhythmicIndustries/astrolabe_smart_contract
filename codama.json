@@ -1,5 +1,5 @@
 {
-    "idl": "target/idl/astrolabe_smart_account_program.json",
+    "idl": "target/idl/astrolabe_smart_account.json",
     "before": [],
     "scripts": {
         "js": {

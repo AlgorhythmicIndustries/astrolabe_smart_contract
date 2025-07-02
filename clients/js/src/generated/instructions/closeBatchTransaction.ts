@@ -41,8 +41,7 @@ export function getCloseBatchTransactionDiscriminatorBytes() {
 }
 
 export type CloseBatchTransactionInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | IAccountMeta<string> = string,
   TAccountProposal extends string | IAccountMeta<string> = string,
   TAccountBatch extends string | IAccountMeta<string> = string,
@@ -215,8 +214,7 @@ export function getCloseBatchTransactionInstruction<
 }
 
 export type ParsedCloseBatchTransactionInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;

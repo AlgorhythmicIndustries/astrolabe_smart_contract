@@ -54,8 +54,7 @@ export function getRemoveSpendingLimitAsAuthorityDiscriminatorBytes() {
 }
 
 export type RemoveSpendingLimitAsAuthorityInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | IAccountMeta<string> = string,
   TAccountSettingsAuthority extends string | IAccountMeta<string> = string,
   TAccountSpendingLimit extends string | IAccountMeta<string> = string,
@@ -234,8 +233,7 @@ export function getRemoveSpendingLimitAsAuthorityInstruction<
 }
 
 export type ParsedRemoveSpendingLimitAsAuthorityInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;
