@@ -57,8 +57,7 @@ export function getChangeThresholdAsAuthorityDiscriminatorBytes() {
 }
 
 export type ChangeThresholdAsAuthorityInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | IAccountMeta<string> = string,
   TAccountSettingsAuthority extends string | IAccountMeta<string> = string,
   TAccountRentPayer extends string | IAccountMeta<string> = string,
@@ -254,8 +253,7 @@ export function getChangeThresholdAsAuthorityInstruction<
 }
 
 export type ParsedChangeThresholdAsAuthorityInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;
@@ -297,8 +295,7 @@ export function parseChangeThresholdAsAuthorityInstruction<
   };
   const getNextOptionalAccount = () => {
     const accountMeta = getNextAccount();
-    return accountMeta.address ===
-      ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS
+    return accountMeta.address === ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS
       ? undefined
       : accountMeta;
   };

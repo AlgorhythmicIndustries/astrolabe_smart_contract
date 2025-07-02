@@ -50,8 +50,7 @@ export function getRejectProposalDiscriminatorBytes() {
 }
 
 export type RejectProposalInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | IAccountMeta<string> = string,
   TAccountSigner extends string | IAccountMeta<string> = string,
   TAccountProposal extends string | IAccountMeta<string> = string,
@@ -200,8 +199,7 @@ export function getRejectProposalInstruction<
 }
 
 export type ParsedRejectProposalInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;
@@ -234,8 +232,7 @@ export function parseRejectProposalInstruction<
   };
   const getNextOptionalAccount = () => {
     const accountMeta = getNextAccount();
-    return accountMeta.address ===
-      ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS
+    return accountMeta.address === ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS
       ? undefined
       : accountMeta;
   };

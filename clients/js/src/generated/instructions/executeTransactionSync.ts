@@ -46,8 +46,7 @@ export function getExecuteTransactionSyncDiscriminatorBytes() {
 }
 
 export type ExecuteTransactionSyncInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | IAccountMeta<string> = string,
   TAccountProgram extends
     | string
@@ -190,8 +189,7 @@ export function getExecuteTransactionSyncInstruction<
 }
 
 export type ParsedExecuteTransactionSyncInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;

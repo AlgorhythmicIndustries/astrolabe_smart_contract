@@ -33,6 +33,7 @@ import {
 export type CreateTransactionArgs = {
   /** Index of the smart account this transaction belongs to. */
   accountIndex: number;
+  accountBump: number;
   /** Number of ephemeral signing PDAs required by the transaction. */
   ephemeralSigners: number;
   transactionMessage: ReadonlyUint8Array;
@@ -42,6 +43,7 @@ export type CreateTransactionArgs = {
 export type CreateTransactionArgsArgs = {
   /** Index of the smart account this transaction belongs to. */
   accountIndex: number;
+  accountBump: number;
   /** Number of ephemeral signing PDAs required by the transaction. */
   ephemeralSigners: number;
   transactionMessage: ReadonlyUint8Array;
@@ -51,6 +53,7 @@ export type CreateTransactionArgsArgs = {
 export function getCreateTransactionArgsEncoder(): Encoder<CreateTransactionArgsArgs> {
   return getStructEncoder([
     ['accountIndex', getU8Encoder()],
+    ['accountBump', getU8Encoder()],
     ['ephemeralSigners', getU8Encoder()],
     [
       'transactionMessage',
@@ -66,6 +69,7 @@ export function getCreateTransactionArgsEncoder(): Encoder<CreateTransactionArgs
 export function getCreateTransactionArgsDecoder(): Decoder<CreateTransactionArgs> {
   return getStructDecoder([
     ['accountIndex', getU8Decoder()],
+    ['accountBump', getU8Decoder()],
     ['ephemeralSigners', getU8Decoder()],
     [
       'transactionMessage',

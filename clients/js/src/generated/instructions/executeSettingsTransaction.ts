@@ -45,8 +45,7 @@ export function getExecuteSettingsTransactionDiscriminatorBytes() {
 }
 
 export type ExecuteSettingsTransactionInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | IAccountMeta<string> = string,
   TAccountSigner extends string | IAccountMeta<string> = string,
   TAccountProposal extends string | IAccountMeta<string> = string,
@@ -220,8 +219,7 @@ export function getExecuteSettingsTransactionInstruction<
 }
 
 export type ParsedExecuteSettingsTransactionInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;
@@ -267,8 +265,7 @@ export function parseExecuteSettingsTransactionInstruction<
   };
   const getNextOptionalAccount = () => {
     const accountMeta = getNextAccount();
-    return accountMeta.address ===
-      ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS
+    return accountMeta.address === ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS
       ? undefined
       : accountMeta;
   };

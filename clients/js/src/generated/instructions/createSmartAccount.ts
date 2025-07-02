@@ -71,8 +71,7 @@ export function getCreateSmartAccountDiscriminatorBytes() {
 }
 
 export type CreateSmartAccountInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountProgramConfig extends string | IAccountMeta<string> = string,
   TAccountSettings extends string | IAccountMeta<string> = string,
   TAccountTreasury extends string | IAccountMeta<string> = string,
@@ -457,8 +456,7 @@ export function getCreateSmartAccountInstruction<
 }
 
 export type ParsedCreateSmartAccountInstruction<
-  TProgram extends
-    string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+  TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountMetas extends readonly IAccountMeta[] = readonly IAccountMeta[],
 > = {
   programAddress: Address<TProgram>;
