@@ -9,7 +9,7 @@ services:
     environment:
       - ANCHOR_PROVIDER_URL=https://api.devnet.solana.com
       - ANCHOR_WALLET=/workspace/test-program-keypair.json
-    command: anchor build
+    command: bash -c "cp /workspace/test-program-keypair.json /root/.config/solana/id.json && anchor build"
 
 volumes:
   cargo-cache: 
