@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  build:
+    build: .
+    volumes:
+      - .:/workspace
+      - cargo-cache:/root/.cargo
+    environment:
+      - ANCHOR_PROVIDER_URL=https://api.devnet.solana.com
+      - ANCHOR_WALLET=/workspace/test-program-keypair.json
+    command: anchor build
+
+volumes:
+  cargo-cache: 
