@@ -99,7 +99,7 @@ async function main() {
     seeds: [
       new Uint8Array(Buffer.from('smart_account')),
       bs58.decode(brandedSettingsPda),
-      new Uint8Array(Buffer.from('account')),
+      new Uint8Array(Buffer.from('smart_account')),
       new Uint8Array([1, 0, 0, 0, 0, 0, 0, 0]), // account_index as u64 LE
     ],
   });
