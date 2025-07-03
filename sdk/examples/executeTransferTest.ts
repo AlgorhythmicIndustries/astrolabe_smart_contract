@@ -62,7 +62,7 @@ async function main() {
   const smartAccountSettings = address('C9yDdexk1gtLRZL4qAWmZPvG9pZMzL3tKRnkQU76SJWL');
 
   // This is the PDA that will SIGN the inner transaction. It must also hold the funds.
-  const [signingPda, signingPdaBump] = await getProgramDerivedAddress({
+  const [smartAccountPda, smartAccountPdaBump] = await getProgramDerivedAddress({
     programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
     seeds: [
         new Uint8Array(Buffer.from('smart_account')),
@@ -75,13 +75,13 @@ async function main() {
   const airdropAmount = lamports(2_000_000_000n); // 2 SOL
 
   console.log(
-    `Airdropping ${airdropAmount} lamports to smart account signer: ${signingPda}`
+    `Airdropping ${airdropAmount} lamports to smart account signer: ${smartAccountPda}`
   );
 
   // Airdrop funds to the smart account wallet
   const airdropIx = getTransferSolInstruction({
     source: feePayer,
-    destination: signingPda,
+    destination: smartAccountPda,
     amount: airdropAmount,
   });
 
@@ -128,7 +128,7 @@ async function main() {
 
   // 3. Create the instruction that the multisig will execute (1 SOL transfer)
   const transferIx = getTransferSolInstruction({
-    source: createNoopSigner(signingPda),
+    source: createNoopSigner(smartAccountPda),
     destination: feePayer.address,
     amount: lamports(1_000_000_000n), // 1 SOL
   });
@@ -137,7 +137,7 @@ async function main() {
   const { value: latestBlockhashForTransfer } = await rpc.getLatestBlockhash().send();
   const transferMessage = pipe(
     createTransactionMessage({ version: 0 }),
-    tx => setTransactionMessageFeePayerSigner(createNoopSigner(signingPda), tx),
+    tx => setTransactionMessageFeePayerSigner(createNoopSigner(smartAccountPda), tx),
     tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhashForTransfer, tx),
     tx => appendTransactionMessageInstructions([transferIx], tx)
   );
@@ -170,7 +170,7 @@ async function main() {
     systemProgram: address('11111111111111111111111111111111'),
     args: {
         accountIndex: 0,
-        accountBump: signingPdaBump,
+        accountBump: smartAccountPdaBump,
         ephemeralSigners: 0,
         transactionMessage: transactionMessageBytes,
         memo: 'Transfer 1 SOL to creator',
@@ -281,7 +281,7 @@ async function main() {
 
   // Manually add the accounts for the inner instruction.
   executeTransactionInstruction.accounts.push(
-    { address: signingPda, role: AccountRole.WRITABLE },
+    { address: smartAccountPda, role: AccountRole.WRITABLE },
     { address: feePayer.address, role: AccountRole.WRITABLE },
     { address: address('11111111111111111111111111111111'), role: AccountRole.READONLY },
   );
