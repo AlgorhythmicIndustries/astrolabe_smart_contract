@@ -78,7 +78,7 @@ security_txt! {
 declare_id!("BNz2Ja9gXc6WSWJo1zsTBcbX6uDERZk9ExKJFBi862BS");
 
 #[cfg(feature = "testing")]
-declare_id!("GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD");
+declare_id!("BNz2Ja9gXc6WSWJo1zsTBcbX6uDERZk9ExKJFBi862BS");
 
 #[program]
 pub mod astrolabe_smart_account {
