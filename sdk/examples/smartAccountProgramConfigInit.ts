@@ -120,7 +120,7 @@ async function main() {
   );
   const signedTransaction = await signTransactionMessageWithSigners(transactionMessage);
   
-  /*
+  
   // --- Start Debugging ---
   try {
     const base64Transaction = getBase64EncodedWireTransaction(signedTransaction);
@@ -161,7 +161,7 @@ async function main() {
       console.error('Caught an exception while sending the transaction:', e);
   }
   // --- End Debugging ---
-  */
+  
   
   const sendAndConfirm = sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions });
   const signature = await sendAndConfirm(signedTransaction, { commitment: 'confirmed' });
