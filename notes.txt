@@ -1,0 +1,4 @@
+How the Docker Solution Works:
+Volume Mounting: The key is the volume mount - .:/workspace - this maps your current directory to /workspace inside the container
+Shared Build Directory: When anchor build runs inside the container, it creates the target/ directory in /workspace/target/, which is actually your local ./target/ directory
+Binary Extraction: The compiled binary will be available in your local ./target/deploy/ directory after the build completes
