@@ -54,7 +54,7 @@ import {
 } from '../instructions';
 
 export const ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS =
-  'BNz2Ja9gXc6WSWJo1zsTBcbX6uDERZk9ExKJFBi862BS' as Address<'BNz2Ja9gXc6WSWJo1zsTBcbX6uDERZk9ExKJFBi862BS'>;
+  'D7ArmwT3y5vrMYuRhnAKvv9Qqbk9VtbfRY1ShLhLoW6W' as Address<'D7ArmwT3y5vrMYuRhnAKvv9Qqbk9VtbfRY1ShLhLoW6W'>;
 
 export enum AstrolabeSmartAccountAccount {
   Batch,
