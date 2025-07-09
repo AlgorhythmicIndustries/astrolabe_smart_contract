@@ -43,7 +43,7 @@ async function main() {
   const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
 
   // Use a consistent creator and fee payer
-  const creatorKeypairFile = fs.readFileSync('/home/user/.config/solana/id.json');
+  const creatorKeypairFile = fs.readFileSync('/Users/algorhythmic/.config/solana/id.json');
   const creatorKeypairBytes = new Uint8Array(JSON.parse(creatorKeypairFile.toString()));
   const creatorKeypair = await createKeyPairFromBytes(creatorKeypairBytes);
   const creatorSigner = await createSignerFromKeyPair(creatorKeypair);
@@ -67,7 +67,7 @@ async function main() {
   const programConfig = await fetchProgramConfig(rpc, address(programConfigPda));
   const treasury = programConfig.data.treasury as Address;
 
-  const restrictedSignerKeypairFile = fs.readFileSync('/home/user/.config/solana/restricted_signer.json');
+  const restrictedSignerKeypairFile = fs.readFileSync('/Users/algorhythmic/.config/solana/restricted_signer.json');
   const restrictedSignerKeypairBytes = new Uint8Array(JSON.parse(restrictedSignerKeypairFile.toString()));
   const restrictedSignerKeypair = await createKeyPairFromBytes(restrictedSignerKeypairBytes);
   const restrictedSignerSigner = await createSignerFromKeyPair(restrictedSignerKeypair);
