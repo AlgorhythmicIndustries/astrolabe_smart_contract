@@ -36,7 +36,7 @@ async function main() {
   const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
 
   // Get bytes from local keypair file.
-  const keypairFile = fs.readFileSync('/home/user/.config/solana/id.json');
+  const keypairFile = fs.readFileSync('/Users/algorhythmic/.config/solana/id.json');
   const keypairBytes = new Uint8Array(JSON.parse(keypairFile.toString()));
   const initializerKeypairFile = fs.readFileSync('../../test-program-config-initializer-keypair.json');
   const initializerKeypairBytes = new Uint8Array(JSON.parse(initializerKeypairFile.toString()));
@@ -122,6 +122,7 @@ async function main() {
   
   
   // --- Start Debugging ---
+  /*
   try {
     const base64Transaction = getBase64EncodedWireTransaction(signedTransaction);
 
@@ -160,6 +161,7 @@ async function main() {
   } catch (e) {
       console.error('Caught an exception while sending the transaction:', e);
   }
+  */
   // --- End Debugging ---
   
   

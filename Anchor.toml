@@ -1,13 +1,13 @@
 [toolchain]
-anchor_version = "0.31.1" # `anchor-cli` version to use
-solana_version = "2.1.21" # Solana version to use
+anchor_version = "0.31.1"
+solana_version = "2.1.21"
 
 [features]
-seeds = false
+resolution = true
 skip-lint = false
 
 [programs.localnet]
-astrolabe_smart_account = "BNz2Ja9gXc6WSWJo1zsTBcbX6uDERZk9ExKJFBi862BS"
+astrolabe_smart_account = "D7ArmwT3y5vrMYuRhnAKvv9Qqbk9VtbfRY1ShLhLoW6W"
 
 [registry]
 url = "https://api.apr.dev"
