@@ -21,6 +21,7 @@ import {
 } from '../clients/js/src/generated/types';
 
 type SolanaRpc = ReturnType<typeof createSolanaRpc>;
+import bs58 from 'bs58';
 
 /**
  * Parameters for creating a new smart account, intended to be called from a frontend.
@@ -33,6 +34,11 @@ export type CreateSmartAccountParams = {
    * This account must sign the final transaction on the backend.
    */
   creator: Address;
+    /**
+   * The public key of the account that will pay for transaction fees.
+   * This can be different from the creator.
+   */
+  feePayer: Address;
   /** The signature threshold required to execute a transaction. */
   threshold: number;
   /** The initial set of signers on the smart account. */
@@ -55,8 +61,12 @@ export type CreateSmartAccountParams = {
 export type CreateSmartAccountResult = {
   /** The unsigned, compiled transaction message as a byte array, ready to be sent to a backend. */
   transactionBuffer: Uint8Array;
+  /** The derived address of the new smart account. */
+  smartAccountPda: Address;
   /** The derived address of the new smart account's settings account. */
   settingsAddress: Address;
+  /** The next available index for a new smart account. */
+  nextSmartAccountIndex: bigint;
 };
 
 /**
@@ -74,6 +84,7 @@ export async function createSmartAccountTransaction(
   const {
     rpc,
     creator,
+    feePayer,
     threshold,
     signers = [],
     restrictedSigners = [],
@@ -111,7 +122,20 @@ export async function createSmartAccountTransaction(
     ],
   });
 
-  // 4. Build the create smart account instruction.
+  // 4. Derive the smart account PDA. This must match the derivation used by the program.
+  // The wallet PDA is derived from its associated settings account.
+  const [smartAccountPda] = await getProgramDerivedAddress({
+    programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+    seeds: [
+      new Uint8Array(Buffer.from('smart_account')),
+      bs58.decode(settingsAddress),
+      new Uint8Array(Buffer.from('smart_account')),
+      // Use a u64 for the account index, matching the settings index.
+      new Uint8Array(new BigUint64Array([nextSmartAccountIndex]).buffer),
+    ],
+  });
+
+  // 5. Build the create smart account instruction.
   // The creator is represented as a NoopSigner because the transaction
   // will be signed later by a backend.
   const createSmartAccountInstruction =
@@ -131,22 +155,24 @@ export async function createSmartAccountTransaction(
       memo,
     });
 
-  // 5. Build the base transaction message. The fee payer is the creator,
+  // 6. Build the base transaction message. The fee payer is the creator,
   // also represented as a NoopSigner.
   const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
   const baseTransactionMessage = pipe(
     createTransactionMessage({ version: 0 }),
-    (tx) => setTransactionMessageFeePayerSigner(createNoopSigner(creator), tx),
+    (tx) => setTransactionMessageFeePayerSigner(createNoopSigner(feePayer), tx),
     (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
     (tx) =>
       appendTransactionMessageInstructions([createSmartAccountInstruction], tx)
   );
 
-  // 6. Compile the transaction to get the buffer to be sent to the backend
+  // 7. Compile the transaction to get the buffer to be sent to the backend
   const compiledTransaction = compileTransaction(baseTransactionMessage);
 
   return {
     transactionBuffer: new Uint8Array(compiledTransaction.messageBytes),
+    smartAccountPda: address(smartAccountPda),
     settingsAddress: address(settingsAddress),
+    nextSmartAccountIndex: nextSmartAccountIndex,
   };
 } 
