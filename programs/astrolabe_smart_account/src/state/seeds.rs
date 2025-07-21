@@ -1,4 +1,4 @@
-use anchor_lang::AnchorSerialize;
+use anchor_lang::prelude::*;
 
 use super::Settings;
 
