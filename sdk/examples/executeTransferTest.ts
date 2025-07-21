@@ -30,22 +30,22 @@ import { getTransferSolInstruction } from '@solana-program/system';
 import fs from 'fs';
 import {
   ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-} from '../../clients/js/src/generated/programs';
+} from '../clients/js/src/generated/programs';
 import { Buffer } from 'buffer';
-import { fetchSettings, fetchTransaction } from '../../clients/js/src/generated/accounts';
+import { fetchSettings, fetchTransaction } from '../clients/js/src/generated/accounts';
 import bs58 from 'bs58';
 import {
   getCreateProposalInstruction,
   getApproveProposalInstruction,
   getExecuteTransactionInstruction,
-} from '../../clients/js/src/generated/instructions';
-import { VoteOnProposalArgs } from '../../clients/js/src/generated/types';
+} from '../clients/js/src/generated/instructions';
+import { VoteOnProposalArgs } from '../clients/js/src/generated/types';
 import { AccountRole } from '@solana/kit';
 import assert from 'assert';
-import { getSmartAccountTransactionMessageEncoder } from '../../clients/js/src/generated/types/smartAccountTransactionMessage';
+import { getSmartAccountTransactionMessageEncoder } from '../clients/js/src/generated/types/smartAccountTransactionMessage';
 import { 
   getCreateTransactionInstruction,
-} from '../../clients/js/src/generated/instructions';
+} from '../clients/js/src/generated/instructions';
 
 async function main() {
   // Set up connection
@@ -53,13 +53,13 @@ async function main() {
   const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
   
   // Use a consistent creator and fee payer
-  const feePayerKeypairFile = fs.readFileSync('/home/user/.config/solana/id.json');
+  const feePayerKeypairFile = fs.readFileSync('/Users/algorhythmic/.config/solana/id.json');
   const feePayerKeypairBytes = new Uint8Array(JSON.parse(feePayerKeypairFile.toString()));
   const feePayerKeypair = await createKeyPairFromBytes(feePayerKeypairBytes);
   const feePayer = await createSignerFromKeyPair(feePayerKeypair);
 
   // The PDA for the smart account that was created in the previous script.
-  const smartAccountSettings = address('C9yDdexk1gtLRZL4qAWmZPvG9pZMzL3tKRnkQU76SJWL');
+  const smartAccountSettings = address('Gb6dotbmh811jfxUA4iUtZGByp7Dhg7BQ7xJRekqLq9i');
 
   // This is the PDA that will SIGN the inner transaction. It must also hold the funds.
   const [smartAccountPda, smartAccountPdaBump] = await getProgramDerivedAddress({
@@ -68,7 +68,7 @@ async function main() {
         new Uint8Array(Buffer.from('smart_account')),
         bs58.decode(smartAccountSettings),
         new Uint8Array(Buffer.from('smart_account')),
-        new Uint8Array([0]), // account_index
+        new Uint8Array([1]), // account_index
     ]
   });
 
