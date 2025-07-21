@@ -18,10 +18,10 @@ import {
 import fs from 'fs';
 import {
   getInitializeProgramConfigInstruction,
-} from '../../clients/js/src/generated/instructions';
+} from '../clients/js/src/generated/instructions';
 import {
   ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-} from '../../clients/js/src/generated/programs';
+} from '../clients/js/src/generated/programs';
 import {
   getSetComputeUnitLimitInstruction,
   getSetComputeUnitPriceInstruction,

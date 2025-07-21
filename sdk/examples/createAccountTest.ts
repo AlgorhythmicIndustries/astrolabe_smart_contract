@@ -22,13 +22,13 @@ import {
 import fs from 'fs';
 import {
   getCreateSmartAccountInstructionAsync,
-} from '../../clients/js/src/generated/instructions';
+} from '../clients/js/src/generated/instructions';
 import {
   fetchProgramConfig,
-} from '../../clients/js/src/generated/accounts/programConfig';
+} from '../clients/js/src/generated/accounts/programConfig';
 import {
   ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-} from '../../clients/js/src/generated/programs';
+} from '../clients/js/src/generated/programs';
 import { Buffer } from 'buffer';
 import {
   getSetComputeUnitLimitInstruction,

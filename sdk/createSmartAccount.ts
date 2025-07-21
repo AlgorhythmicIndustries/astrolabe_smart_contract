@@ -12,13 +12,13 @@ import {
   createSolanaRpc,
 } from '@solana/kit';
 import { Buffer } from 'buffer';
-import { fetchProgramConfig } from '../clients/js/src/generated/accounts/programConfig';
-import { getCreateSmartAccountInstructionAsync } from '../clients/js/src/generated/instructions';
-import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../clients/js/src/generated/programs';
+import { fetchProgramConfig } from './clients/js/src/generated/accounts/programConfig';
+import { getCreateSmartAccountInstructionAsync } from './clients/js/src/generated/instructions';
+import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from './clients/js/src/generated/programs';
 import {
   type RestrictedSmartAccountSignerArgs,
   type SmartAccountSignerArgs,
-} from '../clients/js/src/generated/types';
+} from './clients/js/src/generated/types';
 
 type SolanaRpc = ReturnType<typeof createSolanaRpc>;
 import bs58 from 'bs58';
@@ -123,15 +123,15 @@ export async function createSmartAccountTransaction(
   });
 
   // 4. Derive the smart account PDA. This must match the derivation used by the program.
-  // The wallet PDA is derived from its associated settings account.
+  // The wallet PDA is derived from its associated settings account using account_index = 0
   const [smartAccountPda] = await getProgramDerivedAddress({
     programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
     seeds: [
       new Uint8Array(Buffer.from('smart_account')),
       bs58.decode(settingsAddress),
       new Uint8Array(Buffer.from('smart_account')),
-      // Use a u64 for the account index, matching the settings index.
-      new Uint8Array(new BigUint64Array([nextSmartAccountIndex]).buffer),
+      // Use account_index = 0 for the primary smart account (matches program expectations)
+      new Uint8Array([0]),
     ],
   });
 
