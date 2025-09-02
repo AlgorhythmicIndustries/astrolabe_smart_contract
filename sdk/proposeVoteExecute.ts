@@ -205,6 +205,43 @@ export async function createProposeVoteExecuteTransaction(
   );
 
   console.log('🔧 Compiling inner transaction message...');
+  
+  // Debug the inner instructions before compilation
+  console.log('🔍 Inner instructions being compiled:', {
+    instructionCount: innerInstructions.length,
+    instructions: innerInstructions.map((ix, index) => ({
+      index,
+      programId: ix.programId.toString(),
+      keyCount: ix.keys.length,
+      dataLength: ix.data.length,
+      keys: ix.keys.map((key, keyIndex) => ({
+        keyIndex,
+        pubkey: key.pubkey.toString(),
+        pubkeyLength: key.pubkey.toString().length,
+        isSigner: key.isSigner,
+        isWritable: key.isWritable
+      }))
+    }))
+  });
+  
+  // Validate all addresses in inner instructions before compilation
+  for (let i = 0; i < innerInstructions.length; i++) {
+    const instruction = innerInstructions[i];
+    const programIdStr = instruction.programId.toString();
+    if (programIdStr.length < 32 || programIdStr.length > 44) {
+      throw new Error(`Invalid program ID in instruction ${i}: "${programIdStr}" (length: ${programIdStr.length})`);
+    }
+    
+    for (let j = 0; j < instruction.keys.length; j++) {
+      const key = instruction.keys[j];
+      const keyStr = key.pubkey.toString();
+      if (keyStr.length < 32 || keyStr.length > 44) {
+        throw new Error(`Invalid account key in instruction ${i}, key ${j}: "${keyStr}" (length: ${keyStr.length})`);
+      }
+    }
+  }
+  
+  console.log('✅ All inner instruction addresses validated, proceeding with compilation...');
   const compiledInnerMessage = compileTransaction(innerTransactionMessage);
   const decodedMessage = getCompiledTransactionMessageDecoder().decode(compiledInnerMessage.messageBytes);
   console.log('✅ Inner transaction compiled:', {
