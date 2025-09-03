@@ -6,11 +6,14 @@
     "files": [
         "dist",
         "*.ts",
-        "clients"
+        "clients",
+        "tsconfig.json"
     ],
+    "workspaces": [],
     "scripts": {
         "build": "tsc",
-        "prepare": "npm run build"
+        "prepare": "npm run build",
+        "postinstall": "echo 'SDK installed successfully'"
     },
     "license": "MIT",
     "dependencies": {
