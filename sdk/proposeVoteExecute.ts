@@ -138,9 +138,19 @@ export async function createProposeVoteExecuteTransaction(
   params: ProposeVoteExecuteParams
 ): Promise<ProposeVoteExecuteResult> {
   console.log('🚀 Starting createProposeVoteExecuteTransaction...');
-  console.log('🔍 Raw params object:', params);
-  console.log('🔍 innerTransactionBytes exists:', !!params.innerTransactionBytes);
-  console.log('🔍 innerInstructions exists:', !!params.innerInstructions);
+  console.log('🔍 Params type:', typeof params);
+  console.log('🔍 Params is null/undefined:', params == null);
+  
+  if (params) {
+    console.log('🔍 innerTransactionBytes exists:', !!params.innerTransactionBytes);
+    console.log('🔍 innerInstructions exists:', !!params.innerInstructions);
+    console.log('🔍 innerTransactionBytes type:', typeof params.innerTransactionBytes);
+    if (params.innerTransactionBytes) {
+      console.log('🔍 innerTransactionBytes length:', params.innerTransactionBytes.length);
+    }
+  } else {
+    console.log('❌ Params is null or undefined!');
+  }
   try {
     console.log('📋 Input params:', {
       smartAccountSettings: params.smartAccountSettings ? params.smartAccountSettings.toString() : 'undefined',
@@ -156,16 +166,19 @@ export async function createProposeVoteExecuteTransaction(
     throw logError;
   }
 
-  const {
-    rpc,
-    smartAccountSettings,
-    smartAccountPda,
-    smartAccountPdaBump,
-    signer,
-    innerInstructions,
-    innerTransactionBytes,
-    memo = 'Smart Account Transaction',
-  } = params;
+  console.log('🔧 About to destructure params...');
+  
+  // Destructure safely
+  const rpc = params.rpc;
+  const smartAccountSettings = params.smartAccountSettings;
+  const smartAccountPda = params.smartAccountPda;
+  const smartAccountPdaBump = params.smartAccountPdaBump;
+  const signer = params.signer;
+  const innerInstructions = params.innerInstructions;
+  const innerTransactionBytes = params.innerTransactionBytes;
+  const memo = params.memo || 'Smart Account Transaction';
+  
+  console.log('✅ Destructuring completed');
 
   // Validate that we have either instructions or transaction bytes
   if (!innerInstructions && !innerTransactionBytes) {
