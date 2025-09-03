@@ -105,7 +105,9 @@ export type ProposeVoteExecuteParams = {
   /** The signer who will create proposal, vote, and execute */
   signer: TransactionSigner;
   /** The inner instructions to execute within the smart account */
-  innerInstructions: any[];
+  innerInstructions?: any[];
+  /** Raw transaction bytes (alternative to innerInstructions) - preserves ALT structure */
+  innerTransactionBytes?: Uint8Array;
   /** Optional memo for the transaction */
   memo?: string;
 };
@@ -136,14 +138,23 @@ export async function createProposeVoteExecuteTransaction(
   params: ProposeVoteExecuteParams
 ): Promise<ProposeVoteExecuteResult> {
   console.log('🚀 Starting createProposeVoteExecuteTransaction...');
-  console.log('📋 Input params:', {
-    smartAccountSettings: params.smartAccountSettings.toString(),
-    smartAccountPda: params.smartAccountPda.toString(),
-    smartAccountPdaBump: params.smartAccountPdaBump,
-    signerAddress: params.signer.address.toString(),
-    innerInstructionCount: params.innerInstructions.length,
-    memo: params.memo
-  });
+  console.log('🔍 Raw params object:', params);
+  console.log('🔍 innerTransactionBytes exists:', !!params.innerTransactionBytes);
+  console.log('🔍 innerInstructions exists:', !!params.innerInstructions);
+  try {
+    console.log('📋 Input params:', {
+      smartAccountSettings: params.smartAccountSettings ? params.smartAccountSettings.toString() : 'undefined',
+      smartAccountPda: params.smartAccountPda ? params.smartAccountPda.toString() : 'undefined',
+      smartAccountPdaBump: params.smartAccountPdaBump,
+      signerAddress: params.signer && params.signer.address ? params.signer.address.toString() : 'undefined',
+      innerInstructionCount: params.innerInstructions ? params.innerInstructions.length : 'N/A',
+      innerTransactionSize: params.innerTransactionBytes ? params.innerTransactionBytes.length : 'N/A',
+      memo: params.memo || 'Smart Account Transaction'
+    });
+  } catch (logError) {
+    console.error('❌ Error in logging params:', logError);
+    throw logError;
+  }
 
   const {
     rpc,
@@ -152,8 +163,17 @@ export async function createProposeVoteExecuteTransaction(
     smartAccountPdaBump,
     signer,
     innerInstructions,
+    innerTransactionBytes,
     memo = 'Smart Account Transaction',
   } = params;
+
+  // Validate that we have either instructions or transaction bytes
+  if (!innerInstructions && !innerTransactionBytes) {
+    throw new Error('Either innerInstructions or innerTransactionBytes must be provided');
+  }
+  if (innerInstructions && innerTransactionBytes) {
+    throw new Error('Cannot provide both innerInstructions and innerTransactionBytes');
+  }
 
   console.log('🔧 Step 1: Fetching latest settings state...');
   // 1. Fetch the latest on-chain state for the Settings account
@@ -193,61 +213,50 @@ export async function createProposeVoteExecuteTransaction(
   console.log('✅ Proposal PDA derived:', proposalPda.toString());
 
   console.log('🔧 Step 4: Building inner transaction message...');
-  // 4. Build and ENCODE the inner transaction message
-  const { value: latestBlockhashForInner } = await rpc.getLatestBlockhash().send();
-  console.log('✅ Latest blockhash fetched for inner transaction:', latestBlockhashForInner.blockhash);
   
-  const innerTransactionMessage = pipe(
-    createTransactionMessage({ version: 0 }),
-    (tx) => setTransactionMessageFeePayerSigner(createNoopSigner(smartAccountPda), tx),
-    (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhashForInner, tx),
-    (tx) => appendTransactionMessageInstructions(innerInstructions, tx)
-  );
-
-  console.log('🔧 Compiling inner transaction message...');
+  let compiledInnerMessage: any;
   
-  // Debug the inner instructions before compilation
-  console.log('🔍 Inner instructions being compiled:', {
-    instructionCount: innerInstructions.length,
-    instructions: innerInstructions.map((ix, index) => ({
-      index,
-      programId: ix.programId.toString(),
-      keyCount: ix.keys.length,
-      dataLength: ix.data.length,
-      keys: ix.keys.map((key, keyIndex) => ({
-        keyIndex,
-        pubkey: key.pubkey.toString(),
-        pubkeyLength: key.pubkey.toString().length,
-        isSigner: key.isSigner,
-        isWritable: key.isWritable
-      }))
-    }))
-  });
-  
-  // Validate all addresses in inner instructions before compilation
-  for (let i = 0; i < innerInstructions.length; i++) {
-    const instruction = innerInstructions[i];
-    const programIdStr = instruction.programId.toString();
-    if (programIdStr.length < 32 || programIdStr.length > 44) {
-      throw new Error(`Invalid program ID in instruction ${i}: "${programIdStr}" (length: ${programIdStr.length})`);
-    }
+  if (innerTransactionBytes) {
+    console.log('🔧 Using raw transaction bytes (preserving ALT structure)...');
+    console.log('🔍 Raw transaction bytes type:', typeof innerTransactionBytes);
+    console.log('🔍 Raw transaction bytes length:', innerTransactionBytes ? innerTransactionBytes.length : 'undefined');
     
-    for (let j = 0; j < instruction.keys.length; j++) {
-      const key = instruction.keys[j];
-      const keyStr = key.pubkey.toString();
-      if (keyStr.length < 32 || keyStr.length > 44) {
-        throw new Error(`Invalid account key in instruction ${i}, key ${j}: "${keyStr}" (length: ${keyStr.length})`);
-      }
-    }
+    // Use the raw transaction bytes directly - this preserves ALT structure
+    compiledInnerMessage = {
+      messageBytes: innerTransactionBytes
+    };
+    console.log('✅ Raw transaction bytes used:', {
+      messageSize: innerTransactionBytes.length
+    });
+  } else {
+    console.log('🔧 Building transaction from individual instructions...');
+    // 4. Build and ENCODE the inner transaction message from instructions
+    const { value: latestBlockhashForInner } = await rpc.getLatestBlockhash().send();
+    console.log('✅ Latest blockhash fetched for inner transaction:', latestBlockhashForInner.blockhash);
+    
+    const innerTransactionMessage = pipe(
+      createTransactionMessage({ version: 0 }),
+      (tx) => setTransactionMessageFeePayerSigner(createNoopSigner(smartAccountPda), tx),
+      (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhashForInner, tx),
+      (tx) => appendTransactionMessageInstructions(innerInstructions || [], tx)
+    );
+
+    console.log('🔧 Compiling inner transaction message...');
+    compiledInnerMessage = compileTransaction(innerTransactionMessage);
   }
+
+  console.log('🔧 Decoding compiled message...');
+  console.log('🔍 compiledInnerMessage:', compiledInnerMessage);
+  console.log('🔍 messageBytes type:', typeof compiledInnerMessage.messageBytes);
+  console.log('🔍 messageBytes length:', compiledInnerMessage.messageBytes ? compiledInnerMessage.messageBytes.length : 'undefined');
   
-  console.log('✅ All inner instruction addresses validated, proceeding with compilation...');
-  const compiledInnerMessage = compileTransaction(innerTransactionMessage);
   const decodedMessage = getCompiledTransactionMessageDecoder().decode(compiledInnerMessage.messageBytes);
+  console.log('✅ Message decoded successfully');
+  
   console.log('✅ Inner transaction compiled:', {
-    staticAccounts: decodedMessage.staticAccounts.length,
-    instructions: decodedMessage.instructions.length,
-    messageSize: compiledInnerMessage.messageBytes.length
+    staticAccounts: decodedMessage.staticAccounts ? decodedMessage.staticAccounts.length : 'undefined',
+    instructions: decodedMessage.instructions ? decodedMessage.instructions.length : 'undefined',
+    messageSize: compiledInnerMessage.messageBytes ? compiledInnerMessage.messageBytes.length : 'undefined'
   });
 
   console.log('🔧 Creating smart account transaction message...');
