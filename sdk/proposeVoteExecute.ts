@@ -108,6 +108,8 @@ export type ProposeVoteExecuteParams = {
   innerInstructions?: any[];
   /** Raw transaction bytes (alternative to innerInstructions) - preserves ALT structure */
   innerTransactionBytes?: Uint8Array;
+  /** Address table lookups for ALT support */
+  addressTableLookups?: any[];
   /** Optional memo for the transaction */
   memo?: string;
 };
@@ -176,6 +178,7 @@ export async function createProposeVoteExecuteTransaction(
   const signer = params.signer;
   const innerInstructions = params.innerInstructions;
   const innerTransactionBytes = params.innerTransactionBytes;
+  const addressTableLookups = params.addressTableLookups || [];
   const memo = params.memo || 'Smart Account Transaction';
   
   console.log('✅ Destructuring completed');
@@ -273,7 +276,7 @@ export async function createProposeVoteExecuteTransaction(
   });
 
   console.log('🔧 Creating smart account transaction message...');
-  // Manually construct the smart account transaction message
+  // Manually construct the smart account transaction message with proper ALT handling
   const smartAccountMessage = {
     numSigners: 1,
     numWritableSigners: 1,
@@ -284,7 +287,11 @@ export async function createProposeVoteExecuteTransaction(
       accountIndexes: new Uint8Array(ix.accountIndices ?? []),
       data: ix.data ?? new Uint8Array(),
     })),
-    addressTableLookups: [],
+    addressTableLookups: addressTableLookups.map(lookup => ({
+      accountKey: lookup.accountKey,
+      writableIndexes: lookup.writableIndexes ? new Uint8Array(lookup.writableIndexes) : new Uint8Array(),
+      readonlyIndexes: lookup.readonlyIndexes ? new Uint8Array(lookup.readonlyIndexes) : new Uint8Array(),
+    })),
   };
 
   const transactionMessageBytes = getSmartAccountTransactionMessageEncoder().encode(smartAccountMessage);
@@ -343,13 +350,38 @@ export async function createProposeVoteExecuteTransaction(
 
   // Add the required accounts for the inner instructions to the execute instruction
   // This is critical - the execute instruction needs to know about ALL accounts used in the inner transaction
-  // The validation in executable_transaction_message.rs requires exactly message.num_all_account_keys() accounts
+  // The validation in executable_transaction_message.rs expects accounts in this order:
+  // 1. First: all message_account_infos (static accounts + loaded ALT accounts)
+  // 2. Second: address_lookup_table_account_infos (the ALT accounts themselves)
+  
+  console.log('🔧 Adding transaction accounts to ExecuteTransaction instruction...');
+  
+  // First, add all static accounts
   for (const accountKey of decodedMessage.staticAccounts) {
     executeTransactionInstruction.accounts.push({
       address: accountKey,
       role: 1, // AccountRole.WRITABLE - simplified for now, would need proper role detection
     });
   }
+  
+  // For ALT transactions, we would also need to add the loaded accounts from ALTs
+  // This is a simplified version - in a full implementation, you'd need to fetch
+  // the ALT contents and add the loaded accounts here
+  
+  // Finally, add the Address Lookup Table accounts themselves
+  // These are the accounts that must be owned by the Address Lookup Table program
+  for (const lookup of addressTableLookups) {
+    executeTransactionInstruction.accounts.push({
+      address: lookup.accountKey,
+      role: 0, // AccountRole.READONLY - ALT accounts are typically readonly
+    });
+  }
+  
+  console.log('✅ Added accounts to ExecuteTransaction:', {
+    staticAccounts: decodedMessage.staticAccounts.length,
+    altAccounts: addressTableLookups.length,
+    totalAccounts: executeTransactionInstruction.accounts.length
+  });
 
   // 9. Combine all instructions into a single transaction
   const allInstructions = [

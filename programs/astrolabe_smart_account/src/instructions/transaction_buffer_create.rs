@@ -84,6 +84,8 @@ impl CreateTransactionBuffer<'_> {
         args: CreateTransactionBufferArgs,
     ) -> Result<()> {
 
+        
+
         // Readonly Accounts
         let transaction_buffer = &mut ctx.accounts.transaction_buffer;
         let settings = &ctx.accounts.settings;
@@ -100,6 +102,13 @@ impl CreateTransactionBuffer<'_> {
         transaction_buffer.final_buffer_hash = args.final_buffer_hash;
         transaction_buffer.final_buffer_size = args.final_buffer_size;
         transaction_buffer.buffer = args.buffer;
+
+        // Debug logging for buffer creation
+        msg!("CreateTransactionBuffer: buffer_size={}, final_size={}", 
+             transaction_buffer.buffer.len(), 
+             transaction_buffer.final_buffer_size);
+        msg!("CreateTransactionBuffer: first_32_bytes={:?}", 
+             &transaction_buffer.buffer[..std::cmp::min(32, transaction_buffer.buffer.len())]);
 
         // Invariant function on the transaction buffer
         transaction_buffer.invariant()?;
