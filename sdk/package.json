@@ -4,10 +4,16 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "files": [
-        "dist"
+        "dist",
+        "*.ts",
+        "clients",
+        "tsconfig.json"
     ],
+    "workspaces": [],
     "scripts": {
-        "build": "tsc"
+        "build": "tsc",
+        "prepare": "npm run build",
+        "postinstall": "echo 'SDK installed successfully'"
     },
     "license": "MIT",
     "dependencies": {

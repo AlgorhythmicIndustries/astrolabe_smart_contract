@@ -104,6 +104,13 @@ impl<'info> CreateTransactionFromBuffer<'info> {
         // actual transaction message
         AccountInfo::realloc(&transaction_account_info, new_len, true)?;
 
+        // Debug logging for buffer reading
+        msg!("CreateTransactionFromBuffer: reading buffer_size={}, final_size={}", 
+             transaction_buffer.buffer.len(), 
+             transaction_buffer.final_buffer_size);
+        msg!("CreateTransactionFromBuffer: first_32_bytes={:?}", 
+             &transaction_buffer.buffer[..std::cmp::min(32, transaction_buffer.buffer.len())]);
+
         // Create the args for the `create_transaction` instruction
         let create_args = CreateTransactionArgs {
             account_index: args.account_index,

@@ -37,7 +37,9 @@ export type ProposeVoteExecuteParams = {
     /** The signer who will create proposal, vote, and execute */
     signer: TransactionSigner;
     /** The inner instructions to execute within the smart account */
-    innerInstructions: any[];
+    innerInstructions?: any[];
+    /** Raw transaction bytes (alternative to innerInstructions) - preserves ALT structure */
+    innerTransactionBytes?: Uint8Array;
     /** Optional memo for the transaction */
     memo?: string;
 };
