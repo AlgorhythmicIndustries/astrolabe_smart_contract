@@ -14,3 +14,5 @@ lib
 .cache
 runbooks/
 txtx.yml
+.surfpool
+sdk/dist
