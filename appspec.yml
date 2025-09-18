@@ -2,7 +2,8 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /opt/astrolabe
+    destination: /home/ubuntu/astrolabe_smart_contract
+
 hooks:
   BeforeInstall:
     - location: scripts/stop_surfpool_service.sh
