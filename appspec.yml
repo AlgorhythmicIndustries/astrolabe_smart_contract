@@ -3,7 +3,7 @@ os: linux
 files:
   - source: /
     destination: /home/ubuntu/astrolabe_smart_contract
-
+    overwrite: yes
 hooks:
   BeforeInstall:
     - location: scripts/stop_surfpool_service.sh
