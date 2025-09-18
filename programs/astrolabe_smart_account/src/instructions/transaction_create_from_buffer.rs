@@ -38,11 +38,8 @@ impl<'info> CreateTransactionFromBuffer<'info> {
     pub fn validate(&self, args: &CreateTransactionArgs) -> Result<()> {
         let transaction_buffer_account = &self.transaction_buffer;
 
-        // Debug logging for CreateTransactionFromBuffer args
-        msg!("CreateTransactionFromBuffer validation: account_index={}, account_bump={}, ephemeral_signers={}", 
-             args.account_index, args.account_bump, args.ephemeral_signers);
-        msg!("CreateTransactionFromBuffer validation: transaction_message_len={}", args.transaction_message.len());
-        msg!("CreateTransactionFromBuffer validation: memo={:?}", args.memo);
+        // Debug logging for CreateTransactionFromBuffer args - if we reach here, args are OK
+        msg!("CreateTransactionFromBuffer validation started");
 
         // Check that the transaction message is "empty"
         require!(
@@ -114,8 +111,6 @@ impl<'info> CreateTransactionFromBuffer<'info> {
         msg!("CreateTransactionFromBuffer: reading buffer_size={}, final_size={}", 
              transaction_buffer.buffer.len(), 
              transaction_buffer.final_buffer_size);
-        msg!("CreateTransactionFromBuffer: first_32_bytes={:?}", 
-             &transaction_buffer.buffer[..std::cmp::min(32, transaction_buffer.buffer.len())]);
 
         // Create the args for the `create_transaction` instruction
         let create_args = CreateTransactionArgs {

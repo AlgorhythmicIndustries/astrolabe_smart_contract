@@ -27,7 +27,6 @@ use pinocchio::{
     default_panic_handler,
     entrypoint::InstructionContext,
     lazy_program_entrypoint,
-    msg,
     ProgramResult
   };
   
@@ -239,6 +238,9 @@ pub mod astrolabe_smart_account {
         ctx: Context<'_, '_, 'info, 'info, CreateTransactionFromBuffer<'info>>,
         args: CreateTransactionArgs,
     ) -> Result<()> {
+        // Debug logging for entry point - args deserialized successfully if we reach here
+        msg!("create_transaction_from_buffer ENTRY - args: {:?}", args);
+        
         CreateTransactionFromBuffer::create_transaction_from_buffer(ctx, args)
     }
 
