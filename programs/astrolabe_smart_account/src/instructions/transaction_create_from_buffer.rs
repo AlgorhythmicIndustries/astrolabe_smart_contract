@@ -38,6 +38,12 @@ impl<'info> CreateTransactionFromBuffer<'info> {
     pub fn validate(&self, args: &CreateTransactionArgs) -> Result<()> {
         let transaction_buffer_account = &self.transaction_buffer;
 
+        // Debug logging for CreateTransactionFromBuffer args
+        msg!("CreateTransactionFromBuffer validation: account_index={}, account_bump={}, ephemeral_signers={}", 
+             args.account_index, args.account_bump, args.ephemeral_signers);
+        msg!("CreateTransactionFromBuffer validation: transaction_message_len={}", args.transaction_message.len());
+        msg!("CreateTransactionFromBuffer validation: memo={:?}", args.memo);
+
         // Check that the transaction message is "empty"
         require!(
             args.transaction_message == vec![0, 0, 0, 0, 0, 0],
