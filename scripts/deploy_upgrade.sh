@@ -20,7 +20,54 @@ echo "  Keypair: $KEYPAIR_PATH"
 
 # Set up environment for ubuntu user
 echo "🔍 Setting up environment..."
-export PATH="$HOME/.local/share/solana/install/active_release/bin:$HOME/.cargo/bin:$PATH"
+
+# Source shell configuration files that might contain PATH additions
+if [ -f "$HOME/.bashrc" ]; then
+    echo "🔧 Sourcing .bashrc..."
+    source "$HOME/.bashrc"
+fi
+
+if [ -f "$HOME/.profile" ]; then
+    echo "🔧 Sourcing .profile..."
+    source "$HOME/.profile"
+fi
+
+# Debug: Find where anchor is installed
+echo "🔍 Searching for anchor binary..."
+ANCHOR_LOCATIONS=(
+    "$HOME/.avm/bin"
+    "$HOME/.cargo/bin" 
+    "$HOME/.local/bin"
+    "/usr/local/bin"
+)
+
+ANCHOR_PATH=""
+for loc in "${ANCHOR_LOCATIONS[@]}"; do
+    if [ -f "$loc/anchor" ]; then
+        ANCHOR_PATH="$loc"
+        echo "✅ Found anchor in: $ANCHOR_PATH"
+        break
+    fi
+done
+
+# Also try using 'which' if available from interactive environment
+if [ -z "$ANCHOR_PATH" ]; then
+    echo "🔍 Trying to locate anchor via find..."
+    ANCHOR_FIND=$(find $HOME -name "anchor" -type f -executable 2>/dev/null | head -1)
+    if [ -n "$ANCHOR_FIND" ]; then
+        ANCHOR_PATH=$(dirname "$ANCHOR_FIND")
+        echo "✅ Found anchor via find: $ANCHOR_PATH"
+    fi
+fi
+
+# Build PATH
+PATH_ADDITIONS="$HOME/.local/share/solana/install/active_release/bin:$HOME/.cargo/bin"
+if [ -n "$ANCHOR_PATH" ]; then
+    PATH_ADDITIONS="$ANCHOR_PATH:$PATH_ADDITIONS"
+fi
+
+export PATH="$PATH_ADDITIONS:$PATH"
+echo "📋 Updated PATH: $PATH"
 
 # Verify tools are available
 echo "🔧 Verifying tools..."
