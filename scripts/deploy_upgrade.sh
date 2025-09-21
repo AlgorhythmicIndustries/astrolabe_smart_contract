@@ -118,14 +118,29 @@ echo "✅ Build successful - $PROGRAM_SO created"
 echo "🔍 Current program info:"
 solana program show "$PROGRAM_ID" || echo "⚠️  Program not found or network error"
 
-# Deploy/upgrade the program
+# Deploy/upgrade the program with retries and better blockhash handling
 echo "🚀 Deploying program upgrade..."
-if solana program deploy "$PROGRAM_SO" --program-id "$PROGRAM_ID"; then
-    echo "✅ Program upgrade successful!"
-else
-    echo "❌ Program upgrade failed!"
-    exit 1
-fi
+DEPLOY_ATTEMPTS=3
+for attempt in $(seq 1 $DEPLOY_ATTEMPTS); do
+    echo "🔄 Deployment attempt $attempt/$DEPLOY_ATTEMPTS"
+    
+    # Wait a moment for fresh blockhash
+    echo "🔄 Waiting for fresh blockhash..."
+    sleep 5
+    
+    if timeout 300 solana program deploy "$PROGRAM_SO" --program-id "$PROGRAM_ID" --upgrade-authority "$KEYPAIR_PATH"; then
+        echo "✅ Program upgrade successful on attempt $attempt!"
+        break
+    else
+        echo "⚠️ Deployment attempt $attempt failed"
+        if [ $attempt -eq $DEPLOY_ATTEMPTS ]; then
+            echo "❌ All deployment attempts failed!"
+            exit 1
+        fi
+        echo "⏳ Waiting 10 seconds before retry..."
+        sleep 10
+    fi
+done
 
 # Verify deployment
 echo "✅ Verifying deployment..."
