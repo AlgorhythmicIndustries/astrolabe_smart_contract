@@ -10,6 +10,9 @@ hooks:
       timeout: 300
       runas: root
   AfterInstall:
+    - location: scripts/fix_permissions.sh
+      timeout: 300
+      runas: root
     - location: scripts/deploy_upgrade.sh
       timeout: 600
       runas: ubuntu
