@@ -1,18 +1,7 @@
 version: 0.0
 os: linux
-files:
-  - source: /
-    destination: /home/ubuntu/astrolabe_smart_contract
-    overwrite: true
 hooks:
-  BeforeInstall:
-    - location: scripts/cleanup_before_install.sh
-      timeout: 300
-      runas: root
-  AfterInstall:
-    - location: scripts/fix_permissions.sh
-      timeout: 300
-      runas: root
-    - location: scripts/deploy_upgrade.sh
+  ApplicationStart:
+    - location: scripts/git_pull_and_deploy.sh
       timeout: 600
       runas: ubuntu
