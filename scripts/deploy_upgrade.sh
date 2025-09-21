@@ -10,13 +10,33 @@ cd /home/ubuntu/astrolabe_smart_contract
 PROGRAM_NAME="astrolabe_smart_account"
 PROGRAM_ID="ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q"
 CLUSTER_URL="${SOLANA_CLUSTER_URL:-http://localhost:8899}"
-KEYPAIR_PATH="${SOLANA_KEYPAIR_PATH:-~/.config/solana/id.json}"
+KEYPAIR_PATH="${SOLANA_KEYPAIR_PATH:-$HOME/.config/solana/id.json}"
 
 echo "📋 Configuration:"
 echo "  Program: $PROGRAM_NAME"
 echo "  Program ID: $PROGRAM_ID" 
 echo "  Cluster: $CLUSTER_URL"
 echo "  Keypair: $KEYPAIR_PATH"
+
+# Set up environment for ubuntu user
+echo "🔍 Setting up environment..."
+export PATH="$HOME/.local/share/solana/install/active_release/bin:$HOME/.cargo/bin:$PATH"
+
+# Verify tools are available
+echo "🔧 Verifying tools..."
+if ! command -v solana &> /dev/null; then
+    echo "❌ solana command not found"
+    echo "PATH: $PATH"
+    exit 1
+fi
+
+if ! command -v anchor &> /dev/null; then
+    echo "❌ anchor command not found"
+    echo "PATH: $PATH"
+    exit 1
+fi
+
+echo "✅ Tools verified: solana=$(which solana), anchor=$(which anchor)"
 
 # Set Solana configuration
 echo "⚙️  Setting up Solana CLI..."
@@ -31,6 +51,8 @@ solana config get
 echo "💰 Checking wallet balance..."
 BALANCE=$(solana balance --keypair "$KEYPAIR_PATH")
 echo "  Balance: $BALANCE"
+
+# Tools already verified above
 
 # Build the program
 echo "🔨 Building Anchor program..."
