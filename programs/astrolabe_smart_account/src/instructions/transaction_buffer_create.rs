@@ -109,6 +109,7 @@ impl CreateTransactionBuffer<'_> {
              transaction_buffer.final_buffer_size);
         msg!("CreateTransactionBuffer: first_32_bytes={:?}", 
              &transaction_buffer.buffer[..std::cmp::min(32, transaction_buffer.buffer.len())]);
+        msg!("CreateTransactionBuffer: creator={}", creator.key());
 
         // Invariant function on the transaction buffer
         transaction_buffer.invariant()?;
