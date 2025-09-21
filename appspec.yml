@@ -5,6 +5,10 @@ files:
     destination: /home/ubuntu/astrolabe_smart_contract
     overwrite: true
 hooks:
+  BeforeInstall:
+    - location: scripts/cleanup_before_install.sh
+      timeout: 300
+      runas: root
   AfterInstall:
     - location: scripts/deploy_upgrade.sh
       timeout: 600
