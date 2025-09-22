@@ -11,6 +11,8 @@ use crate::generated::types::RestrictedSmartAccountSigner;
 use borsh::BorshSerialize;
 use borsh::BorshDeserialize;
 
+pub const CREATE_SMART_ACCOUNT_DISCRIMINATOR: [u8; 8] = [197, 102, 253, 231, 77, 84, 50, 17];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct CreateSmartAccount {
@@ -129,7 +131,7 @@ impl Default for CreateSmartAccountInstructionData {
                 ///   2. `[writable]` treasury
                       ///   3. `[writable, signer]` creator
                 ///   4. `[optional]` system_program (default to `11111111111111111111111111111111`)
-                ///   5. `[optional]` program (default to `GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD`)
+                ///   5. `[optional]` program (default to `ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q`)
 #[derive(Clone, Debug, Default)]
 pub struct CreateSmartAccountBuilder {
             program_config: Option<solana_pubkey::Pubkey>,
@@ -182,7 +184,7 @@ impl CreateSmartAccountBuilder {
                         self.system_program = Some(system_program);
                     self
     }
-            /// `[optional account, default to 'GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD']`
+            /// `[optional account, default to 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q']`
 #[inline(always)]
     pub fn program(&mut self, program: solana_pubkey::Pubkey) -> &mut Self {
                         self.program = Some(program);
@@ -246,7 +248,7 @@ impl CreateSmartAccountBuilder {
                                         treasury: self.treasury.expect("treasury is not set"),
                                         creator: self.creator.expect("creator is not set"),
                                         system_program: self.system_program.unwrap_or(solana_pubkey::pubkey!("11111111111111111111111111111111")),
-                                        program: self.program.unwrap_or(solana_pubkey::pubkey!("GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD")),
+                                        program: self.program.unwrap_or(solana_pubkey::pubkey!("ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q")),
                       };
           let args = CreateSmartAccountInstructionArgs {
                                                               settings_authority: self.settings_authority.clone(),
@@ -344,15 +346,15 @@ impl<'a, 'b> CreateSmartAccountCpi<'a, 'b> {
           }
   }
   #[inline(always)]
-  pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke(&self) -> solana_program_error::ProgramResult {
     self.invoke_signed_with_remaining_accounts(&[], &[])
   }
   #[inline(always)]
-  pub fn invoke_with_remaining_accounts(&self, remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)]) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke_with_remaining_accounts(&self, remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)]) -> solana_program_error::ProgramResult {
     self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
   }
   #[inline(always)]
-  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
     self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
   }
   #[allow(clippy::arithmetic_side_effects)]
@@ -362,7 +364,7 @@ impl<'a, 'b> CreateSmartAccountCpi<'a, 'b> {
     &self,
     signers_seeds: &[&[&[u8]]],
     remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)]
-  ) -> solana_program_entrypoint::ProgramResult {
+  ) -> solana_program_error::ProgramResult {
     let mut accounts = Vec::with_capacity(6+ remaining_accounts.len());
                             accounts.push(solana_instruction::AccountMeta::new(
             *self.program_config.key,
@@ -546,12 +548,12 @@ impl<'a, 'b> CreateSmartAccountCpiBuilder<'a, 'b> {
     self
   }
   #[inline(always)]
-  pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke(&self) -> solana_program_error::ProgramResult {
     self.invoke_signed(&[])
   }
   #[allow(clippy::clone_on_copy)]
   #[allow(clippy::vec_init_then_push)]
-  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
           let args = CreateSmartAccountInstructionArgs {
                                                               settings_authority: self.instruction.settings_authority.clone(),
                                                                   threshold: self.instruction.threshold.clone().expect("threshold is not set"),

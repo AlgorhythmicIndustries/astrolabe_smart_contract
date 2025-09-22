@@ -9,6 +9,8 @@ use crate::generated::types::SettingsAction;
 use borsh::BorshSerialize;
 use borsh::BorshDeserialize;
 
+pub const CREATE_SETTINGS_TRANSACTION_DISCRIMINATOR: [u8; 8] = [101, 168, 254, 203, 222, 102, 95, 192];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct CreateSettingsTransaction {
@@ -263,15 +265,15 @@ impl<'a, 'b> CreateSettingsTransactionCpi<'a, 'b> {
           }
   }
   #[inline(always)]
-  pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke(&self) -> solana_program_error::ProgramResult {
     self.invoke_signed_with_remaining_accounts(&[], &[])
   }
   #[inline(always)]
-  pub fn invoke_with_remaining_accounts(&self, remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)]) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke_with_remaining_accounts(&self, remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)]) -> solana_program_error::ProgramResult {
     self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
   }
   #[inline(always)]
-  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
     self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
   }
   #[allow(clippy::arithmetic_side_effects)]
@@ -281,7 +283,7 @@ impl<'a, 'b> CreateSettingsTransactionCpi<'a, 'b> {
     &self,
     signers_seeds: &[&[&[u8]]],
     remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)]
-  ) -> solana_program_entrypoint::ProgramResult {
+  ) -> solana_program_error::ProgramResult {
     let mut accounts = Vec::with_capacity(5+ remaining_accounts.len());
                             accounts.push(solana_instruction::AccountMeta::new(
             *self.settings.key,
@@ -419,12 +421,12 @@ impl<'a, 'b> CreateSettingsTransactionCpiBuilder<'a, 'b> {
     self
   }
   #[inline(always)]
-  pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke(&self) -> solana_program_error::ProgramResult {
     self.invoke_signed(&[])
   }
   #[allow(clippy::clone_on_copy)]
   #[allow(clippy::vec_init_then_push)]
-  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
           let args = CreateSettingsTransactionInstructionArgs {
                                                               actions: self.instruction.actions.clone().expect("actions is not set"),
                                                                   memo: self.instruction.memo.clone(),

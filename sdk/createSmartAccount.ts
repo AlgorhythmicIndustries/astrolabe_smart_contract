@@ -21,7 +21,7 @@ import {
 } from './clients/js/src/generated/types';
 
 type SolanaRpc = ReturnType<typeof createSolanaRpc>;
-import bs58 from 'bs58';
+import * as bs58 from 'bs58';
 
 /**
  * Parameters for creating a new smart account, intended to be called from a frontend.
@@ -106,11 +106,11 @@ export async function createSmartAccountTransaction(
   const { treasury, smartAccountIndex } = programConfig.data;
 
   // 2. Compute the seed for the new settings account using the next available index.
-  const nextSmartAccountIndex = smartAccountIndex + 1n;
+  const nextSmartAccountIndex = smartAccountIndex + BigInt(1);
   const settingsSeed = new Uint8Array(16); // u128 is 16 bytes
   const view = new DataView(settingsSeed.buffer);
   view.setBigUint64(0, nextSmartAccountIndex, true); // low 64 bits
-  view.setBigUint64(8, 0n, true); // high 64 bits
+  view.setBigUint64(8, BigInt(0), true); // high 64 bits
 
   // 3. Derive the settings PDA
   const [settingsAddress] = await getProgramDerivedAddress({
@@ -130,7 +130,7 @@ export async function createSmartAccountTransaction(
       new Uint8Array(Buffer.from('smart_account')),
       bs58.decode(settingsAddress),
       new Uint8Array(Buffer.from('smart_account')),
-      // Use account_index = 0 for the primary smart account (matches program expectations)
+      // Use account_index = 0 for the primary smart account (default)
       new Uint8Array([0]),
     ],
   });

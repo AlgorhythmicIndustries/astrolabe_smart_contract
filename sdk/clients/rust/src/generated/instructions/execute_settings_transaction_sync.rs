@@ -9,6 +9,8 @@ use crate::generated::types::SettingsAction;
 use borsh::BorshSerialize;
 use borsh::BorshDeserialize;
 
+pub const EXECUTE_SETTINGS_TRANSACTION_SYNC_DISCRIMINATOR: [u8; 8] = [138, 209, 64, 163, 79, 67, 233, 76];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct ExecuteSettingsTransactionSync {
@@ -119,7 +121,7 @@ impl Default for ExecuteSettingsTransactionSyncInstructionData {
                 ///   0. `[writable]` settings
                             ///   1. `[writable, signer, optional]` rent_payer
                 ///   2. `[optional]` system_program (default to `11111111111111111111111111111111`)
-                ///   3. `[optional]` program (default to `GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD`)
+                ///   3. `[optional]` program (default to `ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q`)
 #[derive(Clone, Debug, Default)]
 pub struct ExecuteSettingsTransactionSyncBuilder {
             settings: Option<solana_pubkey::Pubkey>,
@@ -157,7 +159,7 @@ impl ExecuteSettingsTransactionSyncBuilder {
                         self.system_program = system_program;
                     self
     }
-            /// `[optional account, default to 'GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD']`
+            /// `[optional account, default to 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q']`
 #[inline(always)]
     pub fn program(&mut self, program: solana_pubkey::Pubkey) -> &mut Self {
                         self.program = Some(program);
@@ -197,7 +199,7 @@ impl ExecuteSettingsTransactionSyncBuilder {
                               settings: self.settings.expect("settings is not set"),
                                         rent_payer: self.rent_payer,
                                         system_program: self.system_program,
-                                        program: self.program.unwrap_or(solana_pubkey::pubkey!("GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD")),
+                                        program: self.program.unwrap_or(solana_pubkey::pubkey!("ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q")),
                       };
           let args = ExecuteSettingsTransactionSyncInstructionArgs {
                                                               num_signers: self.num_signers.clone().expect("num_signers is not set"),
@@ -273,15 +275,15 @@ impl<'a, 'b> ExecuteSettingsTransactionSyncCpi<'a, 'b> {
           }
   }
   #[inline(always)]
-  pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke(&self) -> solana_program_error::ProgramResult {
     self.invoke_signed_with_remaining_accounts(&[], &[])
   }
   #[inline(always)]
-  pub fn invoke_with_remaining_accounts(&self, remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)]) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke_with_remaining_accounts(&self, remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)]) -> solana_program_error::ProgramResult {
     self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
   }
   #[inline(always)]
-  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
     self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
   }
   #[allow(clippy::arithmetic_side_effects)]
@@ -291,7 +293,7 @@ impl<'a, 'b> ExecuteSettingsTransactionSyncCpi<'a, 'b> {
     &self,
     signers_seeds: &[&[&[u8]]],
     remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)]
-  ) -> solana_program_entrypoint::ProgramResult {
+  ) -> solana_program_error::ProgramResult {
     let mut accounts = Vec::with_capacity(4+ remaining_accounts.len());
                             accounts.push(solana_instruction::AccountMeta::new(
             *self.settings.key,
@@ -445,12 +447,12 @@ impl<'a, 'b> ExecuteSettingsTransactionSyncCpiBuilder<'a, 'b> {
     self
   }
   #[inline(always)]
-  pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke(&self) -> solana_program_error::ProgramResult {
     self.invoke_signed(&[])
   }
   #[allow(clippy::clone_on_copy)]
   #[allow(clippy::vec_init_then_push)]
-  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
           let args = ExecuteSettingsTransactionSyncInstructionArgs {
                                                               num_signers: self.instruction.num_signers.clone().expect("num_signers is not set"),
                                                                   actions: self.instruction.actions.clone().expect("actions is not set"),

@@ -12,6 +12,8 @@ import {
   createSolanaRpc,
   getCompiledTransactionMessageDecoder,
   type TransactionSigner,
+  AccountRole,
+  assertIsTransactionWithinSizeLimit,
 } from '@solana/kit';
 import { Buffer } from 'buffer';
 import { fetchSettings } from './clients/js/src/generated/accounts/settings';
@@ -23,7 +25,7 @@ import {
 } from './clients/js/src/generated/instructions';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from './clients/js/src/generated/programs';
 import { getSmartAccountTransactionMessageEncoder } from './clients/js/src/generated/types/smartAccountTransactionMessage';
-import bs58 from 'bs58';
+import * as bs58 from 'bs58';
 
 type SolanaRpc = ReturnType<typeof createSolanaRpc>;
 
@@ -85,7 +87,7 @@ export async function deriveSmartAccountInfo(
   return {
     smartAccountPda,
     settingsAddress,
-    accountIndex: 0n, // Always 0 for primary smart account
+    accountIndex: BigInt(0), // Always 0 for primary smart account
     smartAccountPdaBump,
   };
 }
@@ -194,7 +196,7 @@ export async function createProposeVoteExecuteTransaction(
   console.log('🔧 Step 1: Fetching latest settings state...');
   // 1. Fetch the latest on-chain state for the Settings account
   const settings = await fetchSettings(rpc, smartAccountSettings);
-  const transactionIndex = settings.data.transactionIndex + 1n;
+  const transactionIndex = settings.data.transactionIndex + BigInt(1);
   console.log('✅ Settings fetched:', {
     currentTransactionIndex: settings.data.transactionIndex.toString(),
     nextTransactionIndex: transactionIndex.toString(),
@@ -360,7 +362,7 @@ export async function createProposeVoteExecuteTransaction(
   for (const accountKey of decodedMessage.staticAccounts) {
     executeTransactionInstruction.accounts.push({
       address: accountKey,
-      role: 1, // AccountRole.WRITABLE - simplified for now, would need proper role detection
+      role: AccountRole.WRITABLE, // Use proper AccountRole enum
     });
   }
   
@@ -373,7 +375,7 @@ export async function createProposeVoteExecuteTransaction(
   for (const lookup of addressTableLookups) {
     executeTransactionInstruction.accounts.push({
       address: lookup.accountKey,
-      role: 0, // AccountRole.READONLY - ALT accounts are typically readonly
+      role: AccountRole.READONLY, // ALT accounts are typically readonly
     });
   }
   
@@ -402,6 +404,9 @@ export async function createProposeVoteExecuteTransaction(
 
   // 11. Compile the transaction to get the buffer
   const compiledTransaction = compileTransaction(finalTransactionMessage);
+  
+  // 12. Validate transaction size
+  assertIsTransactionWithinSizeLimit(compiledTransaction);
 
   return {
     transactionBuffer: new Uint8Array(compiledTransaction.messageBytes),

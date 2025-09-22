@@ -35,7 +35,7 @@ pub struct CreateTransactionBuffer<'info> {
             SEED_PREFIX,
             settings.key().as_ref(),
             SEED_TRANSACTION_BUFFER,
-            creator.key().as_ref(),
+            buffer_creator.key().as_ref(),
             &args.buffer_index.to_le_bytes(),
         ],
         bump
@@ -43,7 +43,7 @@ pub struct CreateTransactionBuffer<'info> {
     pub transaction_buffer: Account<'info, TransactionBuffer>,
 
     /// The signer on the smart account that is creating the transaction.
-    pub creator: Signer<'info>,
+    pub buffer_creator: Signer<'info>,
 
     /// The payer for the transaction account rent.
     #[account(mut)]
@@ -55,17 +55,17 @@ pub struct CreateTransactionBuffer<'info> {
 impl CreateTransactionBuffer<'_> {
     fn validate(&self, args: &CreateTransactionBufferArgs) -> Result<()> {
         let Self {
-            settings, creator, ..
+            settings, buffer_creator, ..
         } = self;
 
-        // creator is a signer on the smart account
+        // buffer_creator is a signer on the smart account
         require!(
-            settings.is_signer(creator.key()).is_some(),
+            settings.is_signer(buffer_creator.key()).is_some(),
             SmartAccountError::NotASigner
         );
-        // creator has initiate permissions
+        // buffer_creator has initiate permissions
         require!(
-            settings.signer_has_permission(creator.key(), Permission::Initiate),
+            settings.signer_has_permission(buffer_creator.key(), Permission::Initiate),
             SmartAccountError::Unauthorized
         );
 
@@ -89,14 +89,14 @@ impl CreateTransactionBuffer<'_> {
         // Readonly Accounts
         let transaction_buffer = &mut ctx.accounts.transaction_buffer;
         let settings = &ctx.accounts.settings;
-        let creator = &mut ctx.accounts.creator;
+        let buffer_creator = &mut ctx.accounts.buffer_creator;
 
         // Get the buffer index.
         let buffer_index = args.buffer_index;
 
         // Initialize the transaction fields.
         transaction_buffer.settings = settings.key();
-        transaction_buffer.creator = creator.key();
+        transaction_buffer.creator = buffer_creator.key();
         transaction_buffer.account_index = args.account_index;
         transaction_buffer.buffer_index = buffer_index;
         transaction_buffer.final_buffer_hash = args.final_buffer_hash;
@@ -109,7 +109,7 @@ impl CreateTransactionBuffer<'_> {
              transaction_buffer.final_buffer_size);
         msg!("CreateTransactionBuffer: first_32_bytes={:?}", 
              &transaction_buffer.buffer[..std::cmp::min(32, transaction_buffer.buffer.len())]);
-        msg!("CreateTransactionBuffer: creator={}", creator.key());
+        msg!("CreateTransactionBuffer: buffer_creator={}", buffer_creator.key());
 
         // Invariant function on the transaction buffer
         transaction_buffer.invariant()?;

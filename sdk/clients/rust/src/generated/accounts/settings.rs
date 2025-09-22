@@ -64,6 +64,8 @@ pub reserved2: u8,
 }
 
 
+pub const SETTINGS_DISCRIMINATOR: [u8; 8] = [223, 179, 163, 190, 177, 224, 67, 173];
+
 impl Settings {
   
   
@@ -163,6 +165,6 @@ pub fn fetch_all_maybe_settings(
   
   #[cfg(feature = "anchor-idl-build")]
   impl anchor_lang::Discriminator for Settings {
-    const DISCRIMINATOR: [u8; 8] = [0; 8];
+    const DISCRIMINATOR: &[u8] = &[0; 8];
   }
 

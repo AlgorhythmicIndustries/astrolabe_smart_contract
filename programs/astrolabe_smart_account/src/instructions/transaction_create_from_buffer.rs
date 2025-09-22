@@ -10,15 +10,15 @@ pub struct CreateTransactionFromBuffer<'info> {
 
     #[account(
         mut,
-        close = creator,
+        close = buffer_creator,
         // Only the creator can turn the buffer into a transaction and reclaim
         // the rent
-        constraint = transaction_buffer.creator == creator.key() @ SmartAccountError::Unauthorized,
+        constraint = transaction_buffer.creator == buffer_creator.key() @ SmartAccountError::Unauthorized,
         seeds = [
             SEED_PREFIX,
             transaction_create.settings.key().as_ref(),
             SEED_TRANSACTION_BUFFER,
-            creator.key().as_ref(),
+            buffer_creator.key().as_ref(),
             &transaction_buffer.buffer_index.to_le_bytes(),
         ],
         bump
@@ -31,19 +31,15 @@ pub struct CreateTransactionFromBuffer<'info> {
         mut,
         address = transaction_create.creator.key(),
     )]
-    pub creator: Signer<'info>,
+    pub buffer_creator: Signer<'info>,
 }
 
 impl<'info> CreateTransactionFromBuffer<'info> {
     pub fn validate(&self, args: &CreateTransactionArgs) -> Result<()> {
         let transaction_buffer_account = &self.transaction_buffer;
-        let creator = &self.creator;
 
         // Debug logging for CreateTransactionFromBuffer args - if we reach here, args are OK
         msg!("CreateTransactionFromBuffer validation started");
-        msg!("  buffer_creator={}", transaction_buffer_account.creator);
-        msg!("  current_creator={}", creator.key());
-        msg!("  creators_match={}", transaction_buffer_account.creator == creator.key());
 
         // Check that the transaction message is "empty"
         require!(

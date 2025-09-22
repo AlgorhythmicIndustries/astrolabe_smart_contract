@@ -39,6 +39,8 @@ pub cancelled: Vec<Pubkey>,
 }
 
 
+pub const PROPOSAL_DISCRIMINATOR: [u8; 8] = [26, 94, 189, 187, 116, 136, 53, 33];
+
 impl Proposal {
   
   
@@ -138,6 +140,6 @@ pub fn fetch_all_maybe_proposal(
   
   #[cfg(feature = "anchor-idl-build")]
   impl anchor_lang::Discriminator for Proposal {
-    const DISCRIMINATOR: [u8; 8] = [0; 8];
+    const DISCRIMINATOR: &[u8] = &[0; 8];
   }
 

@@ -39,6 +39,8 @@ pub executed_transaction_index: u32,
 }
 
 
+pub const BATCH_DISCRIMINATOR: [u8; 8] = [156, 194, 70, 44, 22, 88, 137, 44];
+
 impl Batch {
       pub const LEN: usize = 123;
   
@@ -139,6 +141,6 @@ pub fn fetch_all_maybe_batch(
   
   #[cfg(feature = "anchor-idl-build")]
   impl anchor_lang::Discriminator for Batch {
-    const DISCRIMINATOR: [u8; 8] = [0; 8];
+    const DISCRIMINATOR: &[u8] = &[0; 8];
   }
 
