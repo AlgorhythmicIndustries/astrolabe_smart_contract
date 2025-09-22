@@ -54,6 +54,8 @@ pub expiration: i64,
 }
 
 
+pub const SPENDING_LIMIT_DISCRIMINATOR: [u8; 8] = [10, 201, 27, 160, 218, 195, 222, 152];
+
 impl SpendingLimit {
   
   
@@ -153,6 +155,6 @@ pub fn fetch_all_maybe_spending_limit(
   
   #[cfg(feature = "anchor-idl-build")]
   impl anchor_lang::Discriminator for SpendingLimit {
-    const DISCRIMINATOR: [u8; 8] = [0; 8];
+    const DISCRIMINATOR: &[u8] = &[0; 8];
   }
 

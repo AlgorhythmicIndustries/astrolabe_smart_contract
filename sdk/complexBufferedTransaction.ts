@@ -13,8 +13,10 @@ import {
   getProgramDerivedAddress,
   type TransactionSigner,
   getCompiledTransactionMessageDecoder,
+  AccountRole,
+  assertIsTransactionWithinSizeLimit,
 } from '@solana/kit';
-import bs58 from 'bs58';
+import * as bs58 from 'bs58';
 
 type SolanaRpc = ReturnType<typeof createSolanaRpc>;
 
@@ -69,7 +71,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
 
   // Derive PDAs and fetch settings
   const settings = await fetchSettings(rpc, smartAccountSettings);
-  const nextIndex = settings.data.transactionIndex + 1n;
+  const nextIndex = settings.data.transactionIndex + BigInt(1);
   // Derive Transaction PDA: ["smart_account", settings, "transaction", u64 index]
   const [transactionPda] = await getProgramDerivedAddress({
     programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
@@ -160,7 +162,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
   const createBufferIx = getCreateTransactionBufferInstruction({
     settings: smartAccountSettings,
     transactionBuffer: transactionBufferPda,
-    creator: signer,
+    bufferCreator: signer,
     rentPayer: feePayerSigner,
     systemProgram: address('11111111111111111111111111111111'),
     bufferIndex: chosenBufferIndex,
@@ -176,7 +178,9 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
     tx => appendTransactionMessageInstructions([createBufferIx], tx)
   );
-  const createBufferTx = new Uint8Array(compileTransaction(createBufferMessage).messageBytes);
+  const compiledCreateBuffer = compileTransaction(createBufferMessage);
+  assertIsTransactionWithinSizeLimit(compiledCreateBuffer);
+  const createBufferTx = new Uint8Array(compiledCreateBuffer.messageBytes);
 
   // 2) extend_transaction_buffer for remaining slices
   const extendTxs: Uint8Array[] = [];
@@ -193,14 +197,16 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
       tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
       tx => appendTransactionMessageInstructions([extendIx], tx)
     );
-    extendTxs.push(new Uint8Array(compileTransaction(msg).messageBytes));
+    const compiledExtend = compileTransaction(msg);
+    assertIsTransactionWithinSizeLimit(compiledExtend);
+    extendTxs.push(new Uint8Array(compiledExtend.messageBytes));
   }
 
   // 3) create_transaction_from_buffer + create_proposal + approve
   const createFromBufferIx = getCreateTransactionFromBufferInstruction({
     settings: smartAccountSettings,
     transaction: transactionPda,
-    transactionCreator: signer,
+    bufferCreator: signer,
     rentPayer: feePayerSigner,
     systemProgram: address('11111111111111111111111111111111'),
     transactionBuffer: transactionBufferPda,
@@ -238,7 +244,9 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
     tx => appendTransactionMessageInstructions([createFromBufferIx, createProposalIx, approveIx], tx)
   );
-  const createFromBufferTx = new Uint8Array(compileTransaction(createFromBufferMsg).messageBytes);
+  const compiledCreateFromBuffer = compileTransaction(createFromBufferMsg);
+  assertIsTransactionWithinSizeLimit(compiledCreateFromBuffer);
+  const createFromBufferTx = new Uint8Array(compiledCreateFromBuffer.messageBytes);
 
   // 4) execute + close buffer in same tx, compress outer with ALTs
   const executeIx = getExecuteTransactionInstruction({
@@ -284,7 +292,9 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
       addressesByLookupTableAddress as any
     ) as any;
   }
-  const executeTx = new Uint8Array(compileTransaction(executeMsg).messageBytes);
+  const compiledExecute = compileTransaction(executeMsg);
+  assertIsTransactionWithinSizeLimit(compiledExecute);
+  const executeTx = new Uint8Array(compiledExecute.messageBytes);
 
   return {
     createBufferTx: [createBufferTx, ...extendTxs],

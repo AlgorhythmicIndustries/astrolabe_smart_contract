@@ -11,6 +11,7 @@ import {
   signTransactionMessageWithSigners,
   getSignatureFromTransaction,
   sendAndConfirmTransactionFactory,
+  assertIsTransactionWithinSizeLimit,
   lamports,
   address,
   getProgramDerivedAddress,
@@ -27,13 +28,13 @@ import {
   getU32Encoder,
 } from '@solana/kit';
 import { getTransferSolInstruction } from '@solana-program/system';
-import fs from 'fs';
+import * as fs from 'fs';
 import {
   ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
 } from '../clients/js/src/generated/programs';
 import { Buffer } from 'buffer';
 import { fetchSettings, fetchTransaction } from '../clients/js/src/generated/accounts';
-import bs58 from 'bs58';
+import * as bs58 from 'bs58';
 import {
   getCreateProposalInstruction,
   getApproveProposalInstruction,
@@ -41,7 +42,7 @@ import {
 } from '../clients/js/src/generated/instructions';
 import { VoteOnProposalArgs } from '../clients/js/src/generated/types';
 import { AccountRole } from '@solana/kit';
-import assert from 'assert';
+import * as assert from 'assert';
 import { getSmartAccountTransactionMessageEncoder } from '../clients/js/src/generated/types/smartAccountTransactionMessage';
 import { 
   getCreateTransactionInstruction,
@@ -59,7 +60,7 @@ async function main() {
   const feePayer = await createSignerFromKeyPair(feePayerKeypair);
 
   // The PDA for the smart account that was created in the previous script.
-  const smartAccountSettings = address('Gb6dotbmh811jfxUA4iUtZGByp7Dhg7BQ7xJRekqLq9i');
+  const smartAccountSettings = address('8A8CYfDTjEUw9hYT12NNjVxvs76qP7ajuXKfnET8AfwS');
 
   // This is the PDA that will SIGN the inner transaction. It must also hold the funds.
   const [smartAccountPda, smartAccountPdaBump] = await getProgramDerivedAddress({
@@ -68,11 +69,11 @@ async function main() {
         new Uint8Array(Buffer.from('smart_account')),
         bs58.decode(smartAccountSettings),
         new Uint8Array(Buffer.from('smart_account')),
-        new Uint8Array([1]), // account_index
+        new Uint8Array([0]), // account_index as u8
     ]
   });
 
-  const airdropAmount = lamports(2_000_000_000n); // 2 SOL
+  const airdropAmount = lamports(BigInt(2_000_000_000)); // 2 SOL
 
   console.log(
     `Airdropping ${airdropAmount} lamports to smart account signer: ${smartAccountPda}`
@@ -97,6 +98,9 @@ async function main() {
   const signedAirdropTransaction =
     await signTransactionMessageWithSigners(transactionMessage);
 
+  // Validate the transaction
+  assertIsTransactionWithinSizeLimit(signedAirdropTransaction);
+
   const sendAndConfirm = sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions });
   await sendAndConfirm(signedAirdropTransaction, { commitment: 'confirmed' });
 
@@ -111,7 +115,7 @@ async function main() {
 
   // 1. Fetch the latest on-chain state for the Settings account
   const settings = await fetchSettings(rpc, smartAccountSettings);
-  const transactionIndex = settings.data.transactionIndex + 1n;
+  const transactionIndex = settings.data.transactionIndex + BigInt(1);
   console.log(`Current transaction index: ${settings.data.transactionIndex}, new index: ${transactionIndex}`);
 
   // 2. Derive the PDA for the new Transaction account
@@ -130,7 +134,7 @@ async function main() {
   const transferIx = getTransferSolInstruction({
     source: createNoopSigner(smartAccountPda),
     destination: feePayer.address,
-    amount: lamports(1_000_000_000n), // 1 SOL
+    amount: lamports(BigInt(1_000_000_000)), // 1 SOL
   });
 
   // 4. Build and ENCODE the inner transaction message
@@ -144,12 +148,32 @@ async function main() {
 
   const compiledTransferMessage = compileTransaction(transferMessage);
   const decodedMessage = getCompiledTransactionMessageDecoder().decode(compiledTransferMessage.messageBytes);
+  
+  console.log('=== DEBUG: Decoded Message ===');
+  console.log('numSigners:', decodedMessage.header.numSignerAccounts);
+  console.log('numWritableSigners:', decodedMessage.header.numWritableSignerAccounts);
+  console.log('numWritableNonSigners:', decodedMessage.header.numWritableNonSignerAccounts);
+  console.log('staticAccounts:', decodedMessage.staticAccounts.map(addr => addr.toString()));
+  console.log('Smart Account PDA (expected signer):', smartAccountPda);
+  console.log('Fee Payer (expected destination):', feePayer.address);
+  console.log('Account index 1 (account_index used in createTransaction):', 1);
+  console.log('Account bump:', smartAccountPdaBump);
+  console.log('==============================');
+
+  // Calculate the correct writable counts from the transaction message
+  const numWritableSigners = 1; // Smart account PDA is a signer and writable
+  const numWritableNonSigners = 1; // Fee payer is not a signer but is writable (destination)
+  
+  console.log('=== WRITABLE ACCOUNTS DEBUG ===');
+  console.log('numWritableSigners (calculated):', numWritableSigners);
+  console.log('numWritableNonSigners (calculated):', numWritableNonSigners);
+  console.log('================================');
 
   // Manually construct the argument for the encoder. This is what the program expects.
   const smartAccountMessage = {
-    numSigners: 1,
-    numWritableSigners: 1,
-    numWritableNonSigners: 1,
+    numSigners: decodedMessage.header.numSignerAccounts,
+    numWritableSigners: numWritableSigners,
+    numWritableNonSigners: numWritableNonSigners,
     accountKeys: decodedMessage.staticAccounts,
     instructions: decodedMessage.instructions.map(ix => ({
       programIdIndex: ix.programAddressIndex,
@@ -188,6 +212,10 @@ async function main() {
   );
 
   const signedCreateTransactionTx = await signTransactionMessageWithSigners(createTransactionTx);
+  
+  // Validate the transaction
+  assertIsTransactionWithinSizeLimit(signedCreateTransactionTx);
+  
   await sendAndConfirm(signedCreateTransactionTx, { commitment: 'confirmed' });
   console.log(`Transaction account created. Signature: ${getSignatureFromTransaction(signedCreateTransactionTx)}`);
 
@@ -230,6 +258,9 @@ async function main() {
 
   const signedCreateProposalTx = await signTransactionMessageWithSigners(createProposalTx);
   
+  // Validate the transaction
+  assertIsTransactionWithinSizeLimit(signedCreateProposalTx);
+  
   console.log('Sending proposal creation transaction...');
   await sendAndConfirm(signedCreateProposalTx, { commitment: 'confirmed' });
   const proposalSignature = getSignatureFromTransaction(signedCreateProposalTx);
@@ -259,6 +290,9 @@ async function main() {
 
   const signedApproveProposalTx = await signTransactionMessageWithSigners(approveProposalTx);
 
+  // Validate the transaction
+  assertIsTransactionWithinSizeLimit(signedApproveProposalTx);
+
   console.log('Sending approval transaction...');
   await sendAndConfirm(signedApproveProposalTx, { commitment: 'confirmed' });
   const approvalSignature = getSignatureFromTransaction(signedApproveProposalTx);
@@ -279,12 +313,18 @@ async function main() {
     signer: feePayer,
   });
 
-  // Manually add the accounts for the inner instruction.
+  // Add the remaining accounts in the exact order expected by the program:
+  // 1. AddressLookupTable accounts (none in our case)
+  // 2. Accounts in the order they appear in message.account_keys
+  // From our transaction message, the account_keys are in order: [smartAccountPda, feePayer.address, systemProgram]
+  // Note: The smart account PDA is a signer in the message but can't be passed as a signer since it's a PDA
+  // The fee payer should NOT be a signer here since it's not signing the outer transaction
   executeTransactionInstruction.accounts.push(
     { address: smartAccountPda, role: AccountRole.WRITABLE },
     { address: feePayer.address, role: AccountRole.WRITABLE },
     { address: address('11111111111111111111111111111111'), role: AccountRole.READONLY },
   );
+  // 3. Address table lookup accounts (none in our case)
 
   // 13. Build, sign, and send the execution transaction
   const { value: latestBlockhashForExecution } = await rpc.getLatestBlockhash().send();
@@ -297,6 +337,9 @@ async function main() {
 
   const signedExecuteTransactionTx = await signTransactionMessageWithSigners(executeTransactionTx);
 
+  // Validate the transaction
+  assertIsTransactionWithinSizeLimit(signedExecuteTransactionTx);
+
   console.log('Sending execution transaction...');
   await sendAndConfirm(signedExecuteTransactionTx, { commitment: 'confirmed' });
   const executionSignature = getSignatureFromTransaction(signedExecuteTransactionTx);
@@ -306,7 +349,7 @@ async function main() {
   const finalBalance = await rpc.getBalance(feePayer.address).send();
   console.log(`Fee payer balance after execution: ${finalBalance.value} lamports`);
 
-  assert(finalBalance.value > initialBalance.value, 'Final balance should be greater than initial balance');
+  assert.ok(finalBalance.value > initialBalance.value, 'Final balance should be greater than initial balance');
   console.log('\n✅ End-to-end test successful!');
 }
 

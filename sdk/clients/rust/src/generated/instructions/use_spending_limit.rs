@@ -8,6 +8,8 @@
 use borsh::BorshSerialize;
 use borsh::BorshDeserialize;
 
+pub const USE_SPENDING_LIMIT_DISCRIMINATOR: [u8; 8] = [41, 179, 70, 5, 194, 147, 239, 158];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct UseSpendingLimit {
@@ -207,7 +209,7 @@ impl Default for UseSpendingLimitInstructionData {
                       ///   7. `[writable, optional]` smart_account_token_account
                       ///   8. `[writable, optional]` destination_token_account
                 ///   9. `[optional]` token_program
-                ///   10. `[optional]` program (default to `GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD`)
+                ///   10. `[optional]` program (default to `ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q`)
 #[derive(Clone, Debug, Default)]
 pub struct UseSpendingLimitBuilder {
             settings: Option<solana_pubkey::Pubkey>,
@@ -295,7 +297,7 @@ impl UseSpendingLimitBuilder {
                         self.token_program = token_program;
                     self
     }
-            /// `[optional account, default to 'GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD']`
+            /// `[optional account, default to 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q']`
 #[inline(always)]
     pub fn program(&mut self, program: solana_pubkey::Pubkey) -> &mut Self {
                         self.program = Some(program);
@@ -342,7 +344,7 @@ impl UseSpendingLimitBuilder {
                                         smart_account_token_account: self.smart_account_token_account,
                                         destination_token_account: self.destination_token_account,
                                         token_program: self.token_program,
-                                        program: self.program.unwrap_or(solana_pubkey::pubkey!("GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD")),
+                                        program: self.program.unwrap_or(solana_pubkey::pubkey!("ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q")),
                       };
           let args = UseSpendingLimitInstructionArgs {
                                                               amount: self.amount.clone().expect("amount is not set"),
@@ -491,15 +493,15 @@ impl<'a, 'b> UseSpendingLimitCpi<'a, 'b> {
           }
   }
   #[inline(always)]
-  pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke(&self) -> solana_program_error::ProgramResult {
     self.invoke_signed_with_remaining_accounts(&[], &[])
   }
   #[inline(always)]
-  pub fn invoke_with_remaining_accounts(&self, remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)]) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke_with_remaining_accounts(&self, remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)]) -> solana_program_error::ProgramResult {
     self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
   }
   #[inline(always)]
-  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
     self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
   }
   #[allow(clippy::arithmetic_side_effects)]
@@ -509,7 +511,7 @@ impl<'a, 'b> UseSpendingLimitCpi<'a, 'b> {
     &self,
     signers_seeds: &[&[&[u8]]],
     remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)]
-  ) -> solana_program_entrypoint::ProgramResult {
+  ) -> solana_program_error::ProgramResult {
     let mut accounts = Vec::with_capacity(11+ remaining_accounts.len());
                             accounts.push(solana_instruction::AccountMeta::new_readonly(
             *self.settings.key,
@@ -782,12 +784,12 @@ impl<'a, 'b> UseSpendingLimitCpiBuilder<'a, 'b> {
     self
   }
   #[inline(always)]
-  pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke(&self) -> solana_program_error::ProgramResult {
     self.invoke_signed(&[])
   }
   #[allow(clippy::clone_on_copy)]
   #[allow(clippy::vec_init_then_push)]
-  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
           let args = UseSpendingLimitInstructionArgs {
                                                               amount: self.instruction.amount.clone().expect("amount is not set"),
                                                                   decimals: self.instruction.decimals.clone().expect("decimals is not set"),

@@ -33,6 +33,8 @@ pub buffer: Vec<u8>,
 }
 
 
+pub const TRANSACTION_BUFFER_DISCRIMINATOR: [u8; 8] = [90, 36, 35, 219, 93, 225, 110, 96];
+
 impl TransactionBuffer {
   
   
@@ -132,6 +134,6 @@ pub fn fetch_all_maybe_transaction_buffer(
   
   #[cfg(feature = "anchor-idl-build")]
   impl anchor_lang::Discriminator for TransactionBuffer {
-    const DISCRIMINATOR: [u8; 8] = [0; 8];
+    const DISCRIMINATOR: &[u8] = &[0; 8];
   }
 

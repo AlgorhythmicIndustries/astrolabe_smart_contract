@@ -31,6 +31,8 @@ pub reserved: [u8; 64],
 }
 
 
+pub const PROGRAM_CONFIG_DISCRIMINATOR: [u8; 8] = [196, 210, 90, 231, 144, 149, 140, 63];
+
 impl ProgramConfig {
       pub const LEN: usize = 160;
   
@@ -131,6 +133,6 @@ pub fn fetch_all_maybe_program_config(
   
   #[cfg(feature = "anchor-idl-build")]
   impl anchor_lang::Discriminator for ProgramConfig {
-    const DISCRIMINATOR: [u8; 8] = [0; 8];
+    const DISCRIMINATOR: &[u8] = &[0; 8];
   }
 

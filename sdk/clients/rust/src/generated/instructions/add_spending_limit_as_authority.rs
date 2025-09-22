@@ -10,6 +10,8 @@ use crate::generated::types::Period;
 use borsh::BorshSerialize;
 use borsh::BorshDeserialize;
 
+pub const ADD_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [169, 189, 84, 54, 30, 244, 223, 212];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct AddSpendingLimitAsAuthority {
@@ -126,7 +128,7 @@ impl Default for AddSpendingLimitAsAuthorityInstructionData {
                 ///   2. `[writable]` spending_limit
                       ///   3. `[writable, signer]` rent_payer
                 ///   4. `[optional]` system_program (default to `11111111111111111111111111111111`)
-                ///   5. `[optional]` program (default to `GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD`)
+                ///   5. `[optional]` program (default to `ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q`)
 #[derive(Clone, Debug, Default)]
 pub struct AddSpendingLimitAsAuthorityBuilder {
             settings: Option<solana_pubkey::Pubkey>,
@@ -179,7 +181,7 @@ impl AddSpendingLimitAsAuthorityBuilder {
                         self.system_program = Some(system_program);
                     self
     }
-            /// `[optional account, default to 'GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD']`
+            /// `[optional account, default to 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q']`
 #[inline(always)]
     pub fn program(&mut self, program: solana_pubkey::Pubkey) -> &mut Self {
                         self.program = Some(program);
@@ -251,7 +253,7 @@ impl AddSpendingLimitAsAuthorityBuilder {
                                         spending_limit: self.spending_limit.expect("spending_limit is not set"),
                                         rent_payer: self.rent_payer.expect("rent_payer is not set"),
                                         system_program: self.system_program.unwrap_or(solana_pubkey::pubkey!("11111111111111111111111111111111")),
-                                        program: self.program.unwrap_or(solana_pubkey::pubkey!("GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD")),
+                                        program: self.program.unwrap_or(solana_pubkey::pubkey!("ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q")),
                       };
           let args = AddSpendingLimitAsAuthorityInstructionArgs {
                                                               seed: self.seed.clone().expect("seed is not set"),
@@ -343,15 +345,15 @@ impl<'a, 'b> AddSpendingLimitAsAuthorityCpi<'a, 'b> {
           }
   }
   #[inline(always)]
-  pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke(&self) -> solana_program_error::ProgramResult {
     self.invoke_signed_with_remaining_accounts(&[], &[])
   }
   #[inline(always)]
-  pub fn invoke_with_remaining_accounts(&self, remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)]) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke_with_remaining_accounts(&self, remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)]) -> solana_program_error::ProgramResult {
     self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
   }
   #[inline(always)]
-  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
     self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
   }
   #[allow(clippy::arithmetic_side_effects)]
@@ -361,7 +363,7 @@ impl<'a, 'b> AddSpendingLimitAsAuthorityCpi<'a, 'b> {
     &self,
     signers_seeds: &[&[&[u8]]],
     remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)]
-  ) -> solana_program_entrypoint::ProgramResult {
+  ) -> solana_program_error::ProgramResult {
     let mut accounts = Vec::with_capacity(6+ remaining_accounts.len());
                             accounts.push(solana_instruction::AccountMeta::new_readonly(
             *self.settings.key,
@@ -553,12 +555,12 @@ impl<'a, 'b> AddSpendingLimitAsAuthorityCpiBuilder<'a, 'b> {
     self
   }
   #[inline(always)]
-  pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke(&self) -> solana_program_error::ProgramResult {
     self.invoke_signed(&[])
   }
   #[allow(clippy::clone_on_copy)]
   #[allow(clippy::vec_init_then_push)]
-  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_entrypoint::ProgramResult {
+  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
           let args = AddSpendingLimitAsAuthorityInstructionArgs {
                                                               seed: self.instruction.seed.clone().expect("seed is not set"),
                                                                   account_index: self.instruction.account_index.clone().expect("account_index is not set"),
