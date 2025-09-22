@@ -41,9 +41,9 @@ impl<'info> CreateTransactionFromBuffer<'info> {
 
         // Debug logging for CreateTransactionFromBuffer args - if we reach here, args are OK
         msg!("CreateTransactionFromBuffer validation started");
-        msg!("CreateTransactionFromBuffer: buffer_creator={}", transaction_buffer_account.creator);
-        msg!("CreateTransactionFromBuffer: current_creator={}", creator.key());
-        msg!("CreateTransactionFromBuffer: creators_match={}", transaction_buffer_account.creator == creator.key());
+        msg!("  buffer_creator={}", transaction_buffer_account.creator);
+        msg!("  current_creator={}", creator.key());
+        msg!("  creators_match={}", transaction_buffer_account.creator == creator.key());
 
         // Check that the transaction message is "empty"
         require!(
