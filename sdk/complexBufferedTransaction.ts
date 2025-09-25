@@ -113,8 +113,8 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
 
   // Encode as the TransactionMessage format expected by smart contract
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { getTransactionMessageEncoder } = require('./clients/js/src/generated/types/transactionMessage');
-  const smartAccountMessageBytes = getTransactionMessageEncoder().encode(transactionMessage);
+  const { getSmartAccountTransactionMessageEncoder } = require('./clients/js/src/generated/types/smartAccountTransactionMessage');
+  const smartAccountMessageBytes = getSmartAccountTransactionMessageEncoder().encode(transactionMessage);
 
   // Final buffer hash/size
   const finalBuffer = new Uint8Array(smartAccountMessageBytes);
