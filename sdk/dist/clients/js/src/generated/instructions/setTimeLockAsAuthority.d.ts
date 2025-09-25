@@ -7,7 +7,7 @@
  */
 import { type AccountMeta, type AccountSignerMeta, type Address, type Codec, type Decoder, type Encoder, type Instruction, type InstructionWithAccounts, type InstructionWithData, type Option, type OptionOrNullable, type ReadonlyAccount, type ReadonlySignerAccount, type ReadonlyUint8Array, type TransactionSigner, type WritableAccount, type WritableSignerAccount } from '@solana/kit';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
-export declare const SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR: Uint8Array<ArrayBuffer>;
+export declare const SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR: Uint8Array;
 export declare function getSetTimeLockAsAuthorityDiscriminatorBytes(): ReadonlyUint8Array;
 export type SetTimeLockAsAuthorityInstruction<TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS, TAccountSettings extends string | AccountMeta<string> = string, TAccountSettingsAuthority extends string | AccountMeta<string> = string, TAccountRentPayer extends string | AccountMeta<string> = string, TAccountSystemProgram extends string | AccountMeta<string> = '11111111111111111111111111111111', TAccountProgram extends string | AccountMeta<string> = 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q', TRemainingAccounts extends readonly AccountMeta<string>[] = []> = Instruction<TProgram> & InstructionWithData<ReadonlyUint8Array> & InstructionWithAccounts<[
     TAccountSettings extends string ? WritableAccount<TAccountSettings> : TAccountSettings,

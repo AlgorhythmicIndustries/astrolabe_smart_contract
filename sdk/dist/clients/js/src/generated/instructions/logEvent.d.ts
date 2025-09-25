@@ -7,7 +7,7 @@
  */
 import { type AccountMeta, type AccountSignerMeta, type Address, type Codec, type Decoder, type Encoder, type Instruction, type InstructionWithAccounts, type InstructionWithData, type ReadonlySignerAccount, type ReadonlyUint8Array, type TransactionSigner } from '@solana/kit';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
-export declare const LOG_EVENT_DISCRIMINATOR: Uint8Array<ArrayBuffer>;
+export declare const LOG_EVENT_DISCRIMINATOR: Uint8Array;
 export declare function getLogEventDiscriminatorBytes(): ReadonlyUint8Array;
 export type LogEventInstruction<TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS, TAccountLogAuthority extends string | AccountMeta<string> = string, TRemainingAccounts extends readonly AccountMeta<string>[] = []> = Instruction<TProgram> & InstructionWithData<ReadonlyUint8Array> & InstructionWithAccounts<[
     TAccountLogAuthority extends string ? ReadonlySignerAccount<TAccountLogAuthority> & AccountSignerMeta<TAccountLogAuthority> : TAccountLogAuthority,

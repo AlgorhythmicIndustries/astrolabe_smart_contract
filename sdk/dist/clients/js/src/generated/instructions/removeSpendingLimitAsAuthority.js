@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.REMOVE_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR = void 0;
-exports.getRemoveSpendingLimitAsAuthorityDiscriminatorBytes = getRemoveSpendingLimitAsAuthorityDiscriminatorBytes;
-exports.getRemoveSpendingLimitAsAuthorityInstructionDataEncoder = getRemoveSpendingLimitAsAuthorityInstructionDataEncoder;
-exports.getRemoveSpendingLimitAsAuthorityInstructionDataDecoder = getRemoveSpendingLimitAsAuthorityInstructionDataDecoder;
-exports.getRemoveSpendingLimitAsAuthorityInstructionDataCodec = getRemoveSpendingLimitAsAuthorityInstructionDataCodec;
-exports.getRemoveSpendingLimitAsAuthorityInstruction = getRemoveSpendingLimitAsAuthorityInstruction;
-exports.parseRemoveSpendingLimitAsAuthorityInstruction = parseRemoveSpendingLimitAsAuthorityInstruction;
+exports.parseRemoveSpendingLimitAsAuthorityInstruction = exports.getRemoveSpendingLimitAsAuthorityInstruction = exports.getRemoveSpendingLimitAsAuthorityInstructionDataCodec = exports.getRemoveSpendingLimitAsAuthorityInstructionDataDecoder = exports.getRemoveSpendingLimitAsAuthorityInstructionDataEncoder = exports.getRemoveSpendingLimitAsAuthorityDiscriminatorBytes = exports.REMOVE_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -23,6 +17,7 @@ exports.REMOVE_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([
 function getRemoveSpendingLimitAsAuthorityDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.REMOVE_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR);
 }
+exports.getRemoveSpendingLimitAsAuthorityDiscriminatorBytes = getRemoveSpendingLimitAsAuthorityDiscriminatorBytes;
 function getRemoveSpendingLimitAsAuthorityInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -35,6 +30,7 @@ function getRemoveSpendingLimitAsAuthorityInstructionDataEncoder() {
         discriminator: exports.REMOVE_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR,
     }));
 }
+exports.getRemoveSpendingLimitAsAuthorityInstructionDataEncoder = getRemoveSpendingLimitAsAuthorityInstructionDataEncoder;
 function getRemoveSpendingLimitAsAuthorityInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
@@ -44,9 +40,11 @@ function getRemoveSpendingLimitAsAuthorityInstructionDataDecoder() {
         ],
     ]);
 }
+exports.getRemoveSpendingLimitAsAuthorityInstructionDataDecoder = getRemoveSpendingLimitAsAuthorityInstructionDataDecoder;
 function getRemoveSpendingLimitAsAuthorityInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getRemoveSpendingLimitAsAuthorityInstructionDataEncoder(), getRemoveSpendingLimitAsAuthorityInstructionDataDecoder());
 }
+exports.getRemoveSpendingLimitAsAuthorityInstructionDataCodec = getRemoveSpendingLimitAsAuthorityInstructionDataCodec;
 function getRemoveSpendingLimitAsAuthorityInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -82,6 +80,7 @@ function getRemoveSpendingLimitAsAuthorityInstruction(input, config) {
         programAddress,
     });
 }
+exports.getRemoveSpendingLimitAsAuthorityInstruction = getRemoveSpendingLimitAsAuthorityInstruction;
 function parseRemoveSpendingLimitAsAuthorityInstruction(instruction) {
     if (instruction.accounts.length < 5) {
         // TODO: Coded error.
@@ -105,3 +104,4 @@ function parseRemoveSpendingLimitAsAuthorityInstruction(instruction) {
         data: getRemoveSpendingLimitAsAuthorityInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseRemoveSpendingLimitAsAuthorityInstruction = parseRemoveSpendingLimitAsAuthorityInstruction;

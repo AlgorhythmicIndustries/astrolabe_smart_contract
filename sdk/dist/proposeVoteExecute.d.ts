@@ -1,28 +1,6 @@
 import { type Address, createSolanaRpc, type TransactionSigner } from '@solana/kit';
 type SolanaRpc = ReturnType<typeof createSolanaRpc>;
 /**
- * Result of deriving smart account info from settings address
- */
-export type SmartAccountInfo = {
-    /** The smart account PDA that holds funds */
-    smartAccountPda: Address;
-    /** The settings address (input) */
-    settingsAddress: Address;
-    /** The account index used for derivation */
-    accountIndex: bigint;
-    /** The smart account PDA bump seed */
-    smartAccountPdaBump: number;
-};
-/**
- * Derives smart account PDA and related info from a settings address
- *
- * @param rpc - The RPC client
- * @param settingsAddress - The smart account settings PDA
- * @param accountIndex - Optional account index to use if settings account doesn't exist
- * @returns Smart account info including the PDA and bump
- */
-export declare function deriveSmartAccountInfo(rpc: SolanaRpc, settingsAddress: Address, accountIndex?: bigint): Promise<SmartAccountInfo>;
-/**
  * Parameters for the propose-vote-execute workflow
  */
 export type ProposeVoteExecuteParams = {

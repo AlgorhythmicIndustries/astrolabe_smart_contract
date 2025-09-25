@@ -30,69 +30,6 @@ import * as bs58 from 'bs58';
 type SolanaRpc = ReturnType<typeof createSolanaRpc>;
 
 /**
- * Result of deriving smart account info from settings address
- */
-export type SmartAccountInfo = {
-  /** The smart account PDA that holds funds */
-  smartAccountPda: Address;
-  /** The settings address (input) */
-  settingsAddress: Address;
-  /** The account index used for derivation */
-  accountIndex: bigint;
-  /** The smart account PDA bump seed */
-  smartAccountPdaBump: number;
-};
-
-/**
- * Derives smart account PDA and related info from a settings address
- * 
- * @param rpc - The RPC client
- * @param settingsAddress - The smart account settings PDA
- * @param accountIndex - Optional account index to use if settings account doesn't exist
- * @returns Smart account info including the PDA and bump
- */
-export async function deriveSmartAccountInfo(
-  rpc: SolanaRpc,
-  settingsAddress: Address,
-  accountIndex?: bigint
-): Promise<SmartAccountInfo> {
-  // Always use account_index = 0 for the primary smart account
-  // The accountIndex parameter is kept for compatibility but ignored
-  console.log('🔧 Using account index 0 for primary smart account (ignoring any provided accountIndex)');
-
-  // Derive the smart account PDA using account_index = 0 (primary smart account)
-  // This matches the working example and the expected u8 type in the program
-  console.log('🔧 Deriving smart account PDA with:', {
-    settingsAddress: settingsAddress.toString(),
-    accountIndex: '0',
-    programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS.toString()
-  });
-
-  const [smartAccountPda, smartAccountPdaBump] = await getProgramDerivedAddress({
-    programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-    seeds: [
-      new Uint8Array(Buffer.from('smart_account')),
-      bs58.decode(settingsAddress),
-      new Uint8Array(Buffer.from('smart_account')),
-      // Use account_index 0 for the primary smart account (matches working example)
-      new Uint8Array([0]),
-    ],
-  });
-
-  console.log('✅ Derived smart account PDA:', {
-    smartAccountPda: smartAccountPda.toString(),
-    bump: smartAccountPdaBump
-  });
-
-  return {
-    smartAccountPda,
-    settingsAddress,
-    accountIndex: BigInt(0), // Always 0 for primary smart account
-    smartAccountPdaBump,
-  };
-}
-
-/**
  * Parameters for the propose-vote-execute workflow
  */
 export type ProposeVoteExecuteParams = {

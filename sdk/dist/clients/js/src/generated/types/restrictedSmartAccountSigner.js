@@ -7,9 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRestrictedSmartAccountSignerEncoder = getRestrictedSmartAccountSignerEncoder;
-exports.getRestrictedSmartAccountSignerDecoder = getRestrictedSmartAccountSignerDecoder;
-exports.getRestrictedSmartAccountSignerCodec = getRestrictedSmartAccountSignerCodec;
+exports.getRestrictedSmartAccountSignerCodec = exports.getRestrictedSmartAccountSignerDecoder = exports.getRestrictedSmartAccountSignerEncoder = void 0;
 const kit_1 = require("@solana/kit");
 const _1 = require(".");
 function getRestrictedSmartAccountSignerEncoder() {
@@ -18,12 +16,15 @@ function getRestrictedSmartAccountSignerEncoder() {
         ['restrictedPermissions', (0, _1.getRestrictedPermissionsEncoder)()],
     ]);
 }
+exports.getRestrictedSmartAccountSignerEncoder = getRestrictedSmartAccountSignerEncoder;
 function getRestrictedSmartAccountSignerDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['key', (0, kit_1.getAddressDecoder)()],
         ['restrictedPermissions', (0, _1.getRestrictedPermissionsDecoder)()],
     ]);
 }
+exports.getRestrictedSmartAccountSignerDecoder = getRestrictedSmartAccountSignerDecoder;
 function getRestrictedSmartAccountSignerCodec() {
     return (0, kit_1.combineCodec)(getRestrictedSmartAccountSignerEncoder(), getRestrictedSmartAccountSignerDecoder());
 }
+exports.getRestrictedSmartAccountSignerCodec = getRestrictedSmartAccountSignerCodec;

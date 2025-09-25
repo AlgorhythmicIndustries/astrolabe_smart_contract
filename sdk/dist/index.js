@@ -17,3 +17,4 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./createSmartAccount"), exports);
 __exportStar(require("./proposeVoteExecute"), exports);
 __exportStar(require("./complexBufferedTransaction"), exports);
+__exportStar(require("./simpleTransaction"), exports);

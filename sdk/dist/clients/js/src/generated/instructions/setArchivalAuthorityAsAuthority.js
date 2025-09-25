@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SET_ARCHIVAL_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR = void 0;
-exports.getSetArchivalAuthorityAsAuthorityDiscriminatorBytes = getSetArchivalAuthorityAsAuthorityDiscriminatorBytes;
-exports.getSetArchivalAuthorityAsAuthorityInstructionDataEncoder = getSetArchivalAuthorityAsAuthorityInstructionDataEncoder;
-exports.getSetArchivalAuthorityAsAuthorityInstructionDataDecoder = getSetArchivalAuthorityAsAuthorityInstructionDataDecoder;
-exports.getSetArchivalAuthorityAsAuthorityInstructionDataCodec = getSetArchivalAuthorityAsAuthorityInstructionDataCodec;
-exports.getSetArchivalAuthorityAsAuthorityInstruction = getSetArchivalAuthorityAsAuthorityInstruction;
-exports.parseSetArchivalAuthorityAsAuthorityInstruction = parseSetArchivalAuthorityAsAuthorityInstruction;
+exports.parseSetArchivalAuthorityAsAuthorityInstruction = exports.getSetArchivalAuthorityAsAuthorityInstruction = exports.getSetArchivalAuthorityAsAuthorityInstructionDataCodec = exports.getSetArchivalAuthorityAsAuthorityInstructionDataDecoder = exports.getSetArchivalAuthorityAsAuthorityInstructionDataEncoder = exports.getSetArchivalAuthorityAsAuthorityDiscriminatorBytes = exports.SET_ARCHIVAL_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -21,6 +15,7 @@ exports.SET_ARCHIVAL_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([178,
 function getSetArchivalAuthorityAsAuthorityDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.SET_ARCHIVAL_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR);
 }
+exports.getSetArchivalAuthorityAsAuthorityDiscriminatorBytes = getSetArchivalAuthorityAsAuthorityDiscriminatorBytes;
 function getSetArchivalAuthorityAsAuthorityInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -34,6 +29,7 @@ function getSetArchivalAuthorityAsAuthorityInstructionDataEncoder() {
         discriminator: exports.SET_ARCHIVAL_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR,
     }));
 }
+exports.getSetArchivalAuthorityAsAuthorityInstructionDataEncoder = getSetArchivalAuthorityAsAuthorityInstructionDataEncoder;
 function getSetArchivalAuthorityAsAuthorityInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
@@ -44,9 +40,11 @@ function getSetArchivalAuthorityAsAuthorityInstructionDataDecoder() {
         ],
     ]);
 }
+exports.getSetArchivalAuthorityAsAuthorityInstructionDataDecoder = getSetArchivalAuthorityAsAuthorityInstructionDataDecoder;
 function getSetArchivalAuthorityAsAuthorityInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getSetArchivalAuthorityAsAuthorityInstructionDataEncoder(), getSetArchivalAuthorityAsAuthorityInstructionDataDecoder());
 }
+exports.getSetArchivalAuthorityAsAuthorityInstructionDataCodec = getSetArchivalAuthorityAsAuthorityInstructionDataCodec;
 function getSetArchivalAuthorityAsAuthorityInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -86,6 +84,7 @@ function getSetArchivalAuthorityAsAuthorityInstruction(input, config) {
         programAddress,
     });
 }
+exports.getSetArchivalAuthorityAsAuthorityInstruction = getSetArchivalAuthorityAsAuthorityInstruction;
 function parseSetArchivalAuthorityAsAuthorityInstruction(instruction) {
     if (instruction.accounts.length < 5) {
         // TODO: Coded error.
@@ -115,3 +114,4 @@ function parseSetArchivalAuthorityAsAuthorityInstruction(instruction) {
         data: getSetArchivalAuthorityAsAuthorityInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseSetArchivalAuthorityAsAuthorityInstruction = parseSetArchivalAuthorityAsAuthorityInstruction;

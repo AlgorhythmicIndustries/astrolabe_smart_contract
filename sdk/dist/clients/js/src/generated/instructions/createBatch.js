@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CREATE_BATCH_DISCRIMINATOR = void 0;
-exports.getCreateBatchDiscriminatorBytes = getCreateBatchDiscriminatorBytes;
-exports.getCreateBatchInstructionDataEncoder = getCreateBatchInstructionDataEncoder;
-exports.getCreateBatchInstructionDataDecoder = getCreateBatchInstructionDataDecoder;
-exports.getCreateBatchInstructionDataCodec = getCreateBatchInstructionDataCodec;
-exports.getCreateBatchInstruction = getCreateBatchInstruction;
-exports.parseCreateBatchInstruction = parseCreateBatchInstruction;
+exports.parseCreateBatchInstruction = exports.getCreateBatchInstruction = exports.getCreateBatchInstructionDataCodec = exports.getCreateBatchInstructionDataDecoder = exports.getCreateBatchInstructionDataEncoder = exports.getCreateBatchDiscriminatorBytes = exports.CREATE_BATCH_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -23,6 +17,7 @@ exports.CREATE_BATCH_DISCRIMINATOR = new Uint8Array([
 function getCreateBatchDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.CREATE_BATCH_DISCRIMINATOR);
 }
+exports.getCreateBatchDiscriminatorBytes = getCreateBatchDiscriminatorBytes;
 function getCreateBatchInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -33,6 +28,7 @@ function getCreateBatchInstructionDataEncoder() {
         ],
     ]), (value) => ({ ...value, discriminator: exports.CREATE_BATCH_DISCRIMINATOR }));
 }
+exports.getCreateBatchInstructionDataEncoder = getCreateBatchInstructionDataEncoder;
 function getCreateBatchInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
@@ -43,9 +39,11 @@ function getCreateBatchInstructionDataDecoder() {
         ],
     ]);
 }
+exports.getCreateBatchInstructionDataDecoder = getCreateBatchInstructionDataDecoder;
 function getCreateBatchInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getCreateBatchInstructionDataEncoder(), getCreateBatchInstructionDataDecoder());
 }
+exports.getCreateBatchInstructionDataCodec = getCreateBatchInstructionDataCodec;
 function getCreateBatchInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -78,6 +76,7 @@ function getCreateBatchInstruction(input, config) {
         programAddress,
     });
 }
+exports.getCreateBatchInstruction = getCreateBatchInstruction;
 function parseCreateBatchInstruction(instruction) {
     if (instruction.accounts.length < 5) {
         // TODO: Coded error.
@@ -101,3 +100,4 @@ function parseCreateBatchInstruction(instruction) {
         data: getCreateBatchInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseCreateBatchInstruction = parseCreateBatchInstruction;

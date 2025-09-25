@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EXECUTE_TRANSACTION_SYNC_DISCRIMINATOR = void 0;
-exports.getExecuteTransactionSyncDiscriminatorBytes = getExecuteTransactionSyncDiscriminatorBytes;
-exports.getExecuteTransactionSyncInstructionDataEncoder = getExecuteTransactionSyncInstructionDataEncoder;
-exports.getExecuteTransactionSyncInstructionDataDecoder = getExecuteTransactionSyncInstructionDataDecoder;
-exports.getExecuteTransactionSyncInstructionDataCodec = getExecuteTransactionSyncInstructionDataCodec;
-exports.getExecuteTransactionSyncInstruction = getExecuteTransactionSyncInstruction;
-exports.parseExecuteTransactionSyncInstruction = parseExecuteTransactionSyncInstruction;
+exports.parseExecuteTransactionSyncInstruction = exports.getExecuteTransactionSyncInstruction = exports.getExecuteTransactionSyncInstructionDataCodec = exports.getExecuteTransactionSyncInstructionDataDecoder = exports.getExecuteTransactionSyncInstructionDataEncoder = exports.getExecuteTransactionSyncDiscriminatorBytes = exports.EXECUTE_TRANSACTION_SYNC_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -23,6 +17,7 @@ exports.EXECUTE_TRANSACTION_SYNC_DISCRIMINATOR = new Uint8Array([
 function getExecuteTransactionSyncDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.EXECUTE_TRANSACTION_SYNC_DISCRIMINATOR);
 }
+exports.getExecuteTransactionSyncDiscriminatorBytes = getExecuteTransactionSyncDiscriminatorBytes;
 function getExecuteTransactionSyncInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -37,6 +32,7 @@ function getExecuteTransactionSyncInstructionDataEncoder() {
         discriminator: exports.EXECUTE_TRANSACTION_SYNC_DISCRIMINATOR,
     }));
 }
+exports.getExecuteTransactionSyncInstructionDataEncoder = getExecuteTransactionSyncInstructionDataEncoder;
 function getExecuteTransactionSyncInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
@@ -45,9 +41,11 @@ function getExecuteTransactionSyncInstructionDataDecoder() {
         ['instructions', (0, kit_1.addDecoderSizePrefix)((0, kit_1.getBytesDecoder)(), (0, kit_1.getU32Decoder)())],
     ]);
 }
+exports.getExecuteTransactionSyncInstructionDataDecoder = getExecuteTransactionSyncInstructionDataDecoder;
 function getExecuteTransactionSyncInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getExecuteTransactionSyncInstructionDataEncoder(), getExecuteTransactionSyncInstructionDataDecoder());
 }
+exports.getExecuteTransactionSyncInstructionDataCodec = getExecuteTransactionSyncInstructionDataCodec;
 function getExecuteTransactionSyncInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -74,6 +72,7 @@ function getExecuteTransactionSyncInstruction(input, config) {
         programAddress,
     });
 }
+exports.getExecuteTransactionSyncInstruction = getExecuteTransactionSyncInstruction;
 function parseExecuteTransactionSyncInstruction(instruction) {
     if (instruction.accounts.length < 2) {
         // TODO: Coded error.
@@ -91,3 +90,4 @@ function parseExecuteTransactionSyncInstruction(instruction) {
         data: getExecuteTransactionSyncInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseExecuteTransactionSyncInstruction = parseExecuteTransactionSyncInstruction;

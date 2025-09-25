@@ -7,14 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SET_PROGRAM_CONFIG_TREASURY_DISCRIMINATOR = void 0;
-exports.getSetProgramConfigTreasuryDiscriminatorBytes = getSetProgramConfigTreasuryDiscriminatorBytes;
-exports.getSetProgramConfigTreasuryInstructionDataEncoder = getSetProgramConfigTreasuryInstructionDataEncoder;
-exports.getSetProgramConfigTreasuryInstructionDataDecoder = getSetProgramConfigTreasuryInstructionDataDecoder;
-exports.getSetProgramConfigTreasuryInstructionDataCodec = getSetProgramConfigTreasuryInstructionDataCodec;
-exports.getSetProgramConfigTreasuryInstructionAsync = getSetProgramConfigTreasuryInstructionAsync;
-exports.getSetProgramConfigTreasuryInstruction = getSetProgramConfigTreasuryInstruction;
-exports.parseSetProgramConfigTreasuryInstruction = parseSetProgramConfigTreasuryInstruction;
+exports.parseSetProgramConfigTreasuryInstruction = exports.getSetProgramConfigTreasuryInstruction = exports.getSetProgramConfigTreasuryInstructionAsync = exports.getSetProgramConfigTreasuryInstructionDataCodec = exports.getSetProgramConfigTreasuryInstructionDataDecoder = exports.getSetProgramConfigTreasuryInstructionDataEncoder = exports.getSetProgramConfigTreasuryDiscriminatorBytes = exports.SET_PROGRAM_CONFIG_TREASURY_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -24,6 +17,7 @@ exports.SET_PROGRAM_CONFIG_TREASURY_DISCRIMINATOR = new Uint8Array([
 function getSetProgramConfigTreasuryDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.SET_PROGRAM_CONFIG_TREASURY_DISCRIMINATOR);
 }
+exports.getSetProgramConfigTreasuryDiscriminatorBytes = getSetProgramConfigTreasuryDiscriminatorBytes;
 function getSetProgramConfigTreasuryInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -33,15 +27,18 @@ function getSetProgramConfigTreasuryInstructionDataEncoder() {
         discriminator: exports.SET_PROGRAM_CONFIG_TREASURY_DISCRIMINATOR,
     }));
 }
+exports.getSetProgramConfigTreasuryInstructionDataEncoder = getSetProgramConfigTreasuryInstructionDataEncoder;
 function getSetProgramConfigTreasuryInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
         ['newTreasury', (0, kit_1.getAddressDecoder)()],
     ]);
 }
+exports.getSetProgramConfigTreasuryInstructionDataDecoder = getSetProgramConfigTreasuryInstructionDataDecoder;
 function getSetProgramConfigTreasuryInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getSetProgramConfigTreasuryInstructionDataEncoder(), getSetProgramConfigTreasuryInstructionDataDecoder());
 }
+exports.getSetProgramConfigTreasuryInstructionDataCodec = getSetProgramConfigTreasuryInstructionDataCodec;
 async function getSetProgramConfigTreasuryInstructionAsync(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -77,6 +74,7 @@ async function getSetProgramConfigTreasuryInstructionAsync(input, config) {
         programAddress,
     });
 }
+exports.getSetProgramConfigTreasuryInstructionAsync = getSetProgramConfigTreasuryInstructionAsync;
 function getSetProgramConfigTreasuryInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -98,6 +96,7 @@ function getSetProgramConfigTreasuryInstruction(input, config) {
         programAddress,
     });
 }
+exports.getSetProgramConfigTreasuryInstruction = getSetProgramConfigTreasuryInstruction;
 function parseSetProgramConfigTreasuryInstruction(instruction) {
     if (instruction.accounts.length < 2) {
         // TODO: Coded error.
@@ -115,3 +114,4 @@ function parseSetProgramConfigTreasuryInstruction(instruction) {
         data: getSetProgramConfigTreasuryInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseSetProgramConfigTreasuryInstruction = parseSetProgramConfigTreasuryInstruction;
