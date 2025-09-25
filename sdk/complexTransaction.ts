@@ -13,245 +13,234 @@ import {
   getCompiledTransactionMessageDecoder,
   type TransactionSigner,
   AccountRole,
-  assertIsTransactionWithinSizeLimit,
+  type Instruction,
+  type AccountMeta,
+  type AccountLookupMeta,
+  type AddressesByLookupTableAddress,
+  compressTransactionMessageUsingAddressLookupTables,
 } from '@solana/kit';
 import { Buffer } from 'buffer';
+import * as bs58 from 'bs58';
+
+type SolanaRpc = ReturnType<typeof createSolanaRpc>;
+
+function decodeTransactionMessage(messageBytes: Uint8Array) {
+  const decoder = getCompiledTransactionMessageDecoder();
+  return decoder.decode(messageBytes);
+}
+
 import { fetchSettings } from './clients/js/src/generated/accounts/settings';
 import { 
   getCreateTransactionInstruction,
   getCreateProposalInstruction,
   getApproveProposalInstruction,
   getExecuteTransactionInstruction,
+  getCloseTransactionInstruction,
 } from './clients/js/src/generated/instructions';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from './clients/js/src/generated/programs';
 import { getSmartAccountTransactionMessageEncoder } from './clients/js/src/generated/types/smartAccountTransactionMessage';
-import * as bs58 from 'bs58';
+import {
+  deriveTransactionPda,
+  deriveProposalPda,
+  fetchSmartAccountSettings,
+} from './utils/index';
 
-type SolanaRpc = ReturnType<typeof createSolanaRpc>;
-
-/**
- * Parameters for the propose-vote-execute workflow
- */
-export type ProposeVoteExecuteParams = {
-  /** The RPC client to use for fetching on-chain data. */
+export interface ComplexTransactionParams {
+  /** RPC client for blockchain interaction */
   rpc: SolanaRpc;
-  /** The smart account settings address (PDA) */
+  /** Smart account settings PDA address */
   smartAccountSettings: Address;
-  /** The smart account PDA that will sign the inner transaction */
+  /** Smart account PDA address that will execute the transaction */
   smartAccountPda: Address;
-  /** The smart account PDA bump */
+  /** Smart account PDA bump seed */
   smartAccountPdaBump: number;
-  /** The signer who will create proposal, vote, and execute */
+  /** Transaction signer (the user) */
   signer: TransactionSigner;
-  /** The inner instructions to execute within the smart account */
-  innerInstructions?: any[];
+  /** Fee payer address (backend will replace with actual signer) */
+  feePayer: Address;
   /** Raw transaction bytes (alternative to innerInstructions) - preserves ALT structure */
   innerTransactionBytes?: Uint8Array;
   /** Address table lookups for ALT support */
   addressTableLookups?: any[];
   /** Optional memo for the transaction */
   memo?: string;
-};
+  /** Optional: Input token mint for creating backend fee account (for Jupiter swaps) */
+  inputTokenMint?: string;
+  /** Optional: Input token program ID (SPL Token vs Token-2022) for ATA creation */
+  inputTokenProgram?: string;
+  /** Optional: Pre-derived backend fee account address (ATA) */
+  backendFeeAccount?: string;
+}
 
-/**
- * Result of the propose-vote-execute workflow
- */
-export type ProposeVoteExecuteResult = {
-  /** The serialized transaction buffer ready to be sent to backend */
-  transactionBuffer: Uint8Array;
-  /** The transaction PDA that was created */
+export interface ComplexTransactionResult {
+  /** First transaction: propose only (contains Jupiter data) */
+  proposeTransactionBuffer: Uint8Array;
+  /** Second transaction: vote only */
+  voteTransactionBuffer: Uint8Array;
+  /** Third transaction: execute only */
+  executeTransactionBuffer: Uint8Array;
+  /** Transaction PDA address */
   transactionPda: Address;
-  /** The proposal PDA that was created */
+  /** Proposal PDA address */
   proposalPda: Address;
-  /** The transaction index used */
+  /** Transaction index used */
   transactionIndex: bigint;
-};
+}
 
 /**
- * High-level function that combines the smart account propose-vote-execute pattern
- * into a single serialized transaction. This creates a transaction, proposal, approves it,
- * and executes it all in one atomic operation.
- * 
- * @param params - The parameters for the workflow
- * @returns Promise resolving to transaction buffer and metadata
+ * Creates a complex transaction split into three parts for large transactions like swaps
+ * Part 1: propose (contains Jupiter data - medium size)
+ * Part 2: vote (minimal size)
+ * Part 3: execute (medium size with account references)
  */
-export async function createProposeVoteExecuteTransaction(
-  params: ProposeVoteExecuteParams
-): Promise<ProposeVoteExecuteResult> {
-  console.log('🚀 Starting createProposeVoteExecuteTransaction...');
+export async function createComplexTransaction(
+  params: ComplexTransactionParams
+): Promise<ComplexTransactionResult> {
+  
+  console.log('🚀 Starting createComplexTransaction...');
   console.log('🔍 Params type:', typeof params);
   console.log('🔍 Params is null/undefined:', params == null);
   
-  if (params) {
-    console.log('🔍 innerTransactionBytes exists:', !!params.innerTransactionBytes);
-    console.log('🔍 innerInstructions exists:', !!params.innerInstructions);
+  if (params.innerTransactionBytes) {
+    console.log('🔍 innerTransactionBytes exists:', true);
     console.log('🔍 innerTransactionBytes type:', typeof params.innerTransactionBytes);
-    if (params.innerTransactionBytes) {
-      console.log('🔍 innerTransactionBytes length:', params.innerTransactionBytes.length);
-    }
+    console.log('🔍 innerTransactionBytes length:', params.innerTransactionBytes.length);
   } else {
-    console.log('❌ Params is null or undefined!');
+    console.log('🔍 innerTransactionBytes exists:', false);
   }
-  try {
-    console.log('📋 Input params:', {
-      smartAccountSettings: params.smartAccountSettings ? params.smartAccountSettings.toString() : 'undefined',
-      smartAccountPda: params.smartAccountPda ? params.smartAccountPda.toString() : 'undefined',
-      smartAccountPdaBump: params.smartAccountPdaBump,
-      signerAddress: params.signer && params.signer.address ? params.signer.address.toString() : 'undefined',
-      innerInstructionCount: params.innerInstructions ? params.innerInstructions.length : 'N/A',
-      innerTransactionSize: params.innerTransactionBytes ? params.innerTransactionBytes.length : 'N/A',
-      memo: params.memo || 'Smart Account Transaction'
-    });
-  } catch (logError) {
-    console.error('❌ Error in logging params:', logError);
-    throw logError;
-  }
+  
+  console.log('📋 Input params:', {
+    smartAccountSettings: params.smartAccountSettings.toString(),
+    smartAccountPda: params.smartAccountPda.toString(),
+    smartAccountPdaBump: params.smartAccountPdaBump,
+    signerAddress: params.signer.address.toString(),
+    feePayerAddress: params.feePayer.toString(),
+    innerTransactionSize: params.innerTransactionBytes ? params.innerTransactionBytes.length : 'N/A',
+    addressTableLookupsReceived: !!params.addressTableLookups,
+    addressTableLookupsCount: params.addressTableLookups?.length || 0,
+    memo: params.memo || 'Complex Smart Account Transaction'
+  });
+  
+  console.log('🔍 Raw addressTableLookups in complexTransaction:', JSON.stringify(params.addressTableLookups, null, 2));
 
   console.log('🔧 About to destructure params...');
   
-  // Destructure safely
-  const rpc = params.rpc;
-  const smartAccountSettings = params.smartAccountSettings;
-  const smartAccountPda = params.smartAccountPda;
-  const smartAccountPdaBump = params.smartAccountPdaBump;
-  const signer = params.signer;
-  const innerInstructions = params.innerInstructions;
-  const innerTransactionBytes = params.innerTransactionBytes;
-  const addressTableLookups = params.addressTableLookups || [];
-  const memo = params.memo || 'Smart Account Transaction';
+  const {
+    rpc,
+    smartAccountSettings,
+    smartAccountPda,
+    smartAccountPdaBump,
+    signer,
+    feePayer,
+    innerTransactionBytes,
+    addressTableLookups = [],
+    inputTokenMint,
+  } = params;
   
+  const memo = params.memo || 'Complex Smart Account Transaction';
   console.log('✅ Destructuring completed');
+  
+  console.log('🔍 After destructuring - addressTableLookups:', JSON.stringify(addressTableLookups, null, 2));
+  console.log('🔍 After destructuring - addressTableLookups.length:', addressTableLookups?.length);
 
-  // Validate that we have either instructions or transaction bytes
-  if (!innerInstructions && !innerTransactionBytes) {
-    throw new Error('Either innerInstructions or innerTransactionBytes must be provided');
-  }
-  if (innerInstructions && innerTransactionBytes) {
-    throw new Error('Cannot provide both innerInstructions and innerTransactionBytes');
+  // Validate that we have transaction bytes
+  if (!innerTransactionBytes) {
+    throw new Error('innerTransactionBytes is required for complex transactions');
   }
 
   console.log('🔧 Step 1: Fetching latest settings state...');
-  // 1. Fetch the latest on-chain state for the Settings account
-  const settings = await fetchSettings(rpc, smartAccountSettings);
-  const transactionIndex = settings.data.transactionIndex + BigInt(1);
+  // 1. Fetch the current smart account settings to get the next transaction index
+  const settingsAccount = await fetchSmartAccountSettings(rpc, smartAccountSettings);
+  const transactionIndex = settingsAccount.nextTransactionIndex;
   console.log('✅ Settings fetched:', {
-    currentTransactionIndex: settings.data.transactionIndex.toString(),
+    currentTransactionIndex: settingsAccount.currentTransactionIndex.toString(),
     nextTransactionIndex: transactionIndex.toString(),
-    threshold: settings.data.threshold
+    threshold: settingsAccount.threshold,
   });
 
   console.log('🔧 Step 2: Deriving transaction PDA...');
-  // 2. Derive the PDA for the new Transaction account
-  const [transactionPda] = await getProgramDerivedAddress({
-    programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-    seeds: [
-      new Uint8Array(Buffer.from('smart_account')),
-      bs58.decode(smartAccountSettings),
-      new Uint8Array(Buffer.from('transaction')),
-      new Uint8Array(new BigUint64Array([transactionIndex]).buffer),
-    ],
-  });
+  // 2. Derive the transaction PDA
+  const transactionPda = await deriveTransactionPda(smartAccountSettings, transactionIndex);
   console.log('✅ Transaction PDA derived:', transactionPda.toString());
 
   console.log('🔧 Step 3: Deriving proposal PDA...');
-  // 3. Derive the PDA for the Proposal account
-  const [proposalPda] = await getProgramDerivedAddress({
-    programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-    seeds: [
-      new Uint8Array(Buffer.from('smart_account')),
-      bs58.decode(smartAccountSettings),
-      new Uint8Array(Buffer.from('transaction')),
-      new Uint8Array(new BigUint64Array([transactionIndex]).buffer),
-      new Uint8Array(Buffer.from('proposal')),
-    ],
-  });
+  // 3. Derive the proposal PDA
+  const proposalPda = await deriveProposalPda(smartAccountSettings, transactionIndex);
   console.log('✅ Proposal PDA derived:', proposalPda.toString());
 
   console.log('🔧 Step 4: Building inner transaction message...');
-  
-  let compiledInnerMessage: any;
-  
-  if (innerTransactionBytes) {
-    console.log('🔧 Using raw transaction bytes (preserving ALT structure)...');
-    console.log('🔍 Raw transaction bytes type:', typeof innerTransactionBytes);
-    console.log('🔍 Raw transaction bytes length:', innerTransactionBytes ? innerTransactionBytes.length : 'undefined');
-    
-    // Use the raw transaction bytes directly - this preserves ALT structure
-    compiledInnerMessage = {
-      messageBytes: innerTransactionBytes
-    };
-    console.log('✅ Raw transaction bytes used:', {
-      messageSize: innerTransactionBytes.length
-    });
-  } else {
-    console.log('🔧 Building transaction from individual instructions...');
-    // 4. Build and ENCODE the inner transaction message from instructions
-    const { value: latestBlockhashForInner } = await rpc.getLatestBlockhash().send();
-    console.log('✅ Latest blockhash fetched for inner transaction:', latestBlockhashForInner.blockhash);
-    
-    const innerTransactionMessage = pipe(
-      createTransactionMessage({ version: 0 }),
-      (tx) => setTransactionMessageFeePayerSigner(createNoopSigner(smartAccountPda), tx),
-      (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhashForInner, tx),
-      (tx) => appendTransactionMessageInstructions(innerInstructions || [], tx)
-    );
+  console.log('🔧 Using raw transaction bytes (preserving ALT structure)...');
+  console.log('🔍 Raw transaction bytes type:', typeof innerTransactionBytes);
+  console.log('🔍 Raw transaction bytes length:', innerTransactionBytes.length);
+  console.log('✅ Raw transaction bytes used:', { messageSize: innerTransactionBytes.length });
 
-    console.log('🔧 Compiling inner transaction message...');
-    compiledInnerMessage = compileTransaction(innerTransactionMessage);
-  }
-
+  // 4. Decode the inner transaction message to extract account info
   console.log('🔧 Decoding compiled message...');
-  console.log('🔍 compiledInnerMessage:', compiledInnerMessage);
+  const compiledInnerMessage = { messageBytes: innerTransactionBytes };
+  console.log('🔍 compiledInnerMessage:', { messageBytes: `Uint8Array(${compiledInnerMessage.messageBytes.length})` });
   console.log('🔍 messageBytes type:', typeof compiledInnerMessage.messageBytes);
-  console.log('🔍 messageBytes length:', compiledInnerMessage.messageBytes ? compiledInnerMessage.messageBytes.length : 'undefined');
-  
-  const decodedMessage = getCompiledTransactionMessageDecoder().decode(compiledInnerMessage.messageBytes);
+  console.log('🔍 messageBytes length:', compiledInnerMessage.messageBytes.length);
+  console.log('🔍 messageBytes first 16 bytes:', Array.from(compiledInnerMessage.messageBytes.slice(0, 16)).map(b => b.toString(16).padStart(2, '0')).join(' '));
   console.log('✅ Message decoded successfully');
-  
+
+  const decodedMessage = decodeTransactionMessage(compiledInnerMessage.messageBytes);
   console.log('✅ Inner transaction compiled:', {
-    staticAccounts: decodedMessage.staticAccounts ? decodedMessage.staticAccounts.length : 'undefined',
-    instructions: decodedMessage.instructions ? decodedMessage.instructions.length : 'undefined',
-    messageSize: compiledInnerMessage.messageBytes ? compiledInnerMessage.messageBytes.length : 'undefined'
+    staticAccounts: decodedMessage.staticAccounts.length,
+    instructions: decodedMessage.instructions.length,
+    messageSize: compiledInnerMessage.messageBytes.length,
   });
 
-  console.log('🔧 Creating smart account transaction message...');
-  // Manually construct the smart account transaction message with proper ALT handling
+  console.log('🔧 Converting Jupiter transaction to smart account format...');
+  // Convert from Jupiter's standard Solana format to smart account's custom format
+  const numSigners = decodedMessage.header.numSignerAccounts;
+  const numReadonlySigners = decodedMessage.header.numReadonlySignerAccounts;
+  const numWritableSigners = numSigners - numReadonlySigners;
+  const numWritableNonSigners = decodedMessage.staticAccounts.length - numSigners - decodedMessage.header.numReadonlyNonSignerAccounts;
+  
   const smartAccountMessage = {
-    numSigners: 1,
-    numWritableSigners: 1,
-    numWritableNonSigners: decodedMessage.staticAccounts.length - 1,
+    numSigners: numSigners,
+    numWritableSigners: numWritableSigners,
+    numWritableNonSigners: numWritableNonSigners,
     accountKeys: decodedMessage.staticAccounts,
     instructions: decodedMessage.instructions.map(ix => ({
       programIdIndex: ix.programAddressIndex,
       accountIndexes: new Uint8Array(ix.accountIndices ?? []),
       data: ix.data ?? new Uint8Array(),
     })),
+    // Use the passed address table lookups (from Jupiter transaction)
     addressTableLookups: addressTableLookups.map(lookup => ({
       accountKey: lookup.accountKey,
-      writableIndexes: lookup.writableIndexes ? new Uint8Array(lookup.writableIndexes) : new Uint8Array(),
-      readonlyIndexes: lookup.readonlyIndexes ? new Uint8Array(lookup.readonlyIndexes) : new Uint8Array(),
+      writableIndexes: new Uint8Array(lookup.writableIndexes ?? []),
+      readonlyIndexes: new Uint8Array(lookup.readonlyIndexes ?? []),
     })),
   };
 
+  console.log('🔧 Encoding smart account transaction message...');
   const transactionMessageBytes = getSmartAccountTransactionMessageEncoder().encode(smartAccountMessage);
   console.log('✅ Smart account transaction message encoded:', {
     messageSize: transactionMessageBytes.length,
     numSigners: smartAccountMessage.numSigners,
     numAccounts: smartAccountMessage.accountKeys.length,
-    numInstructions: smartAccountMessage.instructions.length
+    numInstructions: smartAccountMessage.instructions.length,
+    innerJupiterSize: transactionMessageBytes.length,
+    estimatedProposeSize: transactionMessageBytes.length + 200 // rough estimate
   });
 
+  // ===== PART 1: PROPOSE + VOTE TRANSACTION =====
+  console.log('🔧 Building Part 1: Propose Transaction...');
+
   // 5. Create the transaction account instruction
-  // IMPORTANT: The accountIndex should be 0 for the primary smart account under each settings account
-  // This matches the working example and the expected u8 type in the program
+  console.log('🔧 Creating CreateTransaction instruction with transactionMessage of', transactionMessageBytes.length, 'bytes');
+  console.log('🔍 transactionMessage first 16 bytes:', Array.from(transactionMessageBytes.slice(0, 16)).map(b => b.toString(16).padStart(2, '0')).join(' '));
+  
   const createTransactionInstruction = getCreateTransactionInstruction({
     settings: smartAccountSettings,
     transaction: transactionPda,
     creator: signer,
-    rentPayer: signer,
+    rentPayer: createNoopSigner(feePayer), // Backend pays for transaction account rent
     systemProgram: address('11111111111111111111111111111111'),
     args: {
-      accountIndex: 0, // Use 0 for the primary smart account (matches working example)
+      accountIndex: 0, // Use 0 for the primary smart account
       accountBump: smartAccountPdaBump,
       ephemeralSigners: 0,
       transactionMessage: transactionMessageBytes,
@@ -264,7 +253,7 @@ export async function createProposeVoteExecuteTransaction(
     settings: smartAccountSettings,
     proposal: proposalPda,
     creator: signer,
-    rentPayer: signer,
+    rentPayer: createNoopSigner(feePayer), // Backend pays for proposal account rent
     systemProgram: address('11111111111111111111111111111111'),
     transactionIndex: transactionIndex,
     draft: false,
@@ -279,7 +268,101 @@ export async function createProposeVoteExecuteTransaction(
     args: { memo: null },
   });
 
-  // 8. Create the execute transaction instruction
+  // Build Part 1 transaction (propose only - contains the large Jupiter data)
+  const proposeInstructions = [
+    createTransactionInstruction,
+    createProposalInstruction,
+  ];
+
+  const latestBlockhashResponse = await rpc.getLatestBlockhash().send();
+  const latestBlockhash = latestBlockhashResponse.value;
+  // Create a real signer for the fee payer to ensure it's counted as a required signer
+  const feePayerSigner = createNoopSigner(feePayer);
+  
+  const proposeTransactionMessage = pipe(
+    createTransactionMessage({ version: 0 }),
+    (tx) => setTransactionMessageFeePayerSigner(feePayerSigner, tx), // Use fee payer as real signer for gasless transactions
+    (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+    (tx) => appendTransactionMessageInstructions(proposeInstructions, tx)
+  );
+
+  const compiledProposeTransaction = compileTransaction(proposeTransactionMessage);
+  console.log('✅ Part 1 (Propose) transaction compiled:', {
+    messageSize: compiledProposeTransaction.messageBytes.length
+  });
+
+  // ===== PART 2: VOTE TRANSACTION =====
+  console.log('🔧 Building Part 2: Vote Transaction...');
+
+  // Start with the approve proposal instruction
+  const voteInstructions: any[] = [approveProposalInstruction];
+  
+  // Add ATA creation instruction if inputTokenMint is provided (for Jupiter swaps with fees)
+  if (inputTokenMint && params.inputTokenProgram && params.backendFeeAccount) {
+    console.log('🏦 Creating backend fee account instruction for token:', inputTokenMint, 'at address:', params.backendFeeAccount);
+    
+    // Constants for ATA creation
+    const BACKEND_FEE_PAYER = 'astroi1Rrf6rqtJ1BZg7tDyx1NiUaQkYp3uD8mmTeJQ';
+    const WSOL_MINT = 'So11111111111111111111111111111111111111112';
+    const SPL_TOKEN_PROGRAM_ID = address('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+    const TOKEN_2022_PROGRAM_ID = address('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb');
+    const ASSOCIATED_TOKEN_PROGRAM_ID = address('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
+    const SYSTEM_PROGRAM_ID = address('11111111111111111111111111111111');
+    
+    // Convert native to WSOL mint
+    const actualMint = inputTokenMint === 'native' ? WSOL_MINT : inputTokenMint;
+    
+    // Determine correct token program
+    let tokenProgram: Address = SPL_TOKEN_PROGRAM_ID;
+    if (params.inputTokenProgram === 'native') {
+      tokenProgram = SPL_TOKEN_PROGRAM_ID;
+    } else if (params.inputTokenProgram === TOKEN_2022_PROGRAM_ID.toString()) {
+      tokenProgram = TOKEN_2022_PROGRAM_ID;
+    } else if (params.inputTokenProgram !== SPL_TOKEN_PROGRAM_ID.toString()) {
+      tokenProgram = address(params.inputTokenProgram);
+    }
+    
+    console.log('🔧 Using token program for ATA creation:', tokenProgram.toString());
+    
+    // Use the pre-derived ATA address from frontend
+    const backendFeePayerAddress = address(BACKEND_FEE_PAYER);
+    const mintAddress = address(actualMint);
+    const backendFeeAccountAddress = address(params.backendFeeAccount);
+    
+    // Create the ATA creation instruction with correct token program and properly derived ATA address
+    const createATAInstruction: Instruction<string, readonly (AccountLookupMeta<string, string> | AccountMeta<string>)[]> = {
+      programAddress: ASSOCIATED_TOKEN_PROGRAM_ID,
+      accounts: [
+        { address: feePayer, role: AccountRole.WRITABLE_SIGNER }, // Payer for account creation
+        { address: backendFeeAccountAddress, role: AccountRole.WRITABLE }, // Properly derived ATA address
+        { address: backendFeePayerAddress, role: AccountRole.READONLY }, // Owner of the ATA
+        { address: mintAddress, role: AccountRole.READONLY }, // Token mint
+        { address: SYSTEM_PROGRAM_ID, role: AccountRole.READONLY }, // System program
+        { address: tokenProgram, role: AccountRole.READONLY }, // Correct token program (SPL Token or Token-2022)
+      ],
+      data: new Uint8Array([1]), // ATA idempotent creation instruction discriminator
+    };
+    
+    voteInstructions.push(createATAInstruction as any);
+    console.log('✅ Added backend fee account creation to vote transaction for ATA:', params.backendFeeAccount);
+  }
+
+  const voteTransactionMessage = pipe(
+    createTransactionMessage({ version: 0 }),
+    (tx) => setTransactionMessageFeePayerSigner(feePayerSigner, tx), // Use fee payer as real signer for gasless transactions
+    (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+    (tx) => appendTransactionMessageInstructions(voteInstructions, tx)
+  );
+
+  const compiledVoteTransaction = compileTransaction(voteTransactionMessage);
+  console.log('✅ Part 2 (Vote) transaction compiled:', {
+    messageSize: compiledVoteTransaction.messageBytes.length
+  });
+
+  // ===== PART 3: EXECUTE TRANSACTION =====
+  console.log('🔧 Building Part 3: Execute Transaction...');
+
+  // Create the execute transaction instruction
   const executeTransactionInstruction = getExecuteTransactionInstruction({
     settings: smartAccountSettings,
     proposal: proposalPda,
@@ -287,68 +370,169 @@ export async function createProposeVoteExecuteTransaction(
     signer: signer,
   });
 
-  // Add the required accounts for the inner instructions to the execute instruction
-  // This is critical - the execute instruction needs to know about ALL accounts used in the inner transaction
-  // The validation in executable_transaction_message.rs expects accounts in this order:
-  // 1. First: all message_account_infos (static accounts + loaded ALT accounts)
-  // 2. Second: address_lookup_table_account_infos (the ALT accounts themselves)
-  
-  console.log('🔧 Adding transaction accounts to ExecuteTransaction instruction...');
-  
-  // First, add all static accounts
-  for (const accountKey of decodedMessage.staticAccounts) {
-    executeTransactionInstruction.accounts.push({
-      address: accountKey,
-      role: AccountRole.WRITABLE, // Use proper AccountRole enum
-    });
-  }
-  
-  // For ALT transactions, we would also need to add the loaded accounts from ALTs
-  // This is a simplified version - in a full implementation, you'd need to fetch
-  // the ALT contents and add the loaded accounts here
-  
-  // Finally, add the Address Lookup Table accounts themselves
-  // These are the accounts that must be owned by the Address Lookup Table program
-  for (const lookup of addressTableLookups) {
-    executeTransactionInstruction.accounts.push({
-      address: lookup.accountKey,
-      role: AccountRole.READONLY, // ALT accounts are typically readonly
-    });
-  }
-  
-  console.log('✅ Added accounts to ExecuteTransaction:', {
-    staticAccounts: decodedMessage.staticAccounts.length,
-    altAccounts: addressTableLookups.length,
-    totalAccounts: executeTransactionInstruction.accounts.length
+  // Create close instruction to reclaim rent back to fee payer
+  const closeTransactionInstruction = getCloseTransactionInstruction({
+    settings: smartAccountSettings,
+    proposal: proposalPda,
+    transaction: transactionPda,
+    proposalRentCollector: feePayer, // Rent goes back to backend fee payer
+    transactionRentCollector: feePayer, // Rent goes back to backend fee payer
+    systemProgram: address('11111111111111111111111111111111'),
   });
 
-  // 9. Combine all instructions into a single transaction
-  const allInstructions = [
-    createTransactionInstruction,
-    createProposalInstruction,
-    approveProposalInstruction,
-    executeTransactionInstruction,
-  ];
+  // The smart contract expects manual ALT resolution via remaining accounts (message_account_infos).
+  // We must pass:
+  // 1) All static accounts from the inner message in the exact order they appear.
+  // 2) All ALT-resolved writable addresses (in order), then readonly addresses (in order) for each ALT.
+  // We should NOT include the ALT table account itself.
+  
+  console.log('🔧🔧🔧 EXECUTE TRANSACTION ACCOUNT SETUP STARTING 🔧🔧🔧');
+  console.log('🔧 Smart contract expects manual ALT resolution');
+  console.log('🔍 addressTableLookups exists:', !!addressTableLookups);
+  console.log('🔍 addressTableLookups type:', typeof addressTableLookups);
+  console.log('🔍 addressTableLookups length:', addressTableLookups?.length || 0);
+  console.log('🔍 addressTableLookups:', JSON.stringify(addressTableLookups || [], null, 2));
+  console.log('🔍 Static accounts:', decodedMessage.staticAccounts?.length || 0);
+  
+  // Build remaining accounts precisely and in-order.
+  const explicitParamsCount = 4; // settings, proposal, transaction, signer
+  const explicitParams = executeTransactionInstruction.accounts.slice(0, explicitParamsCount);
+  const resultAccounts: { address: Address; role: AccountRole }[] = [];
 
-  // 10. Build the final transaction message
-  const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
-  const finalTransactionMessage = pipe(
+  // Static accounts writability derived from header
+  const hdr = decodedMessage.header;
+  const total = decodedMessage.staticAccounts.length;
+  const numSignersInner = hdr.numSignerAccounts;
+  const numWritableSignersInner = numSignersInner - hdr.numReadonlySignerAccounts;
+  const numWritableNonSignersInner = total - numSignersInner - hdr.numReadonlyNonSignerAccounts;
+
+  // 1) ALT table accounts first (if any)
+  if (addressTableLookups && addressTableLookups.length > 0) {
+    for (const lookup of addressTableLookups) {
+      resultAccounts.push({ address: lookup.accountKey, role: AccountRole.READONLY });
+    }
+  }
+
+  // 2) Static accounts in order with correct roles
+  decodedMessage.staticAccounts.forEach((addrKey: Address, idx: number) => {
+    let role = AccountRole.READONLY;
+    if (idx < numSignersInner) {
+      role = idx < numWritableSignersInner ? AccountRole.WRITABLE : AccountRole.READONLY;
+    } else {
+      const j = idx - numSignersInner;
+      role = j < numWritableNonSignersInner ? AccountRole.WRITABLE : AccountRole.READONLY;
+    }
+    resultAccounts.push({ address: addrKey, role });
+  });
+
+  // 3) ALT-resolved: writable indexes then readonly indexes for each table
+  if (addressTableLookups && addressTableLookups.length > 0) {
+    for (const lookup of addressTableLookups) {
+      const altAccountInfo = await rpc.getAccountInfo(lookup.accountKey, {
+        encoding: 'base64',
+        commitment: 'finalized',
+      }).send();
+      if (!altAccountInfo.value?.data) throw new Error('ALT not found');
+      const altDataBase64 = Array.isArray(altAccountInfo.value.data)
+        ? altAccountInfo.value.data[0]
+        : (altAccountInfo.value.data as string);
+      const altData = Buffer.from(altDataBase64, 'base64');
+      const HEADER_SIZE = 56;
+      const PUBKEY_SIZE = 32;
+      const totalAddresses = Math.floor((altData.length - HEADER_SIZE) / PUBKEY_SIZE);
+      const getAddressAtIndex = (index: number): Address => {
+        if (index >= totalAddresses) throw new Error('ALT index OOB');
+        const offset = HEADER_SIZE + index * PUBKEY_SIZE;
+        const pubkeyBytes = altData.subarray(offset, offset + PUBKEY_SIZE);
+        return address(bs58.encode(pubkeyBytes));
+      };
+      for (const writableIndex of (lookup.writableIndexes || [])) {
+        resultAccounts.push({ address: getAddressAtIndex(writableIndex), role: AccountRole.WRITABLE });
+      }
+      for (const readonlyIndex of (lookup.readonlyIndexes || [])) {
+        resultAccounts.push({ address: getAddressAtIndex(readonlyIndex), role: AccountRole.READONLY });
+      }
+    }
+  }
+
+  // Rebuild execute instruction accounts: explicit params + precise remaining accounts in expected order
+  Object.assign(executeTransactionInstruction, {
+    accounts: [...explicitParams, ...resultAccounts],
+  });
+  
+  console.log('✅ Execute instruction accounts setup completed');
+  console.log('🔍 Final execute instruction accounts count:', executeTransactionInstruction.accounts.length);
+  console.log('🔍 Account order verification:');
+  executeTransactionInstruction.accounts.forEach((account, index) => {
+    console.log(`  [${index}] ${account.address} (role: ${account.role})`);
+  });
+
+  // Check for duplicate signer accounts
+  const signerAddresses = executeTransactionInstruction.accounts
+    .filter(account => account.role === 2)
+    .map(account => account.address);
+  
+  console.log('🔍 Signer accounts found:', signerAddresses);
+  const uniqueSigners = new Set(signerAddresses);
+  if (signerAddresses.length !== uniqueSigners.size) {
+    console.error('❌ DUPLICATE SIGNER ACCOUNTS DETECTED!');
+    console.error('Signer addresses:', signerAddresses);
+    console.error('Unique signers:', Array.from(uniqueSigners));
+  }
+
+  const executeInstructions = [executeTransactionInstruction, closeTransactionInstruction];
+
+  let executeTransactionMessage = pipe(
     createTransactionMessage({ version: 0 }),
-    (tx) => setTransactionMessageFeePayerSigner(signer, tx),
+    (tx) => setTransactionMessageFeePayerSigner(feePayerSigner, tx), // Use fee payer as real signer for gasless transactions
     (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
-    (tx) => appendTransactionMessageInstructions(allInstructions, tx)
+    (tx) => appendTransactionMessageInstructions(executeInstructions, tx)
   );
 
-  // 11. Compile the transaction to get the buffer
-  const compiledTransaction = compileTransaction(finalTransactionMessage);
-  
-  // 12. Validate transaction size
-  assertIsTransactionWithinSizeLimit(compiledTransaction);
+  // Compress outer v0 message using ALTs so static keys are reduced.
+  if (addressTableLookups && addressTableLookups.length > 0) {
+    // Build a map of lookup table address -> addresses[]
+    const addressesByLookupTableAddress: Record<string, Address[]> = {};
+    for (const lookup of addressTableLookups) {
+      const altInfo = await rpc.getAccountInfo(lookup.accountKey, { encoding: 'base64', commitment: 'finalized' }).send();
+      if (!altInfo.value?.data) continue;
+      const b64 = Array.isArray(altInfo.value.data) ? altInfo.value.data[0] : (altInfo.value.data as string);
+      const data = Buffer.from(b64, 'base64');
+      const HEADER_SIZE = 56;
+      const PUBKEY_SIZE = 32;
+      const total = Math.floor((data.length - HEADER_SIZE) / PUBKEY_SIZE);
+      const addrs: Address[] = [];
+      for (let i = 0; i < total; i++) {
+        const off = HEADER_SIZE + i * PUBKEY_SIZE;
+        addrs.push(address(bs58.encode(data.subarray(off, off + PUBKEY_SIZE))));
+      }
+      addressesByLookupTableAddress[lookup.accountKey.toString()] = addrs;
+    }
+    executeTransactionMessage = compressTransactionMessageUsingAddressLookupTables(
+      executeTransactionMessage as any,
+      addressesByLookupTableAddress as any,
+    ) as any;
+  }
+
+  const compiledExecuteTransaction = compileTransaction(executeTransactionMessage);
+  console.log('✅ Part 3 (Execute) transaction compiled:', {
+    messageSize: compiledExecuteTransaction.messageBytes.length
+  });
+
+  console.log('🎉 Complex transaction split completed:', {
+    part1Size: compiledProposeTransaction.messageBytes.length,
+    part2Size: compiledVoteTransaction.messageBytes.length,
+    part3Size: compiledExecuteTransaction.messageBytes.length,
+    totalSize: compiledProposeTransaction.messageBytes.length + compiledVoteTransaction.messageBytes.length + compiledExecuteTransaction.messageBytes.length,
+    transactionIndex: transactionIndex.toString()
+  });
 
   return {
-    transactionBuffer: new Uint8Array(compiledTransaction.messageBytes),
+    proposeTransactionBuffer: new Uint8Array(compiledProposeTransaction.messageBytes),
+    voteTransactionBuffer: new Uint8Array(compiledVoteTransaction.messageBytes),
+    executeTransactionBuffer: new Uint8Array(compiledExecuteTransaction.messageBytes),
     transactionPda,
     proposalPda,
     transactionIndex,
   };
-} 
+}
