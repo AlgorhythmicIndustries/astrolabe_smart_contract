@@ -140,7 +140,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
         new Uint8Array(Buffer.from('smart_account')),
         bs58.decode(smartAccountSettings),
         new Uint8Array(Buffer.from('transaction_buffer')),
-        bs58.decode(signer.address as string),
+        bs58.decode(signer.address.toString()),
         new Uint8Array([idx & 0xff]),
       ],
     });
