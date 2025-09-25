@@ -29,28 +29,28 @@ import {
   
   /**
    * Derives a proposal PDA from settings address and transaction index
-   * Note: This requires fetching the settings seed from on-chain data
    */
   export async function deriveProposalPda(
-    rpc: ReturnType<typeof import('@solana/kit').createSolanaRpc>,
     settingsAddress: Address, 
     transactionIndex: bigint
   ): Promise<Address> {
-    // First, fetch the settings account to get the seed
-    const settings = await fetchSettings(rpc, settingsAddress);
-    const settingsSeed = settings.data.seed;
+    console.log('🔧 deriveProposalPda debug:', {
+      settingsAddress: settingsAddress.toString(),
+      transactionIndex: transactionIndex.toString(),
+    });
     
     const [proposalPda] = await getProgramDerivedAddress({
       programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
       seeds: [
         new Uint8Array(Buffer.from('smart_account')),   // SEED_PREFIX
-        new Uint8Array(Buffer.from('settings')),        // SEED_SETTINGS  
-        new Uint8Array(new BigUint64Array([settingsSeed]).buffer),  // settings.seed
+        bs58.decode(settingsAddress),                   // settings.key().as_ref() - settings ADDRESS
         new Uint8Array(Buffer.from('transaction')),     // SEED_TRANSACTION
         new Uint8Array(new BigUint64Array([transactionIndex]).buffer), // transaction_index
         new Uint8Array(Buffer.from('proposal')),        // SEED_PROPOSAL
       ],
     });
+    
+    console.log('🔧 deriveProposalPda result:', proposalPda.toString());
     return proposalPda;
   }
   
