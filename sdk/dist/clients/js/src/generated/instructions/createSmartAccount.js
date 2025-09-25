@@ -7,14 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CREATE_SMART_ACCOUNT_DISCRIMINATOR = void 0;
-exports.getCreateSmartAccountDiscriminatorBytes = getCreateSmartAccountDiscriminatorBytes;
-exports.getCreateSmartAccountInstructionDataEncoder = getCreateSmartAccountInstructionDataEncoder;
-exports.getCreateSmartAccountInstructionDataDecoder = getCreateSmartAccountInstructionDataDecoder;
-exports.getCreateSmartAccountInstructionDataCodec = getCreateSmartAccountInstructionDataCodec;
-exports.getCreateSmartAccountInstructionAsync = getCreateSmartAccountInstructionAsync;
-exports.getCreateSmartAccountInstruction = getCreateSmartAccountInstruction;
-exports.parseCreateSmartAccountInstruction = parseCreateSmartAccountInstruction;
+exports.parseCreateSmartAccountInstruction = exports.getCreateSmartAccountInstruction = exports.getCreateSmartAccountInstructionAsync = exports.getCreateSmartAccountInstructionDataCodec = exports.getCreateSmartAccountInstructionDataDecoder = exports.getCreateSmartAccountInstructionDataEncoder = exports.getCreateSmartAccountDiscriminatorBytes = exports.CREATE_SMART_ACCOUNT_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -25,6 +18,7 @@ exports.CREATE_SMART_ACCOUNT_DISCRIMINATOR = new Uint8Array([
 function getCreateSmartAccountDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.CREATE_SMART_ACCOUNT_DISCRIMINATOR);
 }
+exports.getCreateSmartAccountDiscriminatorBytes = getCreateSmartAccountDiscriminatorBytes;
 function getCreateSmartAccountInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -43,6 +37,7 @@ function getCreateSmartAccountInstructionDataEncoder() {
         ],
     ]), (value) => ({ ...value, discriminator: exports.CREATE_SMART_ACCOUNT_DISCRIMINATOR }));
 }
+exports.getCreateSmartAccountInstructionDataEncoder = getCreateSmartAccountInstructionDataEncoder;
 function getCreateSmartAccountInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
@@ -61,9 +56,11 @@ function getCreateSmartAccountInstructionDataDecoder() {
         ],
     ]);
 }
+exports.getCreateSmartAccountInstructionDataDecoder = getCreateSmartAccountInstructionDataDecoder;
 function getCreateSmartAccountInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getCreateSmartAccountInstructionDataEncoder(), getCreateSmartAccountInstructionDataDecoder());
 }
+exports.getCreateSmartAccountInstructionDataCodec = getCreateSmartAccountInstructionDataCodec;
 async function getCreateSmartAccountInstructionAsync(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -116,6 +113,7 @@ async function getCreateSmartAccountInstructionAsync(input, config) {
     };
     return instruction;
 }
+exports.getCreateSmartAccountInstructionAsync = getCreateSmartAccountInstructionAsync;
 function getCreateSmartAccountInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -155,6 +153,7 @@ function getCreateSmartAccountInstruction(input, config) {
     };
     return instruction;
 }
+exports.getCreateSmartAccountInstruction = getCreateSmartAccountInstruction;
 function parseCreateSmartAccountInstruction(instruction) {
     if (instruction.accounts.length < 6) {
         // TODO: Coded error.
@@ -179,3 +178,4 @@ function parseCreateSmartAccountInstruction(instruction) {
         data: getCreateSmartAccountInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseCreateSmartAccountInstruction = parseCreateSmartAccountInstruction;

@@ -7,9 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSmartAccountTransactionMessageEncoder = getSmartAccountTransactionMessageEncoder;
-exports.getSmartAccountTransactionMessageDecoder = getSmartAccountTransactionMessageDecoder;
-exports.getSmartAccountTransactionMessageCodec = getSmartAccountTransactionMessageCodec;
+exports.getSmartAccountTransactionMessageCodec = exports.getSmartAccountTransactionMessageDecoder = exports.getSmartAccountTransactionMessageEncoder = void 0;
 const kit_1 = require("@solana/kit");
 const _1 = require(".");
 function getSmartAccountTransactionMessageEncoder() {
@@ -28,6 +26,7 @@ function getSmartAccountTransactionMessageEncoder() {
         ],
     ]);
 }
+exports.getSmartAccountTransactionMessageEncoder = getSmartAccountTransactionMessageEncoder;
 function getSmartAccountTransactionMessageDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['numSigners', (0, kit_1.getU8Decoder)()],
@@ -44,6 +43,8 @@ function getSmartAccountTransactionMessageDecoder() {
         ],
     ]);
 }
+exports.getSmartAccountTransactionMessageDecoder = getSmartAccountTransactionMessageDecoder;
 function getSmartAccountTransactionMessageCodec() {
     return (0, kit_1.combineCodec)(getSmartAccountTransactionMessageEncoder(), getSmartAccountTransactionMessageDecoder());
 }
+exports.getSmartAccountTransactionMessageCodec = getSmartAccountTransactionMessageCodec;

@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CLOSE_SETTINGS_TRANSACTION_DISCRIMINATOR = void 0;
-exports.getCloseSettingsTransactionDiscriminatorBytes = getCloseSettingsTransactionDiscriminatorBytes;
-exports.getCloseSettingsTransactionInstructionDataEncoder = getCloseSettingsTransactionInstructionDataEncoder;
-exports.getCloseSettingsTransactionInstructionDataDecoder = getCloseSettingsTransactionInstructionDataDecoder;
-exports.getCloseSettingsTransactionInstructionDataCodec = getCloseSettingsTransactionInstructionDataCodec;
-exports.getCloseSettingsTransactionInstruction = getCloseSettingsTransactionInstruction;
-exports.parseCloseSettingsTransactionInstruction = parseCloseSettingsTransactionInstruction;
+exports.parseCloseSettingsTransactionInstruction = exports.getCloseSettingsTransactionInstruction = exports.getCloseSettingsTransactionInstructionDataCodec = exports.getCloseSettingsTransactionInstructionDataDecoder = exports.getCloseSettingsTransactionInstructionDataEncoder = exports.getCloseSettingsTransactionDiscriminatorBytes = exports.CLOSE_SETTINGS_TRANSACTION_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -23,20 +17,24 @@ exports.CLOSE_SETTINGS_TRANSACTION_DISCRIMINATOR = new Uint8Array([
 function getCloseSettingsTransactionDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.CLOSE_SETTINGS_TRANSACTION_DISCRIMINATOR);
 }
+exports.getCloseSettingsTransactionDiscriminatorBytes = getCloseSettingsTransactionDiscriminatorBytes;
 function getCloseSettingsTransactionInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)]]), (value) => ({
         ...value,
         discriminator: exports.CLOSE_SETTINGS_TRANSACTION_DISCRIMINATOR,
     }));
 }
+exports.getCloseSettingsTransactionInstructionDataEncoder = getCloseSettingsTransactionInstructionDataEncoder;
 function getCloseSettingsTransactionInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
     ]);
 }
+exports.getCloseSettingsTransactionInstructionDataDecoder = getCloseSettingsTransactionInstructionDataDecoder;
 function getCloseSettingsTransactionInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getCloseSettingsTransactionInstructionDataEncoder(), getCloseSettingsTransactionInstructionDataDecoder());
 }
+exports.getCloseSettingsTransactionInstructionDataCodec = getCloseSettingsTransactionInstructionDataCodec;
 function getCloseSettingsTransactionInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -76,6 +74,7 @@ function getCloseSettingsTransactionInstruction(input, config) {
     };
     return instruction;
 }
+exports.getCloseSettingsTransactionInstruction = getCloseSettingsTransactionInstruction;
 function parseCloseSettingsTransactionInstruction(instruction) {
     if (instruction.accounts.length < 6) {
         // TODO: Coded error.
@@ -100,3 +99,4 @@ function parseCloseSettingsTransactionInstruction(instruction) {
         data: getCloseSettingsTransactionInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseCloseSettingsTransactionInstruction = parseCloseSettingsTransactionInstruction;

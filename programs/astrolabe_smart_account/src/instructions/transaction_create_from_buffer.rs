@@ -37,9 +37,13 @@ pub struct CreateTransactionFromBuffer<'info> {
 impl<'info> CreateTransactionFromBuffer<'info> {
     pub fn validate(&self, args: &CreateTransactionArgs) -> Result<()> {
         let transaction_buffer_account = &self.transaction_buffer;
+        let creator = &self.creator;
 
         // Debug logging for CreateTransactionFromBuffer args - if we reach here, args are OK
         msg!("CreateTransactionFromBuffer validation started");
+        msg!("  buffer_creator={}", transaction_buffer_account.creator);
+        msg!("  current_creator={}", creator.key());
+        msg!("  creators_match={}", transaction_buffer_account.creator == creator.key());
 
         // Check that the transaction message is "empty"
         require!(

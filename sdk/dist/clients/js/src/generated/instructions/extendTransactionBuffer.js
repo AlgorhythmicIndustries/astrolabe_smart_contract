@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR = void 0;
-exports.getExtendTransactionBufferDiscriminatorBytes = getExtendTransactionBufferDiscriminatorBytes;
-exports.getExtendTransactionBufferInstructionDataEncoder = getExtendTransactionBufferInstructionDataEncoder;
-exports.getExtendTransactionBufferInstructionDataDecoder = getExtendTransactionBufferInstructionDataDecoder;
-exports.getExtendTransactionBufferInstructionDataCodec = getExtendTransactionBufferInstructionDataCodec;
-exports.getExtendTransactionBufferInstruction = getExtendTransactionBufferInstruction;
-exports.parseExtendTransactionBufferInstruction = parseExtendTransactionBufferInstruction;
+exports.parseExtendTransactionBufferInstruction = exports.getExtendTransactionBufferInstruction = exports.getExtendTransactionBufferInstructionDataCodec = exports.getExtendTransactionBufferInstructionDataDecoder = exports.getExtendTransactionBufferInstructionDataEncoder = exports.getExtendTransactionBufferDiscriminatorBytes = exports.EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -23,6 +17,7 @@ exports.EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR = new Uint8Array([
 function getExtendTransactionBufferDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR);
 }
+exports.getExtendTransactionBufferDiscriminatorBytes = getExtendTransactionBufferDiscriminatorBytes;
 function getExtendTransactionBufferInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -32,15 +27,18 @@ function getExtendTransactionBufferInstructionDataEncoder() {
         discriminator: exports.EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR,
     }));
 }
+exports.getExtendTransactionBufferInstructionDataEncoder = getExtendTransactionBufferInstructionDataEncoder;
 function getExtendTransactionBufferInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
         ['buffer', (0, kit_1.addDecoderSizePrefix)((0, kit_1.getBytesDecoder)(), (0, kit_1.getU32Decoder)())],
     ]);
 }
+exports.getExtendTransactionBufferInstructionDataDecoder = getExtendTransactionBufferInstructionDataDecoder;
 function getExtendTransactionBufferInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getExtendTransactionBufferInstructionDataEncoder(), getExtendTransactionBufferInstructionDataDecoder());
 }
+exports.getExtendTransactionBufferInstructionDataCodec = getExtendTransactionBufferInstructionDataCodec;
 function getExtendTransactionBufferInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -68,6 +66,7 @@ function getExtendTransactionBufferInstruction(input, config) {
     };
     return instruction;
 }
+exports.getExtendTransactionBufferInstruction = getExtendTransactionBufferInstruction;
 function parseExtendTransactionBufferInstruction(instruction) {
     if (instruction.accounts.length < 3) {
         // TODO: Coded error.
@@ -89,3 +88,4 @@ function parseExtendTransactionBufferInstruction(instruction) {
         data: getExtendTransactionBufferInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseExtendTransactionBufferInstruction = parseExtendTransactionBufferInstruction;

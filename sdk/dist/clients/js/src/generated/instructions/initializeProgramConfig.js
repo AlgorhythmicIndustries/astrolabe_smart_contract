@@ -7,14 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.INITIALIZE_PROGRAM_CONFIG_DISCRIMINATOR = void 0;
-exports.getInitializeProgramConfigDiscriminatorBytes = getInitializeProgramConfigDiscriminatorBytes;
-exports.getInitializeProgramConfigInstructionDataEncoder = getInitializeProgramConfigInstructionDataEncoder;
-exports.getInitializeProgramConfigInstructionDataDecoder = getInitializeProgramConfigInstructionDataDecoder;
-exports.getInitializeProgramConfigInstructionDataCodec = getInitializeProgramConfigInstructionDataCodec;
-exports.getInitializeProgramConfigInstructionAsync = getInitializeProgramConfigInstructionAsync;
-exports.getInitializeProgramConfigInstruction = getInitializeProgramConfigInstruction;
-exports.parseInitializeProgramConfigInstruction = parseInitializeProgramConfigInstruction;
+exports.parseInitializeProgramConfigInstruction = exports.getInitializeProgramConfigInstruction = exports.getInitializeProgramConfigInstructionAsync = exports.getInitializeProgramConfigInstructionDataCodec = exports.getInitializeProgramConfigInstructionDataDecoder = exports.getInitializeProgramConfigInstructionDataEncoder = exports.getInitializeProgramConfigDiscriminatorBytes = exports.INITIALIZE_PROGRAM_CONFIG_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -24,6 +17,7 @@ exports.INITIALIZE_PROGRAM_CONFIG_DISCRIMINATOR = new Uint8Array([
 function getInitializeProgramConfigDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.INITIALIZE_PROGRAM_CONFIG_DISCRIMINATOR);
 }
+exports.getInitializeProgramConfigDiscriminatorBytes = getInitializeProgramConfigDiscriminatorBytes;
 function getInitializeProgramConfigInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -35,6 +29,7 @@ function getInitializeProgramConfigInstructionDataEncoder() {
         discriminator: exports.INITIALIZE_PROGRAM_CONFIG_DISCRIMINATOR,
     }));
 }
+exports.getInitializeProgramConfigInstructionDataEncoder = getInitializeProgramConfigInstructionDataEncoder;
 function getInitializeProgramConfigInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
@@ -43,9 +38,11 @@ function getInitializeProgramConfigInstructionDataDecoder() {
         ['treasury', (0, kit_1.getAddressDecoder)()],
     ]);
 }
+exports.getInitializeProgramConfigInstructionDataDecoder = getInitializeProgramConfigInstructionDataDecoder;
 function getInitializeProgramConfigInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getInitializeProgramConfigInstructionDataEncoder(), getInitializeProgramConfigInstructionDataDecoder());
 }
+exports.getInitializeProgramConfigInstructionDataCodec = getInitializeProgramConfigInstructionDataCodec;
 async function getInitializeProgramConfigInstructionAsync(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -92,6 +89,7 @@ async function getInitializeProgramConfigInstructionAsync(input, config) {
     };
     return instruction;
 }
+exports.getInitializeProgramConfigInstructionAsync = getInitializeProgramConfigInstructionAsync;
 function getInitializeProgramConfigInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -125,6 +123,7 @@ function getInitializeProgramConfigInstruction(input, config) {
     };
     return instruction;
 }
+exports.getInitializeProgramConfigInstruction = getInitializeProgramConfigInstruction;
 function parseInitializeProgramConfigInstruction(instruction) {
     if (instruction.accounts.length < 3) {
         // TODO: Coded error.
@@ -146,3 +145,4 @@ function parseInitializeProgramConfigInstruction(instruction) {
         data: getInitializeProgramConfigInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseInitializeProgramConfigInstruction = parseInitializeProgramConfigInstruction;

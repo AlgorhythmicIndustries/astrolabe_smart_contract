@@ -7,7 +7,7 @@
  */
 import { fetchEncodedAccount, fetchEncodedAccounts, type Account, type Address, type Codec, type Decoder, type EncodedAccount, type Encoder, type FetchAccountConfig, type FetchAccountsConfig, type MaybeAccount, type MaybeEncodedAccount, type Option, type OptionOrNullable, type ReadonlyUint8Array } from '@solana/kit';
 import { type RestrictedSmartAccountSigner, type RestrictedSmartAccountSignerArgs, type SmartAccountSigner, type SmartAccountSignerArgs } from '../types';
-export declare const SETTINGS_DISCRIMINATOR: Uint8Array<ArrayBuffer>;
+export declare const SETTINGS_DISCRIMINATOR: Uint8Array;
 export declare function getSettingsDiscriminatorBytes(): ReadonlyUint8Array;
 export type Settings = {
     discriminator: ReadonlyUint8Array;
