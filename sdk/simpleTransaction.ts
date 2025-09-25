@@ -27,50 +27,10 @@ import {
   import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from './clients/js/src/generated/programs';
   import { getSmartAccountTransactionMessageEncoder } from './clients/js/src/generated/types/smartAccountTransactionMessage';
   import * as bs58 from 'bs58';
-  import { deriveSmartAccountInfo } from './utils/index';
+  import { deriveSmartAccountInfo, deriveProposalPda, deriveTransactionPda, fetchSmartAccountSettings, decodeTransactionMessage } from './utils/index';
   
   type SolanaRpc = ReturnType<typeof createSolanaRpc>;
 
-  // Utility functions (previously in utils/index)
-  async function deriveTransactionPda(settingsAddress: Address, transactionIndex: bigint): Promise<Address> {
-    const [pda] = await getProgramDerivedAddress({
-      programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-      seeds: [
-        new Uint8Array(Buffer.from('smart_account')),
-        bs58.decode(settingsAddress),
-        new Uint8Array(Buffer.from('transaction')),
-        new Uint8Array(Buffer.from(transactionIndex.toString(16).padStart(16, '0'), 'hex').reverse()),
-      ],
-    });
-    return pda;
-  }
-
-  async function deriveProposalPda(settingsAddress: Address, transactionIndex: bigint): Promise<Address> {
-    const [pda] = await getProgramDerivedAddress({
-      programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-      seeds: [
-        new Uint8Array(Buffer.from('smart_account')),
-        bs58.decode(settingsAddress),
-        new Uint8Array(Buffer.from('proposal')),
-        new Uint8Array(Buffer.from(transactionIndex.toString(16).padStart(16, '0'), 'hex').reverse()),
-      ],
-    });
-    return pda;
-  }
-
-  async function fetchSmartAccountSettings(rpc: SolanaRpc, settingsAddress: Address) {
-    const settings = await fetchSettings(rpc, settingsAddress);
-    return {
-      ...settings.data,
-      currentTransactionIndex: settings.data.transactionIndex,
-      nextTransactionIndex: settings.data.transactionIndex + BigInt(1),
-    };
-  }
-
-  function decodeTransactionMessage(messageBytes: Uint8Array) {
-    const decoder = getCompiledTransactionMessageDecoder();
-    return decoder.decode(messageBytes);
-  }
 
 
   /**
@@ -191,7 +151,7 @@ import {
   
     console.log('🔧 Step 3: Deriving proposal PDA...');
     // 3. Derive the PDA for the new Proposal account
-    const proposalPda = await deriveProposalPda(smartAccountSettings, transactionIndex);
+    const proposalPda = await deriveProposalPda(rpc, smartAccountSettings, transactionIndex);
     console.log('✅ Proposal PDA derived:', proposalPda.toString());
   
     console.log('🔧 Step 4: Building inner transaction message...');
