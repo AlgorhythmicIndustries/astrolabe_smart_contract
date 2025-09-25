@@ -24,11 +24,6 @@ import * as bs58 from 'bs58';
 
 type SolanaRpc = ReturnType<typeof createSolanaRpc>;
 
-function decodeTransactionMessage(messageBytes: Uint8Array) {
-  const decoder = getCompiledTransactionMessageDecoder();
-  return decoder.decode(messageBytes);
-}
-
 import { fetchSettings } from './clients/js/src/generated/accounts/settings';
 import { 
   getCreateTransactionInstruction,
