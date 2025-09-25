@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CLOSE_BATCH_TRANSACTION_DISCRIMINATOR = void 0;
-exports.getCloseBatchTransactionDiscriminatorBytes = getCloseBatchTransactionDiscriminatorBytes;
-exports.getCloseBatchTransactionInstructionDataEncoder = getCloseBatchTransactionInstructionDataEncoder;
-exports.getCloseBatchTransactionInstructionDataDecoder = getCloseBatchTransactionInstructionDataDecoder;
-exports.getCloseBatchTransactionInstructionDataCodec = getCloseBatchTransactionInstructionDataCodec;
-exports.getCloseBatchTransactionInstruction = getCloseBatchTransactionInstruction;
-exports.parseCloseBatchTransactionInstruction = parseCloseBatchTransactionInstruction;
+exports.parseCloseBatchTransactionInstruction = exports.getCloseBatchTransactionInstruction = exports.getCloseBatchTransactionInstructionDataCodec = exports.getCloseBatchTransactionInstructionDataDecoder = exports.getCloseBatchTransactionInstructionDataEncoder = exports.getCloseBatchTransactionDiscriminatorBytes = exports.CLOSE_BATCH_TRANSACTION_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -23,20 +17,24 @@ exports.CLOSE_BATCH_TRANSACTION_DISCRIMINATOR = new Uint8Array([
 function getCloseBatchTransactionDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.CLOSE_BATCH_TRANSACTION_DISCRIMINATOR);
 }
+exports.getCloseBatchTransactionDiscriminatorBytes = getCloseBatchTransactionDiscriminatorBytes;
 function getCloseBatchTransactionInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)]]), (value) => ({
         ...value,
         discriminator: exports.CLOSE_BATCH_TRANSACTION_DISCRIMINATOR,
     }));
 }
+exports.getCloseBatchTransactionInstructionDataEncoder = getCloseBatchTransactionInstructionDataEncoder;
 function getCloseBatchTransactionInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
     ]);
 }
+exports.getCloseBatchTransactionInstructionDataDecoder = getCloseBatchTransactionInstructionDataDecoder;
 function getCloseBatchTransactionInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getCloseBatchTransactionInstructionDataEncoder(), getCloseBatchTransactionInstructionDataDecoder());
 }
+exports.getCloseBatchTransactionInstructionDataCodec = getCloseBatchTransactionInstructionDataCodec;
 function getCloseBatchTransactionInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -73,6 +71,7 @@ function getCloseBatchTransactionInstruction(input, config) {
     };
     return instruction;
 }
+exports.getCloseBatchTransactionInstruction = getCloseBatchTransactionInstruction;
 function parseCloseBatchTransactionInstruction(instruction) {
     if (instruction.accounts.length < 6) {
         // TODO: Coded error.
@@ -97,3 +96,4 @@ function parseCloseBatchTransactionInstruction(instruction) {
         data: getCloseBatchTransactionInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseCloseBatchTransactionInstruction = parseCloseBatchTransactionInstruction;

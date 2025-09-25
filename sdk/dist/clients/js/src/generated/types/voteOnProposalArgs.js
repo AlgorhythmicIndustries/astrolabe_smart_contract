@@ -7,9 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getVoteOnProposalArgsEncoder = getVoteOnProposalArgsEncoder;
-exports.getVoteOnProposalArgsDecoder = getVoteOnProposalArgsDecoder;
-exports.getVoteOnProposalArgsCodec = getVoteOnProposalArgsCodec;
+exports.getVoteOnProposalArgsCodec = exports.getVoteOnProposalArgsDecoder = exports.getVoteOnProposalArgsEncoder = void 0;
 const kit_1 = require("@solana/kit");
 function getVoteOnProposalArgsEncoder() {
     return (0, kit_1.getStructEncoder)([
@@ -19,6 +17,7 @@ function getVoteOnProposalArgsEncoder() {
         ],
     ]);
 }
+exports.getVoteOnProposalArgsEncoder = getVoteOnProposalArgsEncoder;
 function getVoteOnProposalArgsDecoder() {
     return (0, kit_1.getStructDecoder)([
         [
@@ -27,6 +26,8 @@ function getVoteOnProposalArgsDecoder() {
         ],
     ]);
 }
+exports.getVoteOnProposalArgsDecoder = getVoteOnProposalArgsDecoder;
 function getVoteOnProposalArgsCodec() {
     return (0, kit_1.combineCodec)(getVoteOnProposalArgsEncoder(), getVoteOnProposalArgsDecoder());
 }
+exports.getVoteOnProposalArgsCodec = getVoteOnProposalArgsCodec;

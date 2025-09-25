@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ACTIVATE_PROPOSAL_DISCRIMINATOR = void 0;
-exports.getActivateProposalDiscriminatorBytes = getActivateProposalDiscriminatorBytes;
-exports.getActivateProposalInstructionDataEncoder = getActivateProposalInstructionDataEncoder;
-exports.getActivateProposalInstructionDataDecoder = getActivateProposalInstructionDataDecoder;
-exports.getActivateProposalInstructionDataCodec = getActivateProposalInstructionDataCodec;
-exports.getActivateProposalInstruction = getActivateProposalInstruction;
-exports.parseActivateProposalInstruction = parseActivateProposalInstruction;
+exports.parseActivateProposalInstruction = exports.getActivateProposalInstruction = exports.getActivateProposalInstructionDataCodec = exports.getActivateProposalInstructionDataDecoder = exports.getActivateProposalInstructionDataEncoder = exports.getActivateProposalDiscriminatorBytes = exports.ACTIVATE_PROPOSAL_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -23,17 +17,21 @@ exports.ACTIVATE_PROPOSAL_DISCRIMINATOR = new Uint8Array([
 function getActivateProposalDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.ACTIVATE_PROPOSAL_DISCRIMINATOR);
 }
+exports.getActivateProposalDiscriminatorBytes = getActivateProposalDiscriminatorBytes;
 function getActivateProposalInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)]]), (value) => ({ ...value, discriminator: exports.ACTIVATE_PROPOSAL_DISCRIMINATOR }));
 }
+exports.getActivateProposalInstructionDataEncoder = getActivateProposalInstructionDataEncoder;
 function getActivateProposalInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
     ]);
 }
+exports.getActivateProposalInstructionDataDecoder = getActivateProposalInstructionDataDecoder;
 function getActivateProposalInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getActivateProposalInstructionDataEncoder(), getActivateProposalInstructionDataDecoder());
 }
+exports.getActivateProposalInstructionDataCodec = getActivateProposalInstructionDataCodec;
 function getActivateProposalInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -56,6 +54,7 @@ function getActivateProposalInstruction(input, config) {
     };
     return instruction;
 }
+exports.getActivateProposalInstruction = getActivateProposalInstruction;
 function parseActivateProposalInstruction(instruction) {
     if (instruction.accounts.length < 3) {
         // TODO: Coded error.
@@ -77,3 +76,4 @@ function parseActivateProposalInstruction(instruction) {
         data: getActivateProposalInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseActivateProposalInstruction = parseActivateProposalInstruction;

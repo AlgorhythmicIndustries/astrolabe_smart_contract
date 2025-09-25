@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ADD_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR = void 0;
-exports.getAddSpendingLimitAsAuthorityDiscriminatorBytes = getAddSpendingLimitAsAuthorityDiscriminatorBytes;
-exports.getAddSpendingLimitAsAuthorityInstructionDataEncoder = getAddSpendingLimitAsAuthorityInstructionDataEncoder;
-exports.getAddSpendingLimitAsAuthorityInstructionDataDecoder = getAddSpendingLimitAsAuthorityInstructionDataDecoder;
-exports.getAddSpendingLimitAsAuthorityInstructionDataCodec = getAddSpendingLimitAsAuthorityInstructionDataCodec;
-exports.getAddSpendingLimitAsAuthorityInstruction = getAddSpendingLimitAsAuthorityInstruction;
-exports.parseAddSpendingLimitAsAuthorityInstruction = parseAddSpendingLimitAsAuthorityInstruction;
+exports.parseAddSpendingLimitAsAuthorityInstruction = exports.getAddSpendingLimitAsAuthorityInstruction = exports.getAddSpendingLimitAsAuthorityInstructionDataCodec = exports.getAddSpendingLimitAsAuthorityInstructionDataDecoder = exports.getAddSpendingLimitAsAuthorityInstructionDataEncoder = exports.getAddSpendingLimitAsAuthorityDiscriminatorBytes = exports.ADD_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -24,6 +18,7 @@ exports.ADD_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([
 function getAddSpendingLimitAsAuthorityDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.ADD_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR);
 }
+exports.getAddSpendingLimitAsAuthorityDiscriminatorBytes = getAddSpendingLimitAsAuthorityDiscriminatorBytes;
 function getAddSpendingLimitAsAuthorityInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -44,6 +39,7 @@ function getAddSpendingLimitAsAuthorityInstructionDataEncoder() {
         discriminator: exports.ADD_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR,
     }));
 }
+exports.getAddSpendingLimitAsAuthorityInstructionDataEncoder = getAddSpendingLimitAsAuthorityInstructionDataEncoder;
 function getAddSpendingLimitAsAuthorityInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
@@ -61,9 +57,11 @@ function getAddSpendingLimitAsAuthorityInstructionDataDecoder() {
         ],
     ]);
 }
+exports.getAddSpendingLimitAsAuthorityInstructionDataDecoder = getAddSpendingLimitAsAuthorityInstructionDataDecoder;
 function getAddSpendingLimitAsAuthorityInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getAddSpendingLimitAsAuthorityInstructionDataEncoder(), getAddSpendingLimitAsAuthorityInstructionDataDecoder());
 }
+exports.getAddSpendingLimitAsAuthorityInstructionDataCodec = getAddSpendingLimitAsAuthorityInstructionDataCodec;
 function getAddSpendingLimitAsAuthorityInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -106,6 +104,7 @@ function getAddSpendingLimitAsAuthorityInstruction(input, config) {
     };
     return instruction;
 }
+exports.getAddSpendingLimitAsAuthorityInstruction = getAddSpendingLimitAsAuthorityInstruction;
 function parseAddSpendingLimitAsAuthorityInstruction(instruction) {
     if (instruction.accounts.length < 6) {
         // TODO: Coded error.
@@ -130,3 +129,4 @@ function parseAddSpendingLimitAsAuthorityInstruction(instruction) {
         data: getAddSpendingLimitAsAuthorityInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseAddSpendingLimitAsAuthorityInstruction = parseAddSpendingLimitAsAuthorityInstruction;

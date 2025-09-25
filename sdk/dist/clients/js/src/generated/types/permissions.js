@@ -7,16 +7,17 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPermissionsEncoder = getPermissionsEncoder;
-exports.getPermissionsDecoder = getPermissionsDecoder;
-exports.getPermissionsCodec = getPermissionsCodec;
+exports.getPermissionsCodec = exports.getPermissionsDecoder = exports.getPermissionsEncoder = void 0;
 const kit_1 = require("@solana/kit");
 function getPermissionsEncoder() {
     return (0, kit_1.getStructEncoder)([['mask', (0, kit_1.getU8Encoder)()]]);
 }
+exports.getPermissionsEncoder = getPermissionsEncoder;
 function getPermissionsDecoder() {
     return (0, kit_1.getStructDecoder)([['mask', (0, kit_1.getU8Decoder)()]]);
 }
+exports.getPermissionsDecoder = getPermissionsDecoder;
 function getPermissionsCodec() {
     return (0, kit_1.combineCodec)(getPermissionsEncoder(), getPermissionsDecoder());
 }
+exports.getPermissionsCodec = getPermissionsCodec;
