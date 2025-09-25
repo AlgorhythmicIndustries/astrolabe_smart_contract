@@ -19,7 +19,7 @@ import {
       programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
       seeds: [
         new Uint8Array(Buffer.from('smart_account')),
-        bs58.decode(settingsAddress),
+        bs58.decode(settingsAddress.toString()),
         new Uint8Array(Buffer.from('transaction')),
         new Uint8Array(new BigUint64Array([transactionIndex]).buffer),
       ],
@@ -35,7 +35,7 @@ import {
       programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
       seeds: [
         new Uint8Array(Buffer.from('smart_account')),
-        bs58.decode(settingsAddress),
+        bs58.decode(settingsAddress.toString()),
         new Uint8Array(Buffer.from('transaction')),
         new Uint8Array(new BigUint64Array([transactionIndex]).buffer),
         new Uint8Array(Buffer.from('proposal')),
@@ -89,7 +89,7 @@ import {
       programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
       seeds: [
         new Uint8Array(Buffer.from('smart_account')),
-        bs58.decode(settingsAddress),
+        bs58.decode(settingsAddress.toString()),
         new Uint8Array(Buffer.from('smart_account')),
         // Use account_index 0 for the primary smart account
         new Uint8Array([0]),
