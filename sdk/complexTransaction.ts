@@ -43,6 +43,7 @@ import {
   deriveTransactionPda,
   deriveProposalPda,
   fetchSmartAccountSettings,
+  decodeTransactionMessage,
 } from './utils/index';
 
 export interface ComplexTransactionParams {
@@ -165,7 +166,7 @@ export async function createComplexTransaction(
 
   console.log('🔧 Step 3: Deriving proposal PDA...');
   // 3. Derive the proposal PDA
-  const proposalPda = await deriveProposalPda(smartAccountSettings, transactionIndex);
+  const proposalPda = await deriveProposalPda(rpc, smartAccountSettings, transactionIndex);
   console.log('✅ Proposal PDA derived:', proposalPda.toString());
 
   console.log('🔧 Step 4: Building inner transaction message...');
