@@ -318,7 +318,7 @@ export async function createComplexTransaction(
       tokenProgram = SPL_TOKEN_PROGRAM_ID;
     } else if (params.inputTokenProgram === TOKEN_2022_PROGRAM_ID.toString()) {
       tokenProgram = TOKEN_2022_PROGRAM_ID;
-    } else if (params.inputTokenProgram !== SPL_TOKEN_PROGRAM_ID.toString()) {
+    } else if (params.inputTokenProgram && params.inputTokenProgram !== SPL_TOKEN_PROGRAM_ID.toString()) {
       tokenProgram = address(params.inputTokenProgram);
     }
     
@@ -327,6 +327,10 @@ export async function createComplexTransaction(
     // Use the pre-derived ATA address from frontend
     const backendFeePayerAddress = address(BACKEND_FEE_PAYER);
     const mintAddress = address(actualMint);
+    
+    if (!params.backendFeeAccount) {
+      throw new Error('backendFeeAccount is required for ATA creation');
+    }
     const backendFeeAccountAddress = address(params.backendFeeAccount);
     
     // Create the ATA creation instruction with correct token program and properly derived ATA address
