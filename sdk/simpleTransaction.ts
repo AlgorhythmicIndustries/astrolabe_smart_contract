@@ -151,7 +151,7 @@ import {
   
     console.log('🔧 Step 3: Deriving proposal PDA...');
     // 3. Derive the PDA for the new Proposal account
-    const proposalPda = await deriveProposalPda(rpc, smartAccountSettings, transactionIndex);
+    const proposalPda = await deriveProposalPda(smartAccountSettings, transactionIndex);
     console.log('✅ Proposal PDA derived:', proposalPda.toString());
   
     console.log('🔧 Step 4: Building inner transaction message...');

@@ -161,7 +161,7 @@ export async function createComplexTransaction(
 
   console.log('🔧 Step 3: Deriving proposal PDA...');
   // 3. Derive the proposal PDA
-  const proposalPda = await deriveProposalPda(rpc, smartAccountSettings, transactionIndex);
+  const proposalPda = await deriveProposalPda(smartAccountSettings, transactionIndex);
   console.log('✅ Proposal PDA derived:', proposalPda.toString());
 
   console.log('🔧 Step 4: Building inner transaction message...');
@@ -363,7 +363,7 @@ export async function createComplexTransaction(
   console.log('🔧 Building Part 3: Execute Transaction...');
 
   // Create the execute transaction instruction
-  const executeTransactionInstruction = getExecuteTransactionInstruction({
+  let executeTransactionInstruction = getExecuteTransactionInstruction({
     settings: smartAccountSettings,
     proposal: proposalPda,
     transaction: transactionPda,
@@ -444,7 +444,7 @@ export async function createComplexTransaction(
         if (index >= totalAddresses) throw new Error('ALT index OOB');
         const offset = HEADER_SIZE + index * PUBKEY_SIZE;
         const pubkeyBytes = altData.subarray(offset, offset + PUBKEY_SIZE);
-        return address(bs58.encode(pubkeyBytes));
+        return address(bs58.encode(new Uint8Array(pubkeyBytes)));
       };
       for (const writableIndex of (lookup.writableIndexes || [])) {
         resultAccounts.push({ address: getAddressAtIndex(writableIndex), role: AccountRole.WRITABLE });
@@ -456,9 +456,11 @@ export async function createComplexTransaction(
   }
 
   // Rebuild execute instruction accounts: explicit params + precise remaining accounts in expected order
-  Object.assign(executeTransactionInstruction, {
-    accounts: [...explicitParams, ...resultAccounts],
-  });
+  // Create a new instruction object since the original accounts property is readonly
+  executeTransactionInstruction = {
+    ...executeTransactionInstruction,
+    accounts: [...explicitParams, ...resultAccounts] as any,
+  };
   
   console.log('✅ Execute instruction accounts setup completed');
   console.log('🔍 Final execute instruction accounts count:', executeTransactionInstruction.accounts.length);
@@ -504,7 +506,7 @@ export async function createComplexTransaction(
       const addrs: Address[] = [];
       for (let i = 0; i < total; i++) {
         const off = HEADER_SIZE + i * PUBKEY_SIZE;
-        addrs.push(address(bs58.encode(data.subarray(off, off + PUBKEY_SIZE))));
+        addrs.push(address(bs58.encode(new Uint8Array(data.subarray(off, off + PUBKEY_SIZE)))));
       }
       addressesByLookupTableAddress[lookup.accountKey.toString()] = addrs;
     }
