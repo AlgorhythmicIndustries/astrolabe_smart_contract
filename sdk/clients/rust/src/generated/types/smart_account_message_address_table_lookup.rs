@@ -5,22 +5,23 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
-use solana_pubkey::Pubkey;
-use borsh::BorshSerialize;
 use borsh::BorshDeserialize;
+use borsh::BorshSerialize;
+use solana_pubkey::Pubkey;
 
 /// Address table lookups describe an on-chain address lookup table to use
 /// for loading more readonly and writable accounts into a transaction.
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SmartAccountMessageAddressTableLookup {
-/// Address lookup table account key.
-#[cfg_attr(feature = "serde", serde(with = "serde_with::As::<serde_with::DisplayFromStr>"))]
-pub account_key: Pubkey,
-/// List of indexes used to load writable accounts.
-pub writable_indexes: Vec<u8>,
-/// List of indexes used to load readonly accounts.
-pub readonly_indexes: Vec<u8>,
+    /// Address lookup table account key.
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
+    pub account_key: Pubkey,
+    /// List of indexes used to load writable accounts.
+    pub writable_indexes: Vec<u8>,
+    /// List of indexes used to load readonly accounts.
+    pub readonly_indexes: Vec<u8>,
 }
-
-

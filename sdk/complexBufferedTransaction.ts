@@ -160,7 +160,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
   const createBufferIx = getCreateTransactionBufferInstruction({
     settings: smartAccountSettings,
     transactionBuffer: transactionBufferPda,
-    creator: signer,
+    bufferCreator: signer,
     rentPayer: feePayerSigner,
     systemProgram: address('11111111111111111111111111111111'),
     bufferIndex: chosenBufferIndex,
@@ -200,11 +200,11 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
   const createFromBufferIx = getCreateTransactionFromBufferInstruction({
     settings: smartAccountSettings,
     transaction: transactionPda,
-    transactionCreator: signer,
+    creator: signer,
     rentPayer: feePayerSigner,
     systemProgram: address('11111111111111111111111111111111'),
     transactionBuffer: transactionBufferPda,
-    creator: signer,
+    fromBufferCreator: signer,
     args: {
       accountIndex,
       accountBump: smartAccountPdaBump,
