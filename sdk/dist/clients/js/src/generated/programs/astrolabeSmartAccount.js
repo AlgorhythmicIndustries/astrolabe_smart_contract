@@ -7,9 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AstrolabeSmartAccountInstruction = exports.AstrolabeSmartAccountAccount = exports.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS = void 0;
-exports.identifyAstrolabeSmartAccountAccount = identifyAstrolabeSmartAccountAccount;
-exports.identifyAstrolabeSmartAccountInstruction = identifyAstrolabeSmartAccountInstruction;
+exports.identifyAstrolabeSmartAccountInstruction = exports.AstrolabeSmartAccountInstruction = exports.identifyAstrolabeSmartAccountAccount = exports.AstrolabeSmartAccountAccount = exports.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS = void 0;
 const kit_1 = require("@solana/kit");
 exports.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS = 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q';
 var AstrolabeSmartAccountAccount;
@@ -55,6 +53,7 @@ function identifyAstrolabeSmartAccountAccount(account) {
     }
     throw new Error('The provided account could not be identified as a astrolabeSmartAccount account.');
 }
+exports.identifyAstrolabeSmartAccountAccount = identifyAstrolabeSmartAccountAccount;
 var AstrolabeSmartAccountInstruction;
 (function (AstrolabeSmartAccountInstruction) {
     AstrolabeSmartAccountInstruction[AstrolabeSmartAccountInstruction["ActivateProposal"] = 0] = "ActivateProposal";
@@ -210,3 +209,4 @@ function identifyAstrolabeSmartAccountInstruction(instruction) {
     }
     throw new Error('The provided instruction could not be identified as a astrolabeSmartAccount instruction.');
 }
+exports.identifyAstrolabeSmartAccountInstruction = identifyAstrolabeSmartAccountInstruction;

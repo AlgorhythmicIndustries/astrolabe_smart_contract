@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.REJECT_PROPOSAL_DISCRIMINATOR = void 0;
-exports.getRejectProposalDiscriminatorBytes = getRejectProposalDiscriminatorBytes;
-exports.getRejectProposalInstructionDataEncoder = getRejectProposalInstructionDataEncoder;
-exports.getRejectProposalInstructionDataDecoder = getRejectProposalInstructionDataDecoder;
-exports.getRejectProposalInstructionDataCodec = getRejectProposalInstructionDataCodec;
-exports.getRejectProposalInstruction = getRejectProposalInstruction;
-exports.parseRejectProposalInstruction = parseRejectProposalInstruction;
+exports.parseRejectProposalInstruction = exports.getRejectProposalInstruction = exports.getRejectProposalInstructionDataCodec = exports.getRejectProposalInstructionDataDecoder = exports.getRejectProposalInstructionDataEncoder = exports.getRejectProposalDiscriminatorBytes = exports.REJECT_PROPOSAL_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -24,21 +18,25 @@ exports.REJECT_PROPOSAL_DISCRIMINATOR = new Uint8Array([
 function getRejectProposalDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.REJECT_PROPOSAL_DISCRIMINATOR);
 }
+exports.getRejectProposalDiscriminatorBytes = getRejectProposalDiscriminatorBytes;
 function getRejectProposalInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
         ['args', (0, types_1.getVoteOnProposalArgsEncoder)()],
     ]), (value) => ({ ...value, discriminator: exports.REJECT_PROPOSAL_DISCRIMINATOR }));
 }
+exports.getRejectProposalInstructionDataEncoder = getRejectProposalInstructionDataEncoder;
 function getRejectProposalInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
         ['args', (0, types_1.getVoteOnProposalArgsDecoder)()],
     ]);
 }
+exports.getRejectProposalInstructionDataDecoder = getRejectProposalInstructionDataDecoder;
 function getRejectProposalInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getRejectProposalInstructionDataEncoder(), getRejectProposalInstructionDataDecoder());
 }
+exports.getRejectProposalInstructionDataCodec = getRejectProposalInstructionDataCodec;
 function getRejectProposalInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -70,6 +68,7 @@ function getRejectProposalInstruction(input, config) {
     };
     return instruction;
 }
+exports.getRejectProposalInstruction = getRejectProposalInstruction;
 function parseRejectProposalInstruction(instruction) {
     if (instruction.accounts.length < 4) {
         // TODO: Coded error.
@@ -98,3 +97,4 @@ function parseRejectProposalInstruction(instruction) {
         data: getRejectProposalInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseRejectProposalInstruction = parseRejectProposalInstruction;

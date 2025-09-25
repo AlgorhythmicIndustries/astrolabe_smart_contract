@@ -7,10 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Period = void 0;
-exports.getPeriodEncoder = getPeriodEncoder;
-exports.getPeriodDecoder = getPeriodDecoder;
-exports.getPeriodCodec = getPeriodCodec;
+exports.getPeriodCodec = exports.getPeriodDecoder = exports.getPeriodEncoder = exports.Period = void 0;
 const kit_1 = require("@solana/kit");
 /** The reset period of the spending limit. */
 var Period;
@@ -23,9 +20,12 @@ var Period;
 function getPeriodEncoder() {
     return (0, kit_1.getEnumEncoder)(Period);
 }
+exports.getPeriodEncoder = getPeriodEncoder;
 function getPeriodDecoder() {
     return (0, kit_1.getEnumDecoder)(Period);
 }
+exports.getPeriodDecoder = getPeriodDecoder;
 function getPeriodCodec() {
     return (0, kit_1.combineCodec)(getPeriodEncoder(), getPeriodDecoder());
 }
+exports.getPeriodCodec = getPeriodCodec;

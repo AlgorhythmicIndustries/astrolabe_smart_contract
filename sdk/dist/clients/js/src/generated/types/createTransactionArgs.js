@@ -7,9 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCreateTransactionArgsEncoder = getCreateTransactionArgsEncoder;
-exports.getCreateTransactionArgsDecoder = getCreateTransactionArgsDecoder;
-exports.getCreateTransactionArgsCodec = getCreateTransactionArgsCodec;
+exports.getCreateTransactionArgsCodec = exports.getCreateTransactionArgsDecoder = exports.getCreateTransactionArgsEncoder = void 0;
 const kit_1 = require("@solana/kit");
 function getCreateTransactionArgsEncoder() {
     return (0, kit_1.getStructEncoder)([
@@ -26,6 +24,7 @@ function getCreateTransactionArgsEncoder() {
         ],
     ]);
 }
+exports.getCreateTransactionArgsEncoder = getCreateTransactionArgsEncoder;
 function getCreateTransactionArgsDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['accountIndex', (0, kit_1.getU8Decoder)()],
@@ -41,6 +40,8 @@ function getCreateTransactionArgsDecoder() {
         ],
     ]);
 }
+exports.getCreateTransactionArgsDecoder = getCreateTransactionArgsDecoder;
 function getCreateTransactionArgsCodec() {
     return (0, kit_1.combineCodec)(getCreateTransactionArgsEncoder(), getCreateTransactionArgsDecoder());
 }
+exports.getCreateTransactionArgsCodec = getCreateTransactionArgsCodec;

@@ -7,9 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSmartAccountMessageAddressTableLookupEncoder = getSmartAccountMessageAddressTableLookupEncoder;
-exports.getSmartAccountMessageAddressTableLookupDecoder = getSmartAccountMessageAddressTableLookupDecoder;
-exports.getSmartAccountMessageAddressTableLookupCodec = getSmartAccountMessageAddressTableLookupCodec;
+exports.getSmartAccountMessageAddressTableLookupCodec = exports.getSmartAccountMessageAddressTableLookupDecoder = exports.getSmartAccountMessageAddressTableLookupEncoder = void 0;
 const kit_1 = require("@solana/kit");
 function getSmartAccountMessageAddressTableLookupEncoder() {
     return (0, kit_1.getStructEncoder)([
@@ -24,6 +22,7 @@ function getSmartAccountMessageAddressTableLookupEncoder() {
         ],
     ]);
 }
+exports.getSmartAccountMessageAddressTableLookupEncoder = getSmartAccountMessageAddressTableLookupEncoder;
 function getSmartAccountMessageAddressTableLookupDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['accountKey', (0, kit_1.getAddressDecoder)()],
@@ -37,6 +36,8 @@ function getSmartAccountMessageAddressTableLookupDecoder() {
         ],
     ]);
 }
+exports.getSmartAccountMessageAddressTableLookupDecoder = getSmartAccountMessageAddressTableLookupDecoder;
 function getSmartAccountMessageAddressTableLookupCodec() {
     return (0, kit_1.combineCodec)(getSmartAccountMessageAddressTableLookupEncoder(), getSmartAccountMessageAddressTableLookupDecoder());
 }
+exports.getSmartAccountMessageAddressTableLookupCodec = getSmartAccountMessageAddressTableLookupCodec;

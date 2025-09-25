@@ -7,17 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PROGRAM_CONFIG_DISCRIMINATOR = void 0;
-exports.getProgramConfigDiscriminatorBytes = getProgramConfigDiscriminatorBytes;
-exports.getProgramConfigEncoder = getProgramConfigEncoder;
-exports.getProgramConfigDecoder = getProgramConfigDecoder;
-exports.getProgramConfigCodec = getProgramConfigCodec;
-exports.decodeProgramConfig = decodeProgramConfig;
-exports.fetchProgramConfig = fetchProgramConfig;
-exports.fetchMaybeProgramConfig = fetchMaybeProgramConfig;
-exports.fetchAllProgramConfig = fetchAllProgramConfig;
-exports.fetchAllMaybeProgramConfig = fetchAllMaybeProgramConfig;
-exports.getProgramConfigSize = getProgramConfigSize;
+exports.getProgramConfigSize = exports.fetchAllMaybeProgramConfig = exports.fetchAllProgramConfig = exports.fetchMaybeProgramConfig = exports.fetchProgramConfig = exports.decodeProgramConfig = exports.getProgramConfigCodec = exports.getProgramConfigDecoder = exports.getProgramConfigEncoder = exports.getProgramConfigDiscriminatorBytes = exports.PROGRAM_CONFIG_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 exports.PROGRAM_CONFIG_DISCRIMINATOR = new Uint8Array([
     196, 210, 90, 231, 144, 149, 140, 63,
@@ -25,6 +15,7 @@ exports.PROGRAM_CONFIG_DISCRIMINATOR = new Uint8Array([
 function getProgramConfigDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.PROGRAM_CONFIG_DISCRIMINATOR);
 }
+exports.getProgramConfigDiscriminatorBytes = getProgramConfigDiscriminatorBytes;
 function getProgramConfigEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -35,6 +26,7 @@ function getProgramConfigEncoder() {
         ['reserved', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 64)],
     ]), (value) => ({ ...value, discriminator: exports.PROGRAM_CONFIG_DISCRIMINATOR }));
 }
+exports.getProgramConfigEncoder = getProgramConfigEncoder;
 function getProgramConfigDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
@@ -45,30 +37,38 @@ function getProgramConfigDecoder() {
         ['reserved', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 64)],
     ]);
 }
+exports.getProgramConfigDecoder = getProgramConfigDecoder;
 function getProgramConfigCodec() {
     return (0, kit_1.combineCodec)(getProgramConfigEncoder(), getProgramConfigDecoder());
 }
+exports.getProgramConfigCodec = getProgramConfigCodec;
 function decodeProgramConfig(encodedAccount) {
     return (0, kit_1.decodeAccount)(encodedAccount, getProgramConfigDecoder());
 }
+exports.decodeProgramConfig = decodeProgramConfig;
 async function fetchProgramConfig(rpc, address, config) {
     const maybeAccount = await fetchMaybeProgramConfig(rpc, address, config);
     (0, kit_1.assertAccountExists)(maybeAccount);
     return maybeAccount;
 }
+exports.fetchProgramConfig = fetchProgramConfig;
 async function fetchMaybeProgramConfig(rpc, address, config) {
     const maybeAccount = await (0, kit_1.fetchEncodedAccount)(rpc, address, config);
     return decodeProgramConfig(maybeAccount);
 }
+exports.fetchMaybeProgramConfig = fetchMaybeProgramConfig;
 async function fetchAllProgramConfig(rpc, addresses, config) {
     const maybeAccounts = await fetchAllMaybeProgramConfig(rpc, addresses, config);
     (0, kit_1.assertAccountsExist)(maybeAccounts);
     return maybeAccounts;
 }
+exports.fetchAllProgramConfig = fetchAllProgramConfig;
 async function fetchAllMaybeProgramConfig(rpc, addresses, config) {
     const maybeAccounts = await (0, kit_1.fetchEncodedAccounts)(rpc, addresses, config);
     return maybeAccounts.map((maybeAccount) => decodeProgramConfig(maybeAccount));
 }
+exports.fetchAllMaybeProgramConfig = fetchAllMaybeProgramConfig;
 function getProgramConfigSize() {
     return 160;
 }
+exports.getProgramConfigSize = getProgramConfigSize;

@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CREATE_PROPOSAL_DISCRIMINATOR = void 0;
-exports.getCreateProposalDiscriminatorBytes = getCreateProposalDiscriminatorBytes;
-exports.getCreateProposalInstructionDataEncoder = getCreateProposalInstructionDataEncoder;
-exports.getCreateProposalInstructionDataDecoder = getCreateProposalInstructionDataDecoder;
-exports.getCreateProposalInstructionDataCodec = getCreateProposalInstructionDataCodec;
-exports.getCreateProposalInstruction = getCreateProposalInstruction;
-exports.parseCreateProposalInstruction = parseCreateProposalInstruction;
+exports.parseCreateProposalInstruction = exports.getCreateProposalInstruction = exports.getCreateProposalInstructionDataCodec = exports.getCreateProposalInstructionDataDecoder = exports.getCreateProposalInstructionDataEncoder = exports.getCreateProposalDiscriminatorBytes = exports.CREATE_PROPOSAL_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -23,6 +17,7 @@ exports.CREATE_PROPOSAL_DISCRIMINATOR = new Uint8Array([
 function getCreateProposalDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.CREATE_PROPOSAL_DISCRIMINATOR);
 }
+exports.getCreateProposalDiscriminatorBytes = getCreateProposalDiscriminatorBytes;
 function getCreateProposalInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -30,6 +25,7 @@ function getCreateProposalInstructionDataEncoder() {
         ['draft', (0, kit_1.getBooleanEncoder)()],
     ]), (value) => ({ ...value, discriminator: exports.CREATE_PROPOSAL_DISCRIMINATOR }));
 }
+exports.getCreateProposalInstructionDataEncoder = getCreateProposalInstructionDataEncoder;
 function getCreateProposalInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
@@ -37,9 +33,11 @@ function getCreateProposalInstructionDataDecoder() {
         ['draft', (0, kit_1.getBooleanDecoder)()],
     ]);
 }
+exports.getCreateProposalInstructionDataDecoder = getCreateProposalInstructionDataDecoder;
 function getCreateProposalInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getCreateProposalInstructionDataEncoder(), getCreateProposalInstructionDataDecoder());
 }
+exports.getCreateProposalInstructionDataCodec = getCreateProposalInstructionDataCodec;
 function getCreateProposalInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -73,6 +71,7 @@ function getCreateProposalInstruction(input, config) {
     };
     return instruction;
 }
+exports.getCreateProposalInstruction = getCreateProposalInstruction;
 function parseCreateProposalInstruction(instruction) {
     if (instruction.accounts.length < 5) {
         // TODO: Coded error.
@@ -96,3 +95,4 @@ function parseCreateProposalInstruction(instruction) {
         data: getCreateProposalInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseCreateProposalInstruction = parseCreateProposalInstruction;

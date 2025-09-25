@@ -3,8 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deriveSmartAccountInfo = deriveSmartAccountInfo;
-exports.createProposeVoteExecuteTransaction = createProposeVoteExecuteTransaction;
+exports.createProposeVoteExecuteTransaction = exports.deriveSmartAccountInfo = void 0;
 const kit_1 = require("@solana/kit");
 const buffer_1 = require("buffer");
 const settings_1 = require("./clients/js/src/generated/accounts/settings");
@@ -52,6 +51,7 @@ async function deriveSmartAccountInfo(rpc, settingsAddress, accountIndex) {
         smartAccountPdaBump,
     };
 }
+exports.deriveSmartAccountInfo = deriveSmartAccountInfo;
 /**
  * High-level function that combines the smart account propose-vote-execute pattern
  * into a single serialized transaction. This creates a transaction, proposal, approves it,
@@ -292,3 +292,4 @@ async function createProposeVoteExecuteTransaction(params) {
         transactionIndex,
     };
 }
+exports.createProposeVoteExecuteTransaction = createProposeVoteExecuteTransaction;

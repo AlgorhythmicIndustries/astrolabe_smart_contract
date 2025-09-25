@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ADD_TRANSACTION_TO_BATCH_DISCRIMINATOR = void 0;
-exports.getAddTransactionToBatchDiscriminatorBytes = getAddTransactionToBatchDiscriminatorBytes;
-exports.getAddTransactionToBatchInstructionDataEncoder = getAddTransactionToBatchInstructionDataEncoder;
-exports.getAddTransactionToBatchInstructionDataDecoder = getAddTransactionToBatchInstructionDataDecoder;
-exports.getAddTransactionToBatchInstructionDataCodec = getAddTransactionToBatchInstructionDataCodec;
-exports.getAddTransactionToBatchInstruction = getAddTransactionToBatchInstruction;
-exports.parseAddTransactionToBatchInstruction = parseAddTransactionToBatchInstruction;
+exports.parseAddTransactionToBatchInstruction = exports.getAddTransactionToBatchInstruction = exports.getAddTransactionToBatchInstructionDataCodec = exports.getAddTransactionToBatchInstructionDataDecoder = exports.getAddTransactionToBatchInstructionDataEncoder = exports.getAddTransactionToBatchDiscriminatorBytes = exports.ADD_TRANSACTION_TO_BATCH_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -23,6 +17,7 @@ exports.ADD_TRANSACTION_TO_BATCH_DISCRIMINATOR = new Uint8Array([
 function getAddTransactionToBatchDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.ADD_TRANSACTION_TO_BATCH_DISCRIMINATOR);
 }
+exports.getAddTransactionToBatchDiscriminatorBytes = getAddTransactionToBatchDiscriminatorBytes;
 function getAddTransactionToBatchInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -36,6 +31,7 @@ function getAddTransactionToBatchInstructionDataEncoder() {
         discriminator: exports.ADD_TRANSACTION_TO_BATCH_DISCRIMINATOR,
     }));
 }
+exports.getAddTransactionToBatchInstructionDataEncoder = getAddTransactionToBatchInstructionDataEncoder;
 function getAddTransactionToBatchInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
@@ -46,9 +42,11 @@ function getAddTransactionToBatchInstructionDataDecoder() {
         ],
     ]);
 }
+exports.getAddTransactionToBatchInstructionDataDecoder = getAddTransactionToBatchInstructionDataDecoder;
 function getAddTransactionToBatchInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getAddTransactionToBatchInstructionDataEncoder(), getAddTransactionToBatchInstructionDataDecoder());
 }
+exports.getAddTransactionToBatchInstructionDataCodec = getAddTransactionToBatchInstructionDataCodec;
 function getAddTransactionToBatchInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -86,6 +84,7 @@ function getAddTransactionToBatchInstruction(input, config) {
     };
     return instruction;
 }
+exports.getAddTransactionToBatchInstruction = getAddTransactionToBatchInstruction;
 function parseAddTransactionToBatchInstruction(instruction) {
     if (instruction.accounts.length < 7) {
         // TODO: Coded error.
@@ -111,3 +110,4 @@ function parseAddTransactionToBatchInstruction(instruction) {
         data: getAddTransactionToBatchInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseAddTransactionToBatchInstruction = parseAddTransactionToBatchInstruction;
