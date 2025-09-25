@@ -1,88 +1,38 @@
-# GitHub Action to automatically sync SDK changes to separate repository
-name: Sync SDK to Standalone Repository
+# .github/workflows/subtree-push.yml
+name: Push SDK Subtree
 
 on:
   push:
-    paths:
-      - 'astrolabe_smart_contract/sdk/**'
-    branches:
-      - sdk_rewrite
-  workflow_dispatch: # Allow manual triggering
+    branches: [ main ]
+    paths: 
+      - 'sdk/**'  # Only trigger when files in sdk/ directory change
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
-  sync-sdk:
+  subtree-push:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout main repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Need full history for subtree
-          token: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Setup Git
-        run: |
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
-      
-      - name: Add SDK repository remote
-        run: |
-          git remote add sdk-repo https://${{ secrets.SDK_REPO_TOKEN }}@github.com/Algorhythmic1/astrolabe-sdk.git
-        env:
-          SDK_REPO_TOKEN: ${{ secrets.SDK_REPO_TOKEN }}
-      
-      - name: Generate version tag
-        id: version
-        run: |
-          # Generate semantic version based on date/time or increment
-          VERSION="v$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Generated version: $VERSION"
-      
-      - name: Sync SDK using subtree
-        run: |
-          echo "🌿 Syncing SDK to standalone repository..."
-          git subtree push --prefix=astrolabe_smart_contract/sdk sdk-repo sdk_rewrite
-      
-      - name: Tag the SDK repository
-        run: |
-          cd $(mktemp -d)
-          git clone -b sdk_rewrite https://${{ secrets.SDK_REPO_TOKEN }}@github.com/Algorhythmic1/astrolabe-sdk.git .
-          git tag ${{ steps.version.outputs.version }}
-          git push origin ${{ steps.version.outputs.version }}
-        env:
-          SDK_REPO_TOKEN: ${{ secrets.SDK_REPO_TOKEN }}
-      
-      - name: Update frontend package.json
-        if: success()
-        run: |
-          # Update the frontend package.json with new SDK version
-          if [ -f "astrolabe-frontend/package.json" ]; then
-            node -e "
-              const fs = require('fs');
-              const pkg = JSON.parse(fs.readFileSync('astrolabe-frontend/package.json', 'utf8'));
-              pkg.dependencies['astrolabe-sc-sdk'] = 'git+ssh://git@github.com:Algorhythmic1/astrolabe-sdk.git#${{ steps.version.outputs.version }}';
-              fs.writeFileSync('astrolabe-frontend/package.json', JSON.stringify(pkg, null, 2));
-            "
-            echo "Updated frontend package.json with SDK version: ${{ steps.version.outputs.version }}"
-          fi
-      
-      - name: Create PR to update frontend dependency
-        if: success()
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: update SDK dependency to ${{ steps.version.outputs.version }}"
-          title: "Auto-update SDK dependency to ${{ steps.version.outputs.version }}"
-          body: |
-            This PR automatically updates the SDK dependency to the latest version.
-            
-            New SDK version: ${{ steps.version.outputs.version }}
-            
-            Changes in this update:
-            - Updated astrolabe-sc-sdk dependency to semantic version tag
-            - No more manual commit hash management needed
-            
-            The SDK has been automatically synced and tagged. Please review and merge if tests pass.
-          branch: update-sdk-dependency
-          base: sdk_rewrite
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Need full history for subtree
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Configure Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+    
+    - name: Add remote for SDK repository
+      run: |
+        git remote add astrolabe-sdk-remote https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/AlgorhythmicIndustries/astrolabe-sdk.git
+    
+    - name: Push subtree to SDK repository
+      run: |
+        git subtree push --prefix=sdk astrolabe-sdk-remote main
+    
+    - name: Clean up remote
+      if: always()
+      run: |
+        git remote remove astrolabe-sdk-remote || true
