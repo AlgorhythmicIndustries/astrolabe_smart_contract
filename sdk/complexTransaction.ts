@@ -26,7 +26,6 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from './clients/js/src/generated/programs';
 import { getSmartAccountTransactionMessageEncoder } from './clients/js/src/generated/types/smartAccountTransactionMessage';
 import * as bs58 from 'bs58';
-import { deriveSmartAccountInfo, SmartAccountInfo } from './simpleTransaction';
 
 type SolanaRpc = ReturnType<typeof createSolanaRpc>;
 
