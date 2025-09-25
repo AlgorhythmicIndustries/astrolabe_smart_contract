@@ -5,19 +5,17 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
-use borsh::BorshSerialize;
 use borsh::BorshDeserialize;
+use borsh::BorshSerialize;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateTransactionArgs {
-/// Index of the smart account this transaction belongs to.
-pub account_index: u8,
-pub account_bump: u8,
-/// Number of ephemeral signing PDAs required by the transaction.
-pub ephemeral_signers: u8,
-pub transaction_message: Vec<u8>,
-pub memo: Option<String>,
+    /// Index of the smart account this transaction belongs to.
+    pub account_index: u8,
+    pub account_bump: u8,
+    /// Number of ephemeral signing PDAs required by the transaction.
+    pub ephemeral_signers: u8,
+    pub transaction_message: Vec<u8>,
+    pub memo: Option<String>,
 }
-
-

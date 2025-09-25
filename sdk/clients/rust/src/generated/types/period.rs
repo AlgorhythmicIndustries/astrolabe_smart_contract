@@ -5,18 +5,27 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
-use borsh::BorshSerialize;
 use borsh::BorshDeserialize;
+use borsh::BorshSerialize;
 use num_derive::FromPrimitive;
 
 /// The reset period of the spending limit.
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq, Copy, PartialOrd, Hash, FromPrimitive)]
+#[derive(
+    BorshSerialize,
+    BorshDeserialize,
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Copy,
+    PartialOrd,
+    Hash,
+    FromPrimitive,
+)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Period {
-OneTime,
-Day,
-Week,
-Month,
+    OneTime,
+    Day,
+    Week,
+    Month,
 }
-
-

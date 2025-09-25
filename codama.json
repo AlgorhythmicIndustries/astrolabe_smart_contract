@@ -5,15 +5,15 @@
         "js": {
             "from": "@codama/renderers-js",
             "args": [
-                "clients/js/src/generated"
+                "sdk/clients/js/src/generated"
             ]
         },
         "rust": {
             "from": "@codama/renderers-rust",
             "args": [
-                "clients/rust/src/generated",
+                "sdk/clients/rust/src/generated",
                 {
-                    "crateFolder": "clients/rust",
+                    "crateFolder": "sdk/clients/rust",
                     "formatCode": true
                 }
             ]

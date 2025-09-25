@@ -5,19 +5,17 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
-use borsh::BorshSerialize;
 use borsh::BorshDeserialize;
+use borsh::BorshSerialize;
 
 /// Concise serialization schema for instructions that make up a transaction.
 /// Closely mimics the Solana transaction wire format.
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SmartAccountCompiledInstruction {
-pub program_id_index: u8,
-/// Indices into the tx's `account_keys` list indicating which accounts to pass to the instruction.
-pub account_indexes: Vec<u8>,
-/// Instruction data.
-pub data: Vec<u8>,
+    pub program_id_index: u8,
+    /// Indices into the tx's `account_keys` list indicating which accounts to pass to the instruction.
+    pub account_indexes: Vec<u8>,
+    /// Instruction data.
+    pub data: Vec<u8>,
 }
-
-
