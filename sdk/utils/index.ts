@@ -19,7 +19,7 @@ import {
       programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
       seeds: [
         new Uint8Array(Buffer.from('smart_account')),
-        bs58.decode(settingsAddress.toString()),
+        bs58.decode(settingsAddress),
         new Uint8Array(Buffer.from('transaction')),
         new Uint8Array(new BigUint64Array([transactionIndex]).buffer),
       ],
@@ -35,7 +35,7 @@ import {
       programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
       seeds: [
         new Uint8Array(Buffer.from('smart_account')),
-        bs58.decode(settingsAddress.toString()),
+        bs58.decode(settingsAddress),
         new Uint8Array(Buffer.from('transaction')),
         new Uint8Array(new BigUint64Array([transactionIndex]).buffer),
         new Uint8Array(Buffer.from('proposal')),
@@ -63,19 +63,18 @@ import {
     return getCompiledTransactionMessageDecoder().decode(messageBytes);
   }
   
-  /**
-   * Derives smart account PDA and related info from a settings address
-   */
-  export async function deriveSmartAccountInfo(
-    rpc: SolanaRpc,
-    settingsAddress: Address,
-    accountIndex?: bigint
-  ): Promise<{
-    smartAccountPda: Address;
-    settingsAddress: Address;
-    accountIndex: bigint;
-    smartAccountPdaBump: number;
-  }> {
+/**
+ * Derives smart account PDA and related info from a settings address
+ */
+export async function deriveSmartAccountInfo(
+  settingsAddress: Address,
+  accountIndex?: bigint
+): Promise<{
+  smartAccountPda: Address;
+  settingsAddress: Address;
+  accountIndex: bigint;
+  smartAccountPdaBump: number;
+}> {
     // Always use account_index = 0 for the primary smart account
     console.log('🔧 Using account index 0 for primary smart account (ignoring any provided accountIndex)');
   
@@ -89,7 +88,7 @@ import {
       programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
       seeds: [
         new Uint8Array(Buffer.from('smart_account')),
-        bs58.decode(settingsAddress.toString()),
+        bs58.decode(settingsAddress),
         new Uint8Array(Buffer.from('smart_account')),
         // Use account_index 0 for the primary smart account
         new Uint8Array([0]),

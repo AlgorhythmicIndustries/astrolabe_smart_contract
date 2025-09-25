@@ -27,6 +27,7 @@ import {
   import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from './clients/js/src/generated/programs';
   import { getSmartAccountTransactionMessageEncoder } from './clients/js/src/generated/types/smartAccountTransactionMessage';
   import * as bs58 from 'bs58';
+  import { deriveSmartAccountInfo } from './utils/index';
   
   type SolanaRpc = ReturnType<typeof createSolanaRpc>;
 
@@ -71,40 +72,7 @@ import {
     return decoder.decode(messageBytes);
   }
 
-  export async function deriveSmartAccountInfo(settingsAddress: Address, accountIndex: bigint = BigInt(0)): Promise<SmartAccountInfo> {
-    const [smartAccountPda, smartAccountPdaBump] = await getProgramDerivedAddress({
-      programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-      seeds: [
-        new Uint8Array(Buffer.from('smart_account')),
-        bs58.decode(settingsAddress),
-        new Uint8Array(Buffer.from('smart_account')),
-        new Uint8Array([Number(accountIndex)]), // Use u8 format consistently
-      ],
-    });
-    
-    return {
-      smartAccountPda,
-      settingsAddress,
-      accountIndex,
-      smartAccountPdaBump,
-    };
-  }
-  
-  /**
-   * Result of deriving smart account info from settings address
-   */
-  export type SmartAccountInfo = {
-    /** The smart account PDA that holds funds */
-    smartAccountPda: Address;
-    /** The settings address (input) */
-    settingsAddress: Address;
-    /** The account index used for derivation */
-    accountIndex: bigint;
-    /** The smart account PDA bump seed */
-    smartAccountPdaBump: number;
-  };
-  
-  
+
   /**
    * Parameters for the propose-vote-execute workflow
    */
