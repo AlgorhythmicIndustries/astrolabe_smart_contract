@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LOG_EVENT_DISCRIMINATOR = void 0;
-exports.getLogEventDiscriminatorBytes = getLogEventDiscriminatorBytes;
-exports.getLogEventInstructionDataEncoder = getLogEventInstructionDataEncoder;
-exports.getLogEventInstructionDataDecoder = getLogEventInstructionDataDecoder;
-exports.getLogEventInstructionDataCodec = getLogEventInstructionDataCodec;
-exports.getLogEventInstruction = getLogEventInstruction;
-exports.parseLogEventInstruction = parseLogEventInstruction;
+exports.parseLogEventInstruction = exports.getLogEventInstruction = exports.getLogEventInstructionDataCodec = exports.getLogEventInstructionDataDecoder = exports.getLogEventInstructionDataEncoder = exports.getLogEventDiscriminatorBytes = exports.LOG_EVENT_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -23,6 +17,7 @@ exports.LOG_EVENT_DISCRIMINATOR = new Uint8Array([
 function getLogEventDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.LOG_EVENT_DISCRIMINATOR);
 }
+exports.getLogEventDiscriminatorBytes = getLogEventDiscriminatorBytes;
 function getLogEventInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -34,6 +29,7 @@ function getLogEventInstructionDataEncoder() {
         ['event', (0, kit_1.addEncoderSizePrefix)((0, kit_1.getBytesEncoder)(), (0, kit_1.getU32Encoder)())],
     ]), (value) => ({ ...value, discriminator: exports.LOG_EVENT_DISCRIMINATOR }));
 }
+exports.getLogEventInstructionDataEncoder = getLogEventInstructionDataEncoder;
 function getLogEventInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
@@ -45,9 +41,11 @@ function getLogEventInstructionDataDecoder() {
         ['event', (0, kit_1.addDecoderSizePrefix)((0, kit_1.getBytesDecoder)(), (0, kit_1.getU32Decoder)())],
     ]);
 }
+exports.getLogEventInstructionDataDecoder = getLogEventInstructionDataDecoder;
 function getLogEventInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getLogEventInstructionDataEncoder(), getLogEventInstructionDataDecoder());
 }
+exports.getLogEventInstructionDataCodec = getLogEventInstructionDataCodec;
 function getLogEventInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -66,6 +64,7 @@ function getLogEventInstruction(input, config) {
     };
     return instruction;
 }
+exports.getLogEventInstruction = getLogEventInstruction;
 function parseLogEventInstruction(instruction) {
     if (instruction.accounts.length < 1) {
         // TODO: Coded error.
@@ -85,3 +84,4 @@ function parseLogEventInstruction(instruction) {
         data: getLogEventInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseLogEventInstruction = parseLogEventInstruction;

@@ -7,7 +7,7 @@
  */
 import { type Address, type Codec, type Decoder, type Encoder, type IAccountMeta, type IAccountSignerMeta, type IInstruction, type IInstructionWithAccounts, type IInstructionWithData, type ReadonlyAccount, type ReadonlyUint8Array, type TransactionSigner, type WritableAccount, type WritableSignerAccount } from '@solana/kit';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
-export declare const INITIALIZE_PROGRAM_CONFIG_DISCRIMINATOR: Uint8Array<ArrayBuffer>;
+export declare const INITIALIZE_PROGRAM_CONFIG_DISCRIMINATOR: Uint8Array;
 export declare function getInitializeProgramConfigDiscriminatorBytes(): ReadonlyUint8Array;
 export type InitializeProgramConfigInstruction<TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS, TAccountProgramConfig extends string | IAccountMeta<string> = string, TAccountInitializer extends string | IAccountMeta<string> = 'BrQAbGdWQ9YUHmWWgKFdFe4miTURH71jkYFPXfaosqDv', TAccountSystemProgram extends string | IAccountMeta<string> = '11111111111111111111111111111111', TRemainingAccounts extends readonly IAccountMeta<string>[] = []> = IInstruction<TProgram> & IInstructionWithData<Uint8Array> & IInstructionWithAccounts<[
     TAccountProgramConfig extends string ? WritableAccount<TAccountProgramConfig> : TAccountProgramConfig,

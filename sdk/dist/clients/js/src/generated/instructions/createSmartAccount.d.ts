@@ -8,7 +8,7 @@
 import { type Address, type Codec, type Decoder, type Encoder, type IAccountMeta, type IAccountSignerMeta, type IInstruction, type IInstructionWithAccounts, type IInstructionWithData, type Option, type OptionOrNullable, type ReadonlyAccount, type ReadonlyUint8Array, type TransactionSigner, type WritableAccount, type WritableSignerAccount } from '@solana/kit';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { type RestrictedSmartAccountSigner, type RestrictedSmartAccountSignerArgs, type SmartAccountSigner, type SmartAccountSignerArgs } from '../types';
-export declare const CREATE_SMART_ACCOUNT_DISCRIMINATOR: Uint8Array<ArrayBuffer>;
+export declare const CREATE_SMART_ACCOUNT_DISCRIMINATOR: Uint8Array;
 export declare function getCreateSmartAccountDiscriminatorBytes(): ReadonlyUint8Array;
 export type CreateSmartAccountInstruction<TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS, TAccountProgramConfig extends string | IAccountMeta<string> = string, TAccountSettings extends string | IAccountMeta<string> = string, TAccountTreasury extends string | IAccountMeta<string> = string, TAccountCreator extends string | IAccountMeta<string> = string, TAccountSystemProgram extends string | IAccountMeta<string> = '11111111111111111111111111111111', TAccountProgram extends string | IAccountMeta<string> = 'GyhGAqjokLwF9UXdQ2dR5Zwiup242j4mX4J1tSMKyAmD', TRemainingAccounts extends readonly IAccountMeta<string>[] = []> = IInstruction<TProgram> & IInstructionWithData<Uint8Array> & IInstructionWithAccounts<[
     TAccountProgramConfig extends string ? WritableAccount<TAccountProgramConfig> : TAccountProgramConfig,

@@ -7,9 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSmartAccountCompiledInstructionEncoder = getSmartAccountCompiledInstructionEncoder;
-exports.getSmartAccountCompiledInstructionDecoder = getSmartAccountCompiledInstructionDecoder;
-exports.getSmartAccountCompiledInstructionCodec = getSmartAccountCompiledInstructionCodec;
+exports.getSmartAccountCompiledInstructionCodec = exports.getSmartAccountCompiledInstructionDecoder = exports.getSmartAccountCompiledInstructionEncoder = void 0;
 const kit_1 = require("@solana/kit");
 function getSmartAccountCompiledInstructionEncoder() {
     return (0, kit_1.getStructEncoder)([
@@ -21,6 +19,7 @@ function getSmartAccountCompiledInstructionEncoder() {
         ['data', (0, kit_1.addEncoderSizePrefix)((0, kit_1.getBytesEncoder)(), (0, kit_1.getU32Encoder)())],
     ]);
 }
+exports.getSmartAccountCompiledInstructionEncoder = getSmartAccountCompiledInstructionEncoder;
 function getSmartAccountCompiledInstructionDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['programIdIndex', (0, kit_1.getU8Decoder)()],
@@ -31,6 +30,8 @@ function getSmartAccountCompiledInstructionDecoder() {
         ['data', (0, kit_1.addDecoderSizePrefix)((0, kit_1.getBytesDecoder)(), (0, kit_1.getU32Decoder)())],
     ]);
 }
+exports.getSmartAccountCompiledInstructionDecoder = getSmartAccountCompiledInstructionDecoder;
 function getSmartAccountCompiledInstructionCodec() {
     return (0, kit_1.combineCodec)(getSmartAccountCompiledInstructionEncoder(), getSmartAccountCompiledInstructionDecoder());
 }
+exports.getSmartAccountCompiledInstructionCodec = getSmartAccountCompiledInstructionCodec;
