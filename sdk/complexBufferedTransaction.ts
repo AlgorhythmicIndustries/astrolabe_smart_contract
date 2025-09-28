@@ -13,9 +13,11 @@ import {
   getProgramDerivedAddress,
   type TransactionSigner,
   getCompiledTransactionMessageDecoder,
+  decompileTransactionMessage,
   AccountRole,
   assertIsTransactionWithinSizeLimit,
 } from '@solana/kit';
+import { getTransactionDecoder } from '@solana/transactions';
 import * as bs58 from 'bs58';
 
 type SolanaRpc = ReturnType<typeof createSolanaRpc>;
@@ -94,35 +96,24 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     ],
   });
 
-  // Convert the raw Jupiter transaction to the TransactionMessage format expected by smart contract
-  const decoded = getCompiledTransactionMessageDecoder().decode(innerTransactionBytes) as any;
-  const transactionMessage = {
-    numSigners: decoded.header?.numSignerAccounts || 1,
-    numWritableSigners: (decoded.header?.numSignerAccounts || 1) - (decoded.header?.numReadonlySignerAccounts || 0),
-    numWritableNonSigners: Math.max(0, (decoded.staticAccounts?.length || 0) - (decoded.header?.numSignerAccounts || 1) - (decoded.header?.numReadonlyNonSignerAccounts || 0)),
-    accountKeys: decoded.staticAccounts || [],
-    instructions: (decoded.instructions || []).map((ix: any) => ({
-      programIdIndex: ix.programAddressIndex,
-      accountIndexes: new Uint8Array(ix.accountIndices ?? []),
-      data: ix.data ?? new Uint8Array(),
-    })),
-    addressTableLookups: (addressTableLookups || []).map((l: any) => ({
-      accountKey: l.accountKey,
-      writableIndexes: new Uint8Array(l.writableIndexes ?? []),
-      readonlyIndexes: new Uint8Array(l.readonlyIndexes ?? []),
-    })),
-  };
-
-  // Encode as the TransactionMessage format expected by smart contract
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { getTransactionMessageEncoder } = require('./clients/js/src/generated/types/transactionMessage');
-  const smartAccountMessageBytes = getTransactionMessageEncoder().encode(transactionMessage);
-
-  // Final buffer hash/size
-  const finalBuffer = new Uint8Array(smartAccountMessageBytes);
+  // Store raw Jupiter transaction message bytes directly in buffer
+  // The contract expects raw TransactionMessage bytes, not SmartAccountTransactionMessage
+  console.log('🔧 Using raw Jupiter transaction message bytes directly');
+  console.log(`📊 Original Jupiter transaction size: ${innerTransactionBytes.length} bytes`);
+  
+  // Decode the Jupiter VersionedTransaction to verify it's valid
+  const transaction = getTransactionDecoder().decode(innerTransactionBytes);
+  const messageDecoder = getCompiledTransactionMessageDecoder();
+  const jupiterMessage = messageDecoder.decode(transaction.messageBytes);
+  console.log(`📋 Jupiter VersionedTransaction: ${jupiterMessage.instructions?.length || 0} instructions, ${jupiterMessage.staticAccounts?.length || 0} accounts`);
+  
+  // Use the raw transaction message bytes directly - this is what the contract expects
+  const finalBuffer = new Uint8Array(transaction.messageBytes);
   const finalBufferSize = finalBuffer.length;
   const hashBuf = await crypto.subtle.digest('SHA-256', finalBuffer as unknown as ArrayBuffer);
   const finalBufferHash = new Uint8Array(hashBuf);
+  
+  console.log(`📊 Raw transaction message size: ${finalBufferSize} bytes`);
 
   const feePayerSigner = createNoopSigner(feePayer);
   const latestBlockhash = (await rpc.getLatestBlockhash().send()).value;
