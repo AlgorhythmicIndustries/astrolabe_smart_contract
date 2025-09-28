@@ -7,11 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSettingsActionEncoder = getSettingsActionEncoder;
-exports.getSettingsActionDecoder = getSettingsActionDecoder;
-exports.getSettingsActionCodec = getSettingsActionCodec;
-exports.settingsAction = settingsAction;
-exports.isSettingsAction = isSettingsAction;
+exports.isSettingsAction = exports.settingsAction = exports.getSettingsActionCodec = exports.getSettingsActionDecoder = exports.getSettingsActionEncoder = void 0;
 const kit_1 = require("@solana/kit");
 const _1 = require(".");
 function getSettingsActionEncoder() {
@@ -48,6 +44,7 @@ function getSettingsActionEncoder() {
         ],
     ]);
 }
+exports.getSettingsActionEncoder = getSettingsActionEncoder;
 function getSettingsActionDecoder() {
     return (0, kit_1.getDiscriminatedUnionDecoder)([
         [
@@ -82,14 +79,18 @@ function getSettingsActionDecoder() {
         ],
     ]);
 }
+exports.getSettingsActionDecoder = getSettingsActionDecoder;
 function getSettingsActionCodec() {
     return (0, kit_1.combineCodec)(getSettingsActionEncoder(), getSettingsActionDecoder());
 }
+exports.getSettingsActionCodec = getSettingsActionCodec;
 function settingsAction(kind, data) {
     return Array.isArray(data)
         ? { __kind: kind, fields: data }
         : { __kind: kind, ...(data ?? {}) };
 }
+exports.settingsAction = settingsAction;
 function isSettingsAction(kind, value) {
     return value.__kind === kind;
 }
+exports.isSettingsAction = isSettingsAction;

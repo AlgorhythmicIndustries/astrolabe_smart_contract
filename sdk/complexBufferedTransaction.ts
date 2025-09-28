@@ -96,19 +96,32 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     ],
   });
 
-  // Store raw Jupiter transaction message bytes directly in buffer
-  // The contract expects raw TransactionMessage bytes, not SmartAccountTransactionMessage
-  console.log('🔧 Using raw Jupiter transaction message bytes directly');
-  console.log(`📊 Original Jupiter transaction size: ${innerTransactionBytes.length} bytes`);
-  
-  // Decode the Jupiter VersionedTransaction to verify it's valid
-  const transaction = getTransactionDecoder().decode(innerTransactionBytes);
-  const messageDecoder = getCompiledTransactionMessageDecoder();
-  const jupiterMessage = messageDecoder.decode(transaction.messageBytes);
-  console.log(`📋 Jupiter VersionedTransaction: ${jupiterMessage.instructions?.length || 0} instructions, ${jupiterMessage.staticAccounts?.length || 0} accounts`);
-  
-  // Use the raw transaction message bytes directly - this is what the contract expects
-  const finalBuffer = new Uint8Array(transaction.messageBytes);
+  // Convert the raw Jupiter transaction to the TransactionMessage format expected by smart contract
+  const decoded = getCompiledTransactionMessageDecoder().decode(innerTransactionBytes) as any;
+  const transactionMessage = {
+    numSigners: decoded.header?.numSignerAccounts || 1,
+    numWritableSigners: (decoded.header?.numSignerAccounts || 1) - (decoded.header?.numReadonlySignerAccounts || 0),
+    numWritableNonSigners: Math.max(0, (decoded.staticAccounts?.length || 0) - (decoded.header?.numSignerAccounts || 1) - (decoded.header?.numReadonlyNonSignerAccounts || 0)),
+    accountKeys: decoded.staticAccounts || [],
+    instructions: (decoded.instructions || []).map((ix: any) => ({
+      programIdIndex: ix.programAddressIndex,
+      accountIndexes: new Uint8Array(ix.accountIndices ?? []),
+      data: ix.data ?? new Uint8Array(),
+    })),
+    addressTableLookups: (addressTableLookups || []).map((l: any) => ({
+      accountKey: l.accountKey,
+      writableIndexes: new Uint8Array(l.writableIndexes ?? []),
+      readonlyIndexes: new Uint8Array(l.readonlyIndexes ?? []),
+    })),
+  };
+
+  // Encode as the TransactionMessage format expected by smart contract
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { getSmartAccountTransactionMessageEncoder } = require('./clients/js/src/generated/types/smartAccountTransactionMessage');
+  const smartAccountMessageBytes = getSmartAccountTransactionMessageEncoder().encode(transactionMessage);
+
+  // Final buffer hash/size
+  const finalBuffer = new Uint8Array(smartAccountMessageBytes);
   const finalBufferSize = finalBuffer.length;
   const hashBuf = await crypto.subtle.digest('SHA-256', finalBuffer as unknown as ArrayBuffer);
   const finalBufferHash = new Uint8Array(hashBuf);
@@ -133,7 +146,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
         new Uint8Array(Buffer.from('smart_account')),
         bs58.decode(smartAccountSettings),
         new Uint8Array(Buffer.from('transaction_buffer')),
-        bs58.decode(signer.address as string),
+        bs58.decode(signer.address.toString()),
         new Uint8Array([idx & 0xff]),
       ],
     });
@@ -197,11 +210,11 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
   const createFromBufferIx = getCreateTransactionFromBufferInstruction({
     settings: smartAccountSettings,
     transaction: transactionPda,
-    bufferCreator: signer,
+    creator: signer,
     rentPayer: feePayerSigner,
     systemProgram: address('11111111111111111111111111111111'),
     transactionBuffer: transactionBufferPda,
-    creator: signer,
+    fromBufferCreator: signer,
     args: {
       accountIndex,
       accountBump: smartAccountPdaBump,

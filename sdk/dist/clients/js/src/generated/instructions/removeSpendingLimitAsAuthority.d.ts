@@ -7,7 +7,7 @@
  */
 import { type AccountMeta, type AccountSignerMeta, type Address, type Codec, type Decoder, type Encoder, type Instruction, type InstructionWithAccounts, type InstructionWithData, type Option, type OptionOrNullable, type ReadonlyAccount, type ReadonlySignerAccount, type ReadonlyUint8Array, type TransactionSigner, type WritableAccount } from '@solana/kit';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
-export declare const REMOVE_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR: Uint8Array<ArrayBuffer>;
+export declare const REMOVE_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR: Uint8Array;
 export declare function getRemoveSpendingLimitAsAuthorityDiscriminatorBytes(): ReadonlyUint8Array;
 export type RemoveSpendingLimitAsAuthorityInstruction<TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS, TAccountSettings extends string | AccountMeta<string> = string, TAccountSettingsAuthority extends string | AccountMeta<string> = string, TAccountSpendingLimit extends string | AccountMeta<string> = string, TAccountRentCollector extends string | AccountMeta<string> = string, TAccountProgram extends string | AccountMeta<string> = 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q', TRemainingAccounts extends readonly AccountMeta<string>[] = []> = Instruction<TProgram> & InstructionWithData<ReadonlyUint8Array> & InstructionWithAccounts<[
     TAccountSettings extends string ? ReadonlyAccount<TAccountSettings> : TAccountSettings,

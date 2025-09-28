@@ -6,7 +6,7 @@
  * @see https://github.com/codama-idl/codama
  */
 import { fetchEncodedAccount, fetchEncodedAccounts, type Account, type Address, type EncodedAccount, type FetchAccountConfig, type FetchAccountsConfig, type FixedSizeCodec, type FixedSizeDecoder, type FixedSizeEncoder, type MaybeAccount, type MaybeEncodedAccount, type ReadonlyUint8Array } from '@solana/kit';
-export declare const PROGRAM_CONFIG_DISCRIMINATOR: Uint8Array<ArrayBuffer>;
+export declare const PROGRAM_CONFIG_DISCRIMINATOR: Uint8Array;
 export declare function getProgramConfigDiscriminatorBytes(): ReadonlyUint8Array;
 export type ProgramConfig = {
     discriminator: ReadonlyUint8Array;

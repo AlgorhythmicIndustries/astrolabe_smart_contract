@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR = void 0;
-exports.getSetTimeLockAsAuthorityDiscriminatorBytes = getSetTimeLockAsAuthorityDiscriminatorBytes;
-exports.getSetTimeLockAsAuthorityInstructionDataEncoder = getSetTimeLockAsAuthorityInstructionDataEncoder;
-exports.getSetTimeLockAsAuthorityInstructionDataDecoder = getSetTimeLockAsAuthorityInstructionDataDecoder;
-exports.getSetTimeLockAsAuthorityInstructionDataCodec = getSetTimeLockAsAuthorityInstructionDataCodec;
-exports.getSetTimeLockAsAuthorityInstruction = getSetTimeLockAsAuthorityInstruction;
-exports.parseSetTimeLockAsAuthorityInstruction = parseSetTimeLockAsAuthorityInstruction;
+exports.parseSetTimeLockAsAuthorityInstruction = exports.getSetTimeLockAsAuthorityInstruction = exports.getSetTimeLockAsAuthorityInstructionDataCodec = exports.getSetTimeLockAsAuthorityInstructionDataDecoder = exports.getSetTimeLockAsAuthorityInstructionDataEncoder = exports.getSetTimeLockAsAuthorityDiscriminatorBytes = exports.SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -23,6 +17,7 @@ exports.SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([
 function getSetTimeLockAsAuthorityDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR);
 }
+exports.getSetTimeLockAsAuthorityDiscriminatorBytes = getSetTimeLockAsAuthorityDiscriminatorBytes;
 function getSetTimeLockAsAuthorityInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -36,6 +31,7 @@ function getSetTimeLockAsAuthorityInstructionDataEncoder() {
         discriminator: exports.SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR,
     }));
 }
+exports.getSetTimeLockAsAuthorityInstructionDataEncoder = getSetTimeLockAsAuthorityInstructionDataEncoder;
 function getSetTimeLockAsAuthorityInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
@@ -46,9 +42,11 @@ function getSetTimeLockAsAuthorityInstructionDataDecoder() {
         ],
     ]);
 }
+exports.getSetTimeLockAsAuthorityInstructionDataDecoder = getSetTimeLockAsAuthorityInstructionDataDecoder;
 function getSetTimeLockAsAuthorityInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getSetTimeLockAsAuthorityInstructionDataEncoder(), getSetTimeLockAsAuthorityInstructionDataDecoder());
 }
+exports.getSetTimeLockAsAuthorityInstructionDataCodec = getSetTimeLockAsAuthorityInstructionDataCodec;
 function getSetTimeLockAsAuthorityInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -88,6 +86,7 @@ function getSetTimeLockAsAuthorityInstruction(input, config) {
         programAddress,
     });
 }
+exports.getSetTimeLockAsAuthorityInstruction = getSetTimeLockAsAuthorityInstruction;
 function parseSetTimeLockAsAuthorityInstruction(instruction) {
     if (instruction.accounts.length < 5) {
         // TODO: Coded error.
@@ -117,3 +116,4 @@ function parseSetTimeLockAsAuthorityInstruction(instruction) {
         data: getSetTimeLockAsAuthorityInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseSetTimeLockAsAuthorityInstruction = parseSetTimeLockAsAuthorityInstruction;

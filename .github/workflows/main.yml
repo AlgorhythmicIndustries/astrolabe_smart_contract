@@ -1,0 +1,49 @@
+# .github/workflows/subtree-push.yml
+name: Push SDK Subtree
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - 'sdk/**'  # Only trigger when files in sdk/ directory change
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  subtree-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Need full history for subtree
+        token: ${{ secrets.SUBTREE_PAT }}
+    
+    - name: Configure Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        # Debug: Check if PAT is available (first 4 chars only)
+        echo "PAT starts with: $(echo ${{ secrets.SUBTREE_PAT }} | cut -c1-4)..."
+    
+    - name: Add remote for SDK repository
+      run: |
+        git remote add astrolabe-sdk-remote https://x-access-token:${{ secrets.SUBTREE_PAT }}@github.com/AlgorhythmicIndustries/astrolabe-sdk.git
+    
+    - name: Test remote access
+      run: |
+        git ls-remote astrolabe-sdk-remote
+    
+    - name: Push subtree to SDK repository
+      run: |
+        # Try to push, if it fails, try to add the subtree first
+        git subtree push --prefix=sdk astrolabe-sdk-remote main || {
+          echo "Subtree push failed, trying to add subtree first..."
+          git subtree add --prefix=sdk astrolabe-sdk-remote main --squash
+          git subtree push --prefix=sdk astrolabe-sdk-remote main
+        }
+    
+    - name: Clean up remote
+      if: always()
+      run: |
+        git remote remove astrolabe-sdk-remote || true

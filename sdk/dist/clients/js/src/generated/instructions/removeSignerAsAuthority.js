@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.REMOVE_SIGNER_AS_AUTHORITY_DISCRIMINATOR = void 0;
-exports.getRemoveSignerAsAuthorityDiscriminatorBytes = getRemoveSignerAsAuthorityDiscriminatorBytes;
-exports.getRemoveSignerAsAuthorityInstructionDataEncoder = getRemoveSignerAsAuthorityInstructionDataEncoder;
-exports.getRemoveSignerAsAuthorityInstructionDataDecoder = getRemoveSignerAsAuthorityInstructionDataDecoder;
-exports.getRemoveSignerAsAuthorityInstructionDataCodec = getRemoveSignerAsAuthorityInstructionDataCodec;
-exports.getRemoveSignerAsAuthorityInstruction = getRemoveSignerAsAuthorityInstruction;
-exports.parseRemoveSignerAsAuthorityInstruction = parseRemoveSignerAsAuthorityInstruction;
+exports.parseRemoveSignerAsAuthorityInstruction = exports.getRemoveSignerAsAuthorityInstruction = exports.getRemoveSignerAsAuthorityInstructionDataCodec = exports.getRemoveSignerAsAuthorityInstructionDataDecoder = exports.getRemoveSignerAsAuthorityInstructionDataEncoder = exports.getRemoveSignerAsAuthorityDiscriminatorBytes = exports.REMOVE_SIGNER_AS_AUTHORITY_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -23,6 +17,7 @@ exports.REMOVE_SIGNER_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([
 function getRemoveSignerAsAuthorityDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.REMOVE_SIGNER_AS_AUTHORITY_DISCRIMINATOR);
 }
+exports.getRemoveSignerAsAuthorityDiscriminatorBytes = getRemoveSignerAsAuthorityDiscriminatorBytes;
 function getRemoveSignerAsAuthorityInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -36,6 +31,7 @@ function getRemoveSignerAsAuthorityInstructionDataEncoder() {
         discriminator: exports.REMOVE_SIGNER_AS_AUTHORITY_DISCRIMINATOR,
     }));
 }
+exports.getRemoveSignerAsAuthorityInstructionDataEncoder = getRemoveSignerAsAuthorityInstructionDataEncoder;
 function getRemoveSignerAsAuthorityInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
@@ -46,9 +42,11 @@ function getRemoveSignerAsAuthorityInstructionDataDecoder() {
         ],
     ]);
 }
+exports.getRemoveSignerAsAuthorityInstructionDataDecoder = getRemoveSignerAsAuthorityInstructionDataDecoder;
 function getRemoveSignerAsAuthorityInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getRemoveSignerAsAuthorityInstructionDataEncoder(), getRemoveSignerAsAuthorityInstructionDataDecoder());
 }
+exports.getRemoveSignerAsAuthorityInstructionDataCodec = getRemoveSignerAsAuthorityInstructionDataCodec;
 function getRemoveSignerAsAuthorityInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -88,6 +86,7 @@ function getRemoveSignerAsAuthorityInstruction(input, config) {
         programAddress,
     });
 }
+exports.getRemoveSignerAsAuthorityInstruction = getRemoveSignerAsAuthorityInstruction;
 function parseRemoveSignerAsAuthorityInstruction(instruction) {
     if (instruction.accounts.length < 5) {
         // TODO: Coded error.
@@ -117,3 +116,4 @@ function parseRemoveSignerAsAuthorityInstruction(instruction) {
         data: getRemoveSignerAsAuthorityInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseRemoveSignerAsAuthorityInstruction = parseRemoveSignerAsAuthorityInstruction;

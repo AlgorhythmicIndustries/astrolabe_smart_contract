@@ -5,7 +5,6 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
-      pub(crate) mod astrolabe_smart_account;
-  
-      pub use self::astrolabe_smart_account::AstrolabeSmartAccountError;
-  
+pub(crate) mod astrolabe_smart_account;
+
+pub use self::astrolabe_smart_account::AstrolabeSmartAccountError;

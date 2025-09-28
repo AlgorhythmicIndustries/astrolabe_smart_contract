@@ -7,11 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProposalStatusEncoder = getProposalStatusEncoder;
-exports.getProposalStatusDecoder = getProposalStatusDecoder;
-exports.getProposalStatusCodec = getProposalStatusCodec;
-exports.proposalStatus = proposalStatus;
-exports.isProposalStatus = isProposalStatus;
+exports.isProposalStatus = exports.proposalStatus = exports.getProposalStatusCodec = exports.getProposalStatusDecoder = exports.getProposalStatusEncoder = void 0;
 const kit_1 = require("@solana/kit");
 function getProposalStatusEncoder() {
     return (0, kit_1.getDiscriminatedUnionEncoder)([
@@ -24,6 +20,7 @@ function getProposalStatusEncoder() {
         ['Cancelled', (0, kit_1.getStructEncoder)([['timestamp', (0, kit_1.getI64Encoder)()]])],
     ]);
 }
+exports.getProposalStatusEncoder = getProposalStatusEncoder;
 function getProposalStatusDecoder() {
     return (0, kit_1.getDiscriminatedUnionDecoder)([
         ['Draft', (0, kit_1.getStructDecoder)([['timestamp', (0, kit_1.getI64Decoder)()]])],
@@ -35,14 +32,18 @@ function getProposalStatusDecoder() {
         ['Cancelled', (0, kit_1.getStructDecoder)([['timestamp', (0, kit_1.getI64Decoder)()]])],
     ]);
 }
+exports.getProposalStatusDecoder = getProposalStatusDecoder;
 function getProposalStatusCodec() {
     return (0, kit_1.combineCodec)(getProposalStatusEncoder(), getProposalStatusDecoder());
 }
+exports.getProposalStatusCodec = getProposalStatusCodec;
 function proposalStatus(kind, data) {
     return Array.isArray(data)
         ? { __kind: kind, fields: data }
         : { __kind: kind, ...(data ?? {}) };
 }
+exports.proposalStatus = proposalStatus;
 function isProposalStatus(kind, value) {
     return value.__kind === kind;
 }
+exports.isProposalStatus = isProposalStatus;

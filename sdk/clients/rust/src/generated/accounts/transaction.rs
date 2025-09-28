@@ -5,100 +5,113 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
-use solana_pubkey::Pubkey;
 use crate::generated::types::SmartAccountTransactionMessage;
-use borsh::BorshSerialize;
 use borsh::BorshDeserialize;
-
+use borsh::BorshSerialize;
+use solana_pubkey::Pubkey;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Transaction {
-pub discriminator: [u8; 8],
-/// The settings this belongs to.
-#[cfg_attr(feature = "serde", serde(with = "serde_with::As::<serde_with::DisplayFromStr>"))]
-pub settings: Pubkey,
-/// Signer of the Smart Account who submitted the transaction.
-#[cfg_attr(feature = "serde", serde(with = "serde_with::As::<serde_with::DisplayFromStr>"))]
-pub creator: Pubkey,
-/// The rent collector for the transaction account.
-#[cfg_attr(feature = "serde", serde(with = "serde_with::As::<serde_with::DisplayFromStr>"))]
-pub rent_collector: Pubkey,
-/// Index of this transaction within the smart account.
-pub index: u64,
-/// bump for the transaction seeds.
-pub bump: u8,
-/// The account index of the smart account this transaction belongs to.
-pub account_index: u8,
-/// Derivation bump of the smart account PDA this transaction belongs to.
-pub account_bump: u8,
-/// Derivation bumps for additional signers.
-/// Some transactions require multiple signers. Often these additional signers are "ephemeral" keypairs
-/// that are generated on the client with a sole purpose of signing the transaction and be discarded immediately after.
-/// When wrapping such transactions into smart account ones, we replace these "ephemeral" signing keypairs
-/// with PDAs derived from the SmartAccountTransaction's `transaction_index`
-/// and controlled by the Smart Account Program;
-/// during execution the program includes the seeds of these PDAs into the `invoke_signed` calls,
-/// thus "signing" on behalf of these PDAs.
-pub ephemeral_signer_bumps: Vec<u8>,
-/// data required for executing the transaction.
-pub message: SmartAccountTransactionMessage,
+    pub discriminator: [u8; 8],
+    /// The settings this belongs to.
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
+    pub settings: Pubkey,
+    /// Signer of the Smart Account who submitted the transaction.
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
+    pub creator: Pubkey,
+    /// The rent collector for the transaction account.
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
+    pub rent_collector: Pubkey,
+    /// Index of this transaction within the smart account.
+    pub index: u64,
+    /// bump for the transaction seeds.
+    pub bump: u8,
+    /// The account index of the smart account this transaction belongs to.
+    pub account_index: u8,
+    /// Derivation bump of the smart account PDA this transaction belongs to.
+    pub account_bump: u8,
+    /// Derivation bumps for additional signers.
+    /// Some transactions require multiple signers. Often these additional signers are "ephemeral" keypairs
+    /// that are generated on the client with a sole purpose of signing the transaction and be discarded immediately after.
+    /// When wrapping such transactions into smart account ones, we replace these "ephemeral" signing keypairs
+    /// with PDAs derived from the SmartAccountTransaction's `transaction_index`
+    /// and controlled by the Smart Account Program;
+    /// during execution the program includes the seeds of these PDAs into the `invoke_signed` calls,
+    /// thus "signing" on behalf of these PDAs.
+    pub ephemeral_signer_bumps: Vec<u8>,
+    /// data required for executing the transaction.
+    pub message: SmartAccountTransactionMessage,
 }
 
+pub const TRANSACTION_DISCRIMINATOR: [u8; 8] = [11, 24, 174, 129, 203, 117, 242, 23];
 
 pub const TRANSACTION_DISCRIMINATOR: [u8; 8] = [11, 24, 174, 129, 203, 117, 242, 23];
 
 impl Transaction {
-  
-  
-  
-  #[inline(always)]
-  pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {
-    let mut data = data;
-    Self::deserialize(&mut data)
-  }
+    #[inline(always)]
+    pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {
+        let mut data = data;
+        Self::deserialize(&mut data)
+    }
 }
 
 impl<'a> TryFrom<&solana_account_info::AccountInfo<'a>> for Transaction {
-  type Error = std::io::Error;
+    type Error = std::io::Error;
 
-  fn try_from(account_info: &solana_account_info::AccountInfo<'a>) -> Result<Self, Self::Error> {
-      let mut data: &[u8] = &(*account_info.data).borrow();
-      Self::deserialize(&mut data)
-  }
+    fn try_from(account_info: &solana_account_info::AccountInfo<'a>) -> Result<Self, Self::Error> {
+        let mut data: &[u8] = &(*account_info.data).borrow();
+        Self::deserialize(&mut data)
+    }
 }
 
 #[cfg(feature = "fetch")]
 pub fn fetch_transaction(
-  rpc: &solana_client::rpc_client::RpcClient,
-  address: &solana_pubkey::Pubkey,
+    rpc: &solana_client::rpc_client::RpcClient,
+    address: &solana_pubkey::Pubkey,
 ) -> Result<crate::shared::DecodedAccount<Transaction>, std::io::Error> {
-  let accounts = fetch_all_transaction(rpc, &[*address])?;
-  Ok(accounts[0].clone())
+    let accounts = fetch_all_transaction(rpc, &[*address])?;
+    Ok(accounts[0].clone())
 }
 
 #[cfg(feature = "fetch")]
 pub fn fetch_all_transaction(
-  rpc: &solana_client::rpc_client::RpcClient,
-  addresses: &[solana_pubkey::Pubkey],
+    rpc: &solana_client::rpc_client::RpcClient,
+    addresses: &[solana_pubkey::Pubkey],
 ) -> Result<Vec<crate::shared::DecodedAccount<Transaction>>, std::io::Error> {
-    let accounts = rpc.get_multiple_accounts(addresses)
-      .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+    let accounts = rpc
+        .get_multiple_accounts(addresses)
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
     let mut decoded_accounts: Vec<crate::shared::DecodedAccount<Transaction>> = Vec::new();
     for i in 0..addresses.len() {
-      let address = addresses[i];
-      let account = accounts[i].as_ref()
-        .ok_or(std::io::Error::new(std::io::ErrorKind::Other, format!("Account not found: {}", address)))?;
-      let data = Transaction::from_bytes(&account.data)?;
-      decoded_accounts.push(crate::shared::DecodedAccount { address, account: account.clone(), data });
+        let address = addresses[i];
+        let account = accounts[i].as_ref().ok_or(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("Account not found: {}", address),
+        ))?;
+        let data = Transaction::from_bytes(&account.data)?;
+        decoded_accounts.push(crate::shared::DecodedAccount {
+            address,
+            account: account.clone(),
+            data,
+        });
     }
     Ok(decoded_accounts)
 }
 
 #[cfg(feature = "fetch")]
 pub fn fetch_maybe_transaction(
-  rpc: &solana_client::rpc_client::RpcClient,
-  address: &solana_pubkey::Pubkey,
+    rpc: &solana_client::rpc_client::RpcClient,
+    address: &solana_pubkey::Pubkey,
 ) -> Result<crate::shared::MaybeAccount<Transaction>, std::io::Error> {
     let accounts = fetch_all_maybe_transaction(rpc, &[*address])?;
     Ok(accounts[0].clone())
@@ -106,47 +119,52 @@ pub fn fetch_maybe_transaction(
 
 #[cfg(feature = "fetch")]
 pub fn fetch_all_maybe_transaction(
-  rpc: &solana_client::rpc_client::RpcClient,
-  addresses: &[solana_pubkey::Pubkey],
+    rpc: &solana_client::rpc_client::RpcClient,
+    addresses: &[solana_pubkey::Pubkey],
 ) -> Result<Vec<crate::shared::MaybeAccount<Transaction>>, std::io::Error> {
-    let accounts = rpc.get_multiple_accounts(addresses)
-      .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+    let accounts = rpc
+        .get_multiple_accounts(addresses)
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
     let mut decoded_accounts: Vec<crate::shared::MaybeAccount<Transaction>> = Vec::new();
     for i in 0..addresses.len() {
-      let address = addresses[i];
-      if let Some(account) = accounts[i].as_ref() {
-        let data = Transaction::from_bytes(&account.data)?;
-        decoded_accounts.push(crate::shared::MaybeAccount::Exists(crate::shared::DecodedAccount { address, account: account.clone(), data }));
-      } else {
-        decoded_accounts.push(crate::shared::MaybeAccount::NotFound(address));
-      }
+        let address = addresses[i];
+        if let Some(account) = accounts[i].as_ref() {
+            let data = Transaction::from_bytes(&account.data)?;
+            decoded_accounts.push(crate::shared::MaybeAccount::Exists(
+                crate::shared::DecodedAccount {
+                    address,
+                    account: account.clone(),
+                    data,
+                },
+            ));
+        } else {
+            decoded_accounts.push(crate::shared::MaybeAccount::NotFound(address));
+        }
     }
-  Ok(decoded_accounts)
+    Ok(decoded_accounts)
 }
 
-  #[cfg(feature = "anchor")]
-  impl anchor_lang::AccountDeserialize for Transaction {
-      fn try_deserialize_unchecked(buf: &mut &[u8]) -> anchor_lang::Result<Self> {
+#[cfg(feature = "anchor")]
+impl anchor_lang::AccountDeserialize for Transaction {
+    fn try_deserialize_unchecked(buf: &mut &[u8]) -> anchor_lang::Result<Self> {
         Ok(Self::deserialize(buf)?)
-      }
-  }
+    }
+}
 
-  #[cfg(feature = "anchor")]
-  impl anchor_lang::AccountSerialize for Transaction {}
+#[cfg(feature = "anchor")]
+impl anchor_lang::AccountSerialize for Transaction {}
 
-  #[cfg(feature = "anchor")]
-  impl anchor_lang::Owner for Transaction {
-      fn owner() -> Pubkey {
+#[cfg(feature = "anchor")]
+impl anchor_lang::Owner for Transaction {
+    fn owner() -> Pubkey {
         crate::ASTROLABE_SMART_ACCOUNT_ID
-      }
-  }
+    }
+}
 
-  #[cfg(feature = "anchor-idl-build")]
-  impl anchor_lang::IdlBuild for Transaction {}
+#[cfg(feature = "anchor-idl-build")]
+impl anchor_lang::IdlBuild for Transaction {}
 
-  
-  #[cfg(feature = "anchor-idl-build")]
-  impl anchor_lang::Discriminator for Transaction {
+#[cfg(feature = "anchor-idl-build")]
+impl anchor_lang::Discriminator for Transaction {
     const DISCRIMINATOR: &[u8] = &[0; 8];
-  }
-
+}

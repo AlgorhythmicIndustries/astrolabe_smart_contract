@@ -7,7 +7,7 @@
  */
 import { type AccountMeta, type Address, type Codec, type Decoder, type Encoder, type Instruction, type InstructionWithAccounts, type InstructionWithData, type ReadonlyAccount, type ReadonlyUint8Array } from '@solana/kit';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
-export declare const EXECUTE_TRANSACTION_SYNC_DISCRIMINATOR: Uint8Array<ArrayBuffer>;
+export declare const EXECUTE_TRANSACTION_SYNC_DISCRIMINATOR: Uint8Array;
 export declare function getExecuteTransactionSyncDiscriminatorBytes(): ReadonlyUint8Array;
 export type ExecuteTransactionSyncInstruction<TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS, TAccountSettings extends string | AccountMeta<string> = string, TAccountProgram extends string | AccountMeta<string> = 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q', TRemainingAccounts extends readonly AccountMeta<string>[] = []> = Instruction<TProgram> & InstructionWithData<ReadonlyUint8Array> & InstructionWithAccounts<[
     TAccountSettings extends string ? ReadonlyAccount<TAccountSettings> : TAccountSettings,

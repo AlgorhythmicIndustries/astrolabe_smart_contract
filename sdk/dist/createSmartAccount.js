@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createSmartAccountTransaction = createSmartAccountTransaction;
+exports.createSmartAccountTransaction = void 0;
 const kit_1 = require("@solana/kit");
 const buffer_1 = require("buffer");
 const programConfig_1 = require("./clients/js/src/generated/accounts/programConfig");
@@ -119,3 +119,4 @@ async function createSmartAccountTransaction(params) {
         nextSmartAccountIndex: nextSmartAccountIndex,
     };
 }
+exports.createSmartAccountTransaction = createSmartAccountTransaction;

@@ -5,33 +5,19 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
-use borsh::BorshSerialize;
 use borsh::BorshDeserialize;
+use borsh::BorshSerialize;
 
 /// The status of a proposal.
 /// Each variant wraps a timestamp of when the status was set.
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ProposalStatus {
-Draft {
-timestamp: i64,
-},
-Active {
-timestamp: i64,
-},
-Rejected {
-timestamp: i64,
-},
-Approved {
-timestamp: i64,
-},
-Executing,
-Executed {
-timestamp: i64,
-},
-Cancelled {
-timestamp: i64,
-},
+    Draft { timestamp: i64 },
+    Active { timestamp: i64 },
+    Rejected { timestamp: i64 },
+    Approved { timestamp: i64 },
+    Executing,
+    Executed { timestamp: i64 },
+    Cancelled { timestamp: i64 },
 }
-
-

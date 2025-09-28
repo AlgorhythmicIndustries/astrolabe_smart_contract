@@ -7,14 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SET_PROGRAM_CONFIG_AUTHORITY_DISCRIMINATOR = void 0;
-exports.getSetProgramConfigAuthorityDiscriminatorBytes = getSetProgramConfigAuthorityDiscriminatorBytes;
-exports.getSetProgramConfigAuthorityInstructionDataEncoder = getSetProgramConfigAuthorityInstructionDataEncoder;
-exports.getSetProgramConfigAuthorityInstructionDataDecoder = getSetProgramConfigAuthorityInstructionDataDecoder;
-exports.getSetProgramConfigAuthorityInstructionDataCodec = getSetProgramConfigAuthorityInstructionDataCodec;
-exports.getSetProgramConfigAuthorityInstructionAsync = getSetProgramConfigAuthorityInstructionAsync;
-exports.getSetProgramConfigAuthorityInstruction = getSetProgramConfigAuthorityInstruction;
-exports.parseSetProgramConfigAuthorityInstruction = parseSetProgramConfigAuthorityInstruction;
+exports.parseSetProgramConfigAuthorityInstruction = exports.getSetProgramConfigAuthorityInstruction = exports.getSetProgramConfigAuthorityInstructionAsync = exports.getSetProgramConfigAuthorityInstructionDataCodec = exports.getSetProgramConfigAuthorityInstructionDataDecoder = exports.getSetProgramConfigAuthorityInstructionDataEncoder = exports.getSetProgramConfigAuthorityDiscriminatorBytes = exports.SET_PROGRAM_CONFIG_AUTHORITY_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -24,6 +17,7 @@ exports.SET_PROGRAM_CONFIG_AUTHORITY_DISCRIMINATOR = new Uint8Array([
 function getSetProgramConfigAuthorityDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.SET_PROGRAM_CONFIG_AUTHORITY_DISCRIMINATOR);
 }
+exports.getSetProgramConfigAuthorityDiscriminatorBytes = getSetProgramConfigAuthorityDiscriminatorBytes;
 function getSetProgramConfigAuthorityInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -33,15 +27,18 @@ function getSetProgramConfigAuthorityInstructionDataEncoder() {
         discriminator: exports.SET_PROGRAM_CONFIG_AUTHORITY_DISCRIMINATOR,
     }));
 }
+exports.getSetProgramConfigAuthorityInstructionDataEncoder = getSetProgramConfigAuthorityInstructionDataEncoder;
 function getSetProgramConfigAuthorityInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
         ['newAuthority', (0, kit_1.getAddressDecoder)()],
     ]);
 }
+exports.getSetProgramConfigAuthorityInstructionDataDecoder = getSetProgramConfigAuthorityInstructionDataDecoder;
 function getSetProgramConfigAuthorityInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getSetProgramConfigAuthorityInstructionDataEncoder(), getSetProgramConfigAuthorityInstructionDataDecoder());
 }
+exports.getSetProgramConfigAuthorityInstructionDataCodec = getSetProgramConfigAuthorityInstructionDataCodec;
 async function getSetProgramConfigAuthorityInstructionAsync(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -77,6 +74,7 @@ async function getSetProgramConfigAuthorityInstructionAsync(input, config) {
         programAddress,
     });
 }
+exports.getSetProgramConfigAuthorityInstructionAsync = getSetProgramConfigAuthorityInstructionAsync;
 function getSetProgramConfigAuthorityInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -98,6 +96,7 @@ function getSetProgramConfigAuthorityInstruction(input, config) {
         programAddress,
     });
 }
+exports.getSetProgramConfigAuthorityInstruction = getSetProgramConfigAuthorityInstruction;
 function parseSetProgramConfigAuthorityInstruction(instruction) {
     if (instruction.accounts.length < 2) {
         // TODO: Coded error.
@@ -115,3 +114,4 @@ function parseSetProgramConfigAuthorityInstruction(instruction) {
         data: getSetProgramConfigAuthorityInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseSetProgramConfigAuthorityInstruction = parseSetProgramConfigAuthorityInstruction;

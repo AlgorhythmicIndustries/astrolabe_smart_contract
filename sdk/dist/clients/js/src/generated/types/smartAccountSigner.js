@@ -7,9 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSmartAccountSignerEncoder = getSmartAccountSignerEncoder;
-exports.getSmartAccountSignerDecoder = getSmartAccountSignerDecoder;
-exports.getSmartAccountSignerCodec = getSmartAccountSignerCodec;
+exports.getSmartAccountSignerCodec = exports.getSmartAccountSignerDecoder = exports.getSmartAccountSignerEncoder = void 0;
 const kit_1 = require("@solana/kit");
 const _1 = require(".");
 function getSmartAccountSignerEncoder() {
@@ -18,12 +16,15 @@ function getSmartAccountSignerEncoder() {
         ['permissions', (0, _1.getPermissionsEncoder)()],
     ]);
 }
+exports.getSmartAccountSignerEncoder = getSmartAccountSignerEncoder;
 function getSmartAccountSignerDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['key', (0, kit_1.getAddressDecoder)()],
         ['permissions', (0, _1.getPermissionsDecoder)()],
     ]);
 }
+exports.getSmartAccountSignerDecoder = getSmartAccountSignerDecoder;
 function getSmartAccountSignerCodec() {
     return (0, kit_1.combineCodec)(getSmartAccountSignerEncoder(), getSmartAccountSignerDecoder());
 }
+exports.getSmartAccountSignerCodec = getSmartAccountSignerCodec;
