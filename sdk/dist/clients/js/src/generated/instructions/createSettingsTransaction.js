@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CREATE_SETTINGS_TRANSACTION_DISCRIMINATOR = void 0;
-exports.getCreateSettingsTransactionDiscriminatorBytes = getCreateSettingsTransactionDiscriminatorBytes;
-exports.getCreateSettingsTransactionInstructionDataEncoder = getCreateSettingsTransactionInstructionDataEncoder;
-exports.getCreateSettingsTransactionInstructionDataDecoder = getCreateSettingsTransactionInstructionDataDecoder;
-exports.getCreateSettingsTransactionInstructionDataCodec = getCreateSettingsTransactionInstructionDataCodec;
-exports.getCreateSettingsTransactionInstruction = getCreateSettingsTransactionInstruction;
-exports.parseCreateSettingsTransactionInstruction = parseCreateSettingsTransactionInstruction;
+exports.parseCreateSettingsTransactionInstruction = exports.getCreateSettingsTransactionInstruction = exports.getCreateSettingsTransactionInstructionDataCodec = exports.getCreateSettingsTransactionInstructionDataDecoder = exports.getCreateSettingsTransactionInstructionDataEncoder = exports.getCreateSettingsTransactionDiscriminatorBytes = exports.CREATE_SETTINGS_TRANSACTION_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -24,6 +18,7 @@ exports.CREATE_SETTINGS_TRANSACTION_DISCRIMINATOR = new Uint8Array([
 function getCreateSettingsTransactionDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.CREATE_SETTINGS_TRANSACTION_DISCRIMINATOR);
 }
+exports.getCreateSettingsTransactionDiscriminatorBytes = getCreateSettingsTransactionDiscriminatorBytes;
 function getCreateSettingsTransactionInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -37,6 +32,7 @@ function getCreateSettingsTransactionInstructionDataEncoder() {
         discriminator: exports.CREATE_SETTINGS_TRANSACTION_DISCRIMINATOR,
     }));
 }
+exports.getCreateSettingsTransactionInstructionDataEncoder = getCreateSettingsTransactionInstructionDataEncoder;
 function getCreateSettingsTransactionInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
@@ -47,9 +43,11 @@ function getCreateSettingsTransactionInstructionDataDecoder() {
         ],
     ]);
 }
+exports.getCreateSettingsTransactionInstructionDataDecoder = getCreateSettingsTransactionInstructionDataDecoder;
 function getCreateSettingsTransactionInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getCreateSettingsTransactionInstructionDataEncoder(), getCreateSettingsTransactionInstructionDataDecoder());
 }
+exports.getCreateSettingsTransactionInstructionDataCodec = getCreateSettingsTransactionInstructionDataCodec;
 function getCreateSettingsTransactionInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -82,6 +80,7 @@ function getCreateSettingsTransactionInstruction(input, config) {
         programAddress,
     });
 }
+exports.getCreateSettingsTransactionInstruction = getCreateSettingsTransactionInstruction;
 function parseCreateSettingsTransactionInstruction(instruction) {
     if (instruction.accounts.length < 5) {
         // TODO: Coded error.
@@ -105,3 +104,4 @@ function parseCreateSettingsTransactionInstruction(instruction) {
         data: getCreateSettingsTransactionInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseCreateSettingsTransactionInstruction = parseCreateSettingsTransactionInstruction;

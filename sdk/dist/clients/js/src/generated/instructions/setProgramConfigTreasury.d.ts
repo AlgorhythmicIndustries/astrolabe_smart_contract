@@ -7,7 +7,7 @@
  */
 import { type AccountMeta, type AccountSignerMeta, type Address, type FixedSizeCodec, type FixedSizeDecoder, type FixedSizeEncoder, type Instruction, type InstructionWithAccounts, type InstructionWithData, type ReadonlySignerAccount, type ReadonlyUint8Array, type TransactionSigner, type WritableAccount } from '@solana/kit';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
-export declare const SET_PROGRAM_CONFIG_TREASURY_DISCRIMINATOR: Uint8Array<ArrayBuffer>;
+export declare const SET_PROGRAM_CONFIG_TREASURY_DISCRIMINATOR: Uint8Array;
 export declare function getSetProgramConfigTreasuryDiscriminatorBytes(): ReadonlyUint8Array;
 export type SetProgramConfigTreasuryInstruction<TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS, TAccountProgramConfig extends string | AccountMeta<string> = string, TAccountAuthority extends string | AccountMeta<string> = string, TRemainingAccounts extends readonly AccountMeta<string>[] = []> = Instruction<TProgram> & InstructionWithData<ReadonlyUint8Array> & InstructionWithAccounts<[
     TAccountProgramConfig extends string ? WritableAccount<TAccountProgramConfig> : TAccountProgramConfig,

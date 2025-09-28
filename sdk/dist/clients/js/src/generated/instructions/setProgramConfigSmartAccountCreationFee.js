@@ -7,14 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SET_PROGRAM_CONFIG_SMART_ACCOUNT_CREATION_FEE_DISCRIMINATOR = void 0;
-exports.getSetProgramConfigSmartAccountCreationFeeDiscriminatorBytes = getSetProgramConfigSmartAccountCreationFeeDiscriminatorBytes;
-exports.getSetProgramConfigSmartAccountCreationFeeInstructionDataEncoder = getSetProgramConfigSmartAccountCreationFeeInstructionDataEncoder;
-exports.getSetProgramConfigSmartAccountCreationFeeInstructionDataDecoder = getSetProgramConfigSmartAccountCreationFeeInstructionDataDecoder;
-exports.getSetProgramConfigSmartAccountCreationFeeInstructionDataCodec = getSetProgramConfigSmartAccountCreationFeeInstructionDataCodec;
-exports.getSetProgramConfigSmartAccountCreationFeeInstructionAsync = getSetProgramConfigSmartAccountCreationFeeInstructionAsync;
-exports.getSetProgramConfigSmartAccountCreationFeeInstruction = getSetProgramConfigSmartAccountCreationFeeInstruction;
-exports.parseSetProgramConfigSmartAccountCreationFeeInstruction = parseSetProgramConfigSmartAccountCreationFeeInstruction;
+exports.parseSetProgramConfigSmartAccountCreationFeeInstruction = exports.getSetProgramConfigSmartAccountCreationFeeInstruction = exports.getSetProgramConfigSmartAccountCreationFeeInstructionAsync = exports.getSetProgramConfigSmartAccountCreationFeeInstructionDataCodec = exports.getSetProgramConfigSmartAccountCreationFeeInstructionDataDecoder = exports.getSetProgramConfigSmartAccountCreationFeeInstructionDataEncoder = exports.getSetProgramConfigSmartAccountCreationFeeDiscriminatorBytes = exports.SET_PROGRAM_CONFIG_SMART_ACCOUNT_CREATION_FEE_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -22,6 +15,7 @@ exports.SET_PROGRAM_CONFIG_SMART_ACCOUNT_CREATION_FEE_DISCRIMINATOR = new Uint8A
 function getSetProgramConfigSmartAccountCreationFeeDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.SET_PROGRAM_CONFIG_SMART_ACCOUNT_CREATION_FEE_DISCRIMINATOR);
 }
+exports.getSetProgramConfigSmartAccountCreationFeeDiscriminatorBytes = getSetProgramConfigSmartAccountCreationFeeDiscriminatorBytes;
 function getSetProgramConfigSmartAccountCreationFeeInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -31,15 +25,18 @@ function getSetProgramConfigSmartAccountCreationFeeInstructionDataEncoder() {
         discriminator: exports.SET_PROGRAM_CONFIG_SMART_ACCOUNT_CREATION_FEE_DISCRIMINATOR,
     }));
 }
+exports.getSetProgramConfigSmartAccountCreationFeeInstructionDataEncoder = getSetProgramConfigSmartAccountCreationFeeInstructionDataEncoder;
 function getSetProgramConfigSmartAccountCreationFeeInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
         ['newSmartAccountCreationFee', (0, kit_1.getU64Decoder)()],
     ]);
 }
+exports.getSetProgramConfigSmartAccountCreationFeeInstructionDataDecoder = getSetProgramConfigSmartAccountCreationFeeInstructionDataDecoder;
 function getSetProgramConfigSmartAccountCreationFeeInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getSetProgramConfigSmartAccountCreationFeeInstructionDataEncoder(), getSetProgramConfigSmartAccountCreationFeeInstructionDataDecoder());
 }
+exports.getSetProgramConfigSmartAccountCreationFeeInstructionDataCodec = getSetProgramConfigSmartAccountCreationFeeInstructionDataCodec;
 async function getSetProgramConfigSmartAccountCreationFeeInstructionAsync(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -75,6 +72,7 @@ async function getSetProgramConfigSmartAccountCreationFeeInstructionAsync(input,
         programAddress,
     });
 }
+exports.getSetProgramConfigSmartAccountCreationFeeInstructionAsync = getSetProgramConfigSmartAccountCreationFeeInstructionAsync;
 function getSetProgramConfigSmartAccountCreationFeeInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -96,6 +94,7 @@ function getSetProgramConfigSmartAccountCreationFeeInstruction(input, config) {
         programAddress,
     });
 }
+exports.getSetProgramConfigSmartAccountCreationFeeInstruction = getSetProgramConfigSmartAccountCreationFeeInstruction;
 function parseSetProgramConfigSmartAccountCreationFeeInstruction(instruction) {
     if (instruction.accounts.length < 2) {
         // TODO: Coded error.
@@ -113,3 +112,4 @@ function parseSetProgramConfigSmartAccountCreationFeeInstruction(instruction) {
         data: getSetProgramConfigSmartAccountCreationFeeInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseSetProgramConfigSmartAccountCreationFeeInstruction = parseSetProgramConfigSmartAccountCreationFeeInstruction;

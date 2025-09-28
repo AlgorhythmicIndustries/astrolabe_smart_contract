@@ -8,7 +8,7 @@
 import { type AccountMeta, type AccountSignerMeta, type Address, type Codec, type Decoder, type Encoder, type Instruction, type InstructionWithAccounts, type InstructionWithData, type ReadonlyAccount, type ReadonlyUint8Array, type TransactionSigner, type WritableAccount, type WritableSignerAccount } from '@solana/kit';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { type VoteOnProposalArgs, type VoteOnProposalArgsArgs } from '../types';
-export declare const CANCEL_PROPOSAL_DISCRIMINATOR: Uint8Array<ArrayBuffer>;
+export declare const CANCEL_PROPOSAL_DISCRIMINATOR: Uint8Array;
 export declare function getCancelProposalDiscriminatorBytes(): ReadonlyUint8Array;
 export type CancelProposalInstruction<TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS, TAccountSettings extends string | AccountMeta<string> = string, TAccountSigner extends string | AccountMeta<string> = string, TAccountProposal extends string | AccountMeta<string> = string, TAccountSystemProgram extends string | AccountMeta<string> = '11111111111111111111111111111111', TRemainingAccounts extends readonly AccountMeta<string>[] = []> = Instruction<TProgram> & InstructionWithData<ReadonlyUint8Array> & InstructionWithAccounts<[
     TAccountSettings extends string ? ReadonlyAccount<TAccountSettings> : TAccountSettings,

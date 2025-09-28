@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CLOSE_BATCH_DISCRIMINATOR = void 0;
-exports.getCloseBatchDiscriminatorBytes = getCloseBatchDiscriminatorBytes;
-exports.getCloseBatchInstructionDataEncoder = getCloseBatchInstructionDataEncoder;
-exports.getCloseBatchInstructionDataDecoder = getCloseBatchInstructionDataDecoder;
-exports.getCloseBatchInstructionDataCodec = getCloseBatchInstructionDataCodec;
-exports.getCloseBatchInstruction = getCloseBatchInstruction;
-exports.parseCloseBatchInstruction = parseCloseBatchInstruction;
+exports.parseCloseBatchInstruction = exports.getCloseBatchInstruction = exports.getCloseBatchInstructionDataCodec = exports.getCloseBatchInstructionDataDecoder = exports.getCloseBatchInstructionDataEncoder = exports.getCloseBatchDiscriminatorBytes = exports.CLOSE_BATCH_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -23,17 +17,21 @@ exports.CLOSE_BATCH_DISCRIMINATOR = new Uint8Array([
 function getCloseBatchDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.CLOSE_BATCH_DISCRIMINATOR);
 }
+exports.getCloseBatchDiscriminatorBytes = getCloseBatchDiscriminatorBytes;
 function getCloseBatchInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)]]), (value) => ({ ...value, discriminator: exports.CLOSE_BATCH_DISCRIMINATOR }));
 }
+exports.getCloseBatchInstructionDataEncoder = getCloseBatchInstructionDataEncoder;
 function getCloseBatchInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
     ]);
 }
+exports.getCloseBatchInstructionDataDecoder = getCloseBatchInstructionDataDecoder;
 function getCloseBatchInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getCloseBatchInstructionDataEncoder(), getCloseBatchInstructionDataDecoder());
 }
+exports.getCloseBatchInstructionDataCodec = getCloseBatchInstructionDataCodec;
 function getCloseBatchInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -72,6 +70,7 @@ function getCloseBatchInstruction(input, config) {
         programAddress,
     });
 }
+exports.getCloseBatchInstruction = getCloseBatchInstruction;
 function parseCloseBatchInstruction(instruction) {
     if (instruction.accounts.length < 6) {
         // TODO: Coded error.
@@ -96,3 +95,4 @@ function parseCloseBatchInstruction(instruction) {
         data: getCloseBatchInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseCloseBatchInstruction = parseCloseBatchInstruction;

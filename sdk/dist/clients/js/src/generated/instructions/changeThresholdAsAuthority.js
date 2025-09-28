@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CHANGE_THRESHOLD_AS_AUTHORITY_DISCRIMINATOR = void 0;
-exports.getChangeThresholdAsAuthorityDiscriminatorBytes = getChangeThresholdAsAuthorityDiscriminatorBytes;
-exports.getChangeThresholdAsAuthorityInstructionDataEncoder = getChangeThresholdAsAuthorityInstructionDataEncoder;
-exports.getChangeThresholdAsAuthorityInstructionDataDecoder = getChangeThresholdAsAuthorityInstructionDataDecoder;
-exports.getChangeThresholdAsAuthorityInstructionDataCodec = getChangeThresholdAsAuthorityInstructionDataCodec;
-exports.getChangeThresholdAsAuthorityInstruction = getChangeThresholdAsAuthorityInstruction;
-exports.parseChangeThresholdAsAuthorityInstruction = parseChangeThresholdAsAuthorityInstruction;
+exports.parseChangeThresholdAsAuthorityInstruction = exports.getChangeThresholdAsAuthorityInstruction = exports.getChangeThresholdAsAuthorityInstructionDataCodec = exports.getChangeThresholdAsAuthorityInstructionDataDecoder = exports.getChangeThresholdAsAuthorityInstructionDataEncoder = exports.getChangeThresholdAsAuthorityDiscriminatorBytes = exports.CHANGE_THRESHOLD_AS_AUTHORITY_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -23,6 +17,7 @@ exports.CHANGE_THRESHOLD_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([
 function getChangeThresholdAsAuthorityDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.CHANGE_THRESHOLD_AS_AUTHORITY_DISCRIMINATOR);
 }
+exports.getChangeThresholdAsAuthorityDiscriminatorBytes = getChangeThresholdAsAuthorityDiscriminatorBytes;
 function getChangeThresholdAsAuthorityInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -36,6 +31,7 @@ function getChangeThresholdAsAuthorityInstructionDataEncoder() {
         discriminator: exports.CHANGE_THRESHOLD_AS_AUTHORITY_DISCRIMINATOR,
     }));
 }
+exports.getChangeThresholdAsAuthorityInstructionDataEncoder = getChangeThresholdAsAuthorityInstructionDataEncoder;
 function getChangeThresholdAsAuthorityInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
@@ -46,9 +42,11 @@ function getChangeThresholdAsAuthorityInstructionDataDecoder() {
         ],
     ]);
 }
+exports.getChangeThresholdAsAuthorityInstructionDataDecoder = getChangeThresholdAsAuthorityInstructionDataDecoder;
 function getChangeThresholdAsAuthorityInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getChangeThresholdAsAuthorityInstructionDataEncoder(), getChangeThresholdAsAuthorityInstructionDataDecoder());
 }
+exports.getChangeThresholdAsAuthorityInstructionDataCodec = getChangeThresholdAsAuthorityInstructionDataCodec;
 function getChangeThresholdAsAuthorityInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -88,6 +86,7 @@ function getChangeThresholdAsAuthorityInstruction(input, config) {
         programAddress,
     });
 }
+exports.getChangeThresholdAsAuthorityInstruction = getChangeThresholdAsAuthorityInstruction;
 function parseChangeThresholdAsAuthorityInstruction(instruction) {
     if (instruction.accounts.length < 5) {
         // TODO: Coded error.
@@ -117,3 +116,4 @@ function parseChangeThresholdAsAuthorityInstruction(instruction) {
         data: getChangeThresholdAsAuthorityInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseChangeThresholdAsAuthorityInstruction = parseChangeThresholdAsAuthorityInstruction;

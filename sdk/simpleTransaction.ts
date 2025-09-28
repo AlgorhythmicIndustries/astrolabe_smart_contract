@@ -27,84 +27,12 @@ import {
   import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from './clients/js/src/generated/programs';
   import { getSmartAccountTransactionMessageEncoder } from './clients/js/src/generated/types/smartAccountTransactionMessage';
   import * as bs58 from 'bs58';
+  import { deriveSmartAccountInfo, deriveProposalPda, deriveTransactionPda, fetchSmartAccountSettings, decodeTransactionMessage } from './utils/index';
   
   type SolanaRpc = ReturnType<typeof createSolanaRpc>;
 
-  // Utility functions (previously in utils/index)
-  async function deriveTransactionPda(settingsAddress: Address, transactionIndex: bigint): Promise<Address> {
-    const [pda] = await getProgramDerivedAddress({
-      programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-      seeds: [
-        new Uint8Array(Buffer.from('smart_account')),
-        bs58.decode(settingsAddress),
-        new Uint8Array(Buffer.from('transaction')),
-        new Uint8Array(Buffer.from(transactionIndex.toString(16).padStart(16, '0'), 'hex').reverse()),
-      ],
-    });
-    return pda;
-  }
 
-  async function deriveProposalPda(settingsAddress: Address, transactionIndex: bigint): Promise<Address> {
-    const [pda] = await getProgramDerivedAddress({
-      programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-      seeds: [
-        new Uint8Array(Buffer.from('smart_account')),
-        bs58.decode(settingsAddress),
-        new Uint8Array(Buffer.from('proposal')),
-        new Uint8Array(Buffer.from(transactionIndex.toString(16).padStart(16, '0'), 'hex').reverse()),
-      ],
-    });
-    return pda;
-  }
 
-  async function fetchSmartAccountSettings(rpc: SolanaRpc, settingsAddress: Address) {
-    const settings = await fetchSettings(rpc, settingsAddress);
-    return {
-      ...settings.data,
-      currentTransactionIndex: settings.data.transactionIndex,
-      nextTransactionIndex: settings.data.transactionIndex + BigInt(1),
-    };
-  }
-
-  function decodeTransactionMessage(messageBytes: Uint8Array) {
-    const decoder = getCompiledTransactionMessageDecoder();
-    return decoder.decode(messageBytes);
-  }
-
-  export async function deriveSmartAccountInfo(settingsAddress: Address, accountIndex: bigint = BigInt(0)): Promise<SmartAccountInfo> {
-    const [smartAccountPda, smartAccountPdaBump] = await getProgramDerivedAddress({
-      programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-      seeds: [
-        new Uint8Array(Buffer.from('smart_account')),
-        bs58.decode(settingsAddress),
-        new Uint8Array(Buffer.from('smart_account')),
-        new Uint8Array([Number(accountIndex)]), // Use u8 format consistently
-      ],
-    });
-    
-    return {
-      smartAccountPda,
-      settingsAddress,
-      accountIndex,
-      smartAccountPdaBump,
-    };
-  }
-  
-  /**
-   * Result of deriving smart account info from settings address
-   */
-  export type SmartAccountInfo = {
-    /** The smart account PDA that holds funds */
-    smartAccountPda: Address;
-    /** The settings address (input) */
-    settingsAddress: Address;
-    /** The account index used for derivation */
-    accountIndex: bigint;
-    /** The smart account PDA bump seed */
-    smartAccountPdaBump: number;
-  };
-  
-  
   /**
    * Parameters for the propose-vote-execute workflow
    */

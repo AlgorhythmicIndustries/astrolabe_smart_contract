@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CLOSE_TRANSACTION_DISCRIMINATOR = void 0;
-exports.getCloseTransactionDiscriminatorBytes = getCloseTransactionDiscriminatorBytes;
-exports.getCloseTransactionInstructionDataEncoder = getCloseTransactionInstructionDataEncoder;
-exports.getCloseTransactionInstructionDataDecoder = getCloseTransactionInstructionDataDecoder;
-exports.getCloseTransactionInstructionDataCodec = getCloseTransactionInstructionDataCodec;
-exports.getCloseTransactionInstruction = getCloseTransactionInstruction;
-exports.parseCloseTransactionInstruction = parseCloseTransactionInstruction;
+exports.parseCloseTransactionInstruction = exports.getCloseTransactionInstruction = exports.getCloseTransactionInstructionDataCodec = exports.getCloseTransactionInstructionDataDecoder = exports.getCloseTransactionInstructionDataEncoder = exports.getCloseTransactionDiscriminatorBytes = exports.CLOSE_TRANSACTION_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -23,17 +17,21 @@ exports.CLOSE_TRANSACTION_DISCRIMINATOR = new Uint8Array([
 function getCloseTransactionDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.CLOSE_TRANSACTION_DISCRIMINATOR);
 }
+exports.getCloseTransactionDiscriminatorBytes = getCloseTransactionDiscriminatorBytes;
 function getCloseTransactionInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)]]), (value) => ({ ...value, discriminator: exports.CLOSE_TRANSACTION_DISCRIMINATOR }));
 }
+exports.getCloseTransactionInstructionDataEncoder = getCloseTransactionInstructionDataEncoder;
 function getCloseTransactionInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
     ]);
 }
+exports.getCloseTransactionInstructionDataDecoder = getCloseTransactionInstructionDataDecoder;
 function getCloseTransactionInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getCloseTransactionInstructionDataEncoder(), getCloseTransactionInstructionDataDecoder());
 }
+exports.getCloseTransactionInstructionDataCodec = getCloseTransactionInstructionDataCodec;
 function getCloseTransactionInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -72,6 +70,7 @@ function getCloseTransactionInstruction(input, config) {
         programAddress,
     });
 }
+exports.getCloseTransactionInstruction = getCloseTransactionInstruction;
 function parseCloseTransactionInstruction(instruction) {
     if (instruction.accounts.length < 6) {
         // TODO: Coded error.
@@ -96,3 +95,4 @@ function parseCloseTransactionInstruction(instruction) {
         data: getCloseTransactionInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseCloseTransactionInstruction = parseCloseTransactionInstruction;

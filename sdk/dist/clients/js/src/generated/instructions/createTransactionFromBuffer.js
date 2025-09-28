@@ -7,13 +7,7 @@
  * @see https://github.com/codama-idl/codama
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CREATE_TRANSACTION_FROM_BUFFER_DISCRIMINATOR = void 0;
-exports.getCreateTransactionFromBufferDiscriminatorBytes = getCreateTransactionFromBufferDiscriminatorBytes;
-exports.getCreateTransactionFromBufferInstructionDataEncoder = getCreateTransactionFromBufferInstructionDataEncoder;
-exports.getCreateTransactionFromBufferInstructionDataDecoder = getCreateTransactionFromBufferInstructionDataDecoder;
-exports.getCreateTransactionFromBufferInstructionDataCodec = getCreateTransactionFromBufferInstructionDataCodec;
-exports.getCreateTransactionFromBufferInstruction = getCreateTransactionFromBufferInstruction;
-exports.parseCreateTransactionFromBufferInstruction = parseCreateTransactionFromBufferInstruction;
+exports.parseCreateTransactionFromBufferInstruction = exports.getCreateTransactionFromBufferInstruction = exports.getCreateTransactionFromBufferInstructionDataCodec = exports.getCreateTransactionFromBufferInstructionDataDecoder = exports.getCreateTransactionFromBufferInstructionDataEncoder = exports.getCreateTransactionFromBufferDiscriminatorBytes = exports.CREATE_TRANSACTION_FROM_BUFFER_DISCRIMINATOR = void 0;
 const kit_1 = require("@solana/kit");
 const programs_1 = require("../programs");
 const shared_1 = require("../shared");
@@ -24,6 +18,7 @@ exports.CREATE_TRANSACTION_FROM_BUFFER_DISCRIMINATOR = new Uint8Array([
 function getCreateTransactionFromBufferDiscriminatorBytes() {
     return (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8).encode(exports.CREATE_TRANSACTION_FROM_BUFFER_DISCRIMINATOR);
 }
+exports.getCreateTransactionFromBufferDiscriminatorBytes = getCreateTransactionFromBufferDiscriminatorBytes;
 function getCreateTransactionFromBufferInstructionDataEncoder() {
     return (0, kit_1.transformEncoder)((0, kit_1.getStructEncoder)([
         ['discriminator', (0, kit_1.fixEncoderSize)((0, kit_1.getBytesEncoder)(), 8)],
@@ -33,15 +28,18 @@ function getCreateTransactionFromBufferInstructionDataEncoder() {
         discriminator: exports.CREATE_TRANSACTION_FROM_BUFFER_DISCRIMINATOR,
     }));
 }
+exports.getCreateTransactionFromBufferInstructionDataEncoder = getCreateTransactionFromBufferInstructionDataEncoder;
 function getCreateTransactionFromBufferInstructionDataDecoder() {
     return (0, kit_1.getStructDecoder)([
         ['discriminator', (0, kit_1.fixDecoderSize)((0, kit_1.getBytesDecoder)(), 8)],
         ['args', (0, types_1.getCreateTransactionArgsDecoder)()],
     ]);
 }
+exports.getCreateTransactionFromBufferInstructionDataDecoder = getCreateTransactionFromBufferInstructionDataDecoder;
 function getCreateTransactionFromBufferInstructionDataCodec() {
     return (0, kit_1.combineCodec)(getCreateTransactionFromBufferInstructionDataEncoder(), getCreateTransactionFromBufferInstructionDataDecoder());
 }
+exports.getCreateTransactionFromBufferInstructionDataCodec = getCreateTransactionFromBufferInstructionDataCodec;
 function getCreateTransactionFromBufferInstruction(input, config) {
     // Program address.
     const programAddress = config?.programAddress ?? programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
@@ -56,7 +54,10 @@ function getCreateTransactionFromBufferInstruction(input, config) {
             value: input.transactionBuffer ?? null,
             isWritable: true,
         },
-        bufferCreator: { value: input.bufferCreator ?? null, isWritable: true },
+        fromBufferCreator: {
+            value: input.fromBufferCreator ?? null,
+            isWritable: true,
+        },
     };
     const accounts = originalAccounts;
     // Original args.
@@ -75,12 +76,13 @@ function getCreateTransactionFromBufferInstruction(input, config) {
             getAccountMeta(accounts.rentPayer),
             getAccountMeta(accounts.systemProgram),
             getAccountMeta(accounts.transactionBuffer),
-            getAccountMeta(accounts.bufferCreator),
+            getAccountMeta(accounts.fromBufferCreator),
         ],
         data: getCreateTransactionFromBufferInstructionDataEncoder().encode(args),
         programAddress,
     });
 }
+exports.getCreateTransactionFromBufferInstruction = getCreateTransactionFromBufferInstruction;
 function parseCreateTransactionFromBufferInstruction(instruction) {
     if (instruction.accounts.length < 7) {
         // TODO: Coded error.
@@ -101,8 +103,9 @@ function parseCreateTransactionFromBufferInstruction(instruction) {
             rentPayer: getNextAccount(),
             systemProgram: getNextAccount(),
             transactionBuffer: getNextAccount(),
-            bufferCreator: getNextAccount(),
+            fromBufferCreator: getNextAccount(),
         },
         data: getCreateTransactionFromBufferInstructionDataDecoder().decode(instruction.data),
     };
 }
+exports.parseCreateTransactionFromBufferInstruction = parseCreateTransactionFromBufferInstruction;
