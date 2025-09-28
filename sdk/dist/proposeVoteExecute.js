@@ -1,7 +1,37 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deriveSmartAccountInfo = deriveSmartAccountInfo;
 exports.createProposeVoteExecuteTransaction = createProposeVoteExecuteTransaction;
@@ -11,7 +41,7 @@ const settings_1 = require("./clients/js/src/generated/accounts/settings");
 const instructions_1 = require("./clients/js/src/generated/instructions");
 const programs_1 = require("./clients/js/src/generated/programs");
 const smartAccountTransactionMessage_1 = require("./clients/js/src/generated/types/smartAccountTransactionMessage");
-const bs58_1 = __importDefault(require("bs58"));
+const bs58 = __importStar(require("bs58"));
 /**
  * Derives smart account PDA and related info from a settings address
  *
@@ -35,7 +65,7 @@ async function deriveSmartAccountInfo(rpc, settingsAddress, accountIndex) {
         programAddress: programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
         seeds: [
             new Uint8Array(buffer_1.Buffer.from('smart_account')),
-            bs58_1.default.decode(settingsAddress),
+            bs58.decode(settingsAddress),
             new Uint8Array(buffer_1.Buffer.from('smart_account')),
             // Use account_index 0 for the primary smart account (matches working example)
             new Uint8Array([0]),
@@ -48,7 +78,7 @@ async function deriveSmartAccountInfo(rpc, settingsAddress, accountIndex) {
     return {
         smartAccountPda,
         settingsAddress,
-        accountIndex: 0n, // Always 0 for primary smart account
+        accountIndex: BigInt(0), // Always 0 for primary smart account
         smartAccountPdaBump,
     };
 }
@@ -112,7 +142,7 @@ async function createProposeVoteExecuteTransaction(params) {
     console.log('🔧 Step 1: Fetching latest settings state...');
     // 1. Fetch the latest on-chain state for the Settings account
     const settings = await (0, settings_1.fetchSettings)(rpc, smartAccountSettings);
-    const transactionIndex = settings.data.transactionIndex + 1n;
+    const transactionIndex = settings.data.transactionIndex + BigInt(1);
     console.log('✅ Settings fetched:', {
         currentTransactionIndex: settings.data.transactionIndex.toString(),
         nextTransactionIndex: transactionIndex.toString(),
@@ -124,7 +154,7 @@ async function createProposeVoteExecuteTransaction(params) {
         programAddress: programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
         seeds: [
             new Uint8Array(buffer_1.Buffer.from('smart_account')),
-            bs58_1.default.decode(smartAccountSettings),
+            bs58.decode(smartAccountSettings),
             new Uint8Array(buffer_1.Buffer.from('transaction')),
             new Uint8Array(new BigUint64Array([transactionIndex]).buffer),
         ],
@@ -136,7 +166,7 @@ async function createProposeVoteExecuteTransaction(params) {
         programAddress: programs_1.ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
         seeds: [
             new Uint8Array(buffer_1.Buffer.from('smart_account')),
-            bs58_1.default.decode(smartAccountSettings),
+            bs58.decode(smartAccountSettings),
             new Uint8Array(buffer_1.Buffer.from('transaction')),
             new Uint8Array(new BigUint64Array([transactionIndex]).buffer),
             new Uint8Array(buffer_1.Buffer.from('proposal')),
@@ -254,7 +284,7 @@ async function createProposeVoteExecuteTransaction(params) {
     for (const accountKey of decodedMessage.staticAccounts) {
         executeTransactionInstruction.accounts.push({
             address: accountKey,
-            role: 1, // AccountRole.WRITABLE - simplified for now, would need proper role detection
+            role: kit_1.AccountRole.WRITABLE, // Use proper AccountRole enum
         });
     }
     // For ALT transactions, we would also need to add the loaded accounts from ALTs
@@ -265,7 +295,7 @@ async function createProposeVoteExecuteTransaction(params) {
     for (const lookup of addressTableLookups) {
         executeTransactionInstruction.accounts.push({
             address: lookup.accountKey,
-            role: 0, // AccountRole.READONLY - ALT accounts are typically readonly
+            role: kit_1.AccountRole.READONLY, // ALT accounts are typically readonly
         });
     }
     console.log('✅ Added accounts to ExecuteTransaction:', {
@@ -285,6 +315,8 @@ async function createProposeVoteExecuteTransaction(params) {
     const finalTransactionMessage = (0, kit_1.pipe)((0, kit_1.createTransactionMessage)({ version: 0 }), (tx) => (0, kit_1.setTransactionMessageFeePayerSigner)(signer, tx), (tx) => (0, kit_1.setTransactionMessageLifetimeUsingBlockhash)(latestBlockhash, tx), (tx) => (0, kit_1.appendTransactionMessageInstructions)(allInstructions, tx));
     // 11. Compile the transaction to get the buffer
     const compiledTransaction = (0, kit_1.compileTransaction)(finalTransactionMessage);
+    // 12. Validate transaction size
+    (0, kit_1.assertIsTransactionWithinSizeLimit)(compiledTransaction);
     return {
         transactionBuffer: new Uint8Array(compiledTransaction.messageBytes),
         transactionPda,

@@ -9,6 +9,7 @@ This directory contains integration tests for the Astrolabe Smart Account SDK th
 1. `00-setup.test.ts` - Initializes program configuration
 2. `01-createSmartAccount.test.ts` - Creates a smart account and saves state
 3. `02-simpleTransaction.test.ts` - Tests transaction execution using the created smart account
+4. `03-complexBufferedTransaction.test.ts` - Tests complex buffered transaction with Jupiter swap
 
 ## Running Tests
 
@@ -24,6 +25,7 @@ cd sdk
 npm run test:setup      # Initialize program config
 npm run test:create     # Create smart account
 npm run test:simple     # Test transactions
+npm run test:buffered   # Test complex buffered transaction
 ```
 
 ### Alternative individual test commands:
@@ -32,6 +34,7 @@ cd sdk
 npx tsx tests/00-setup.test.ts
 npx tsx tests/01-createSmartAccount.test.ts
 npx tsx tests/02-simpleTransaction.test.ts
+npx tsx tests/03-complexBufferedTransaction.test.ts
 ```
 
 ## Test Files
@@ -39,8 +42,10 @@ npx tsx tests/02-simpleTransaction.test.ts
 - `00-setup.test.ts` - Initializes program configuration (must run first)
 - `01-createSmartAccount.test.ts` - Tests smart account creation and saves state
 - `02-simpleTransaction.test.ts` - Tests transaction execution using created account
+- `03-complexBufferedTransaction.test.ts` - Tests complex buffered transaction with Jupiter swap
 - `run-tests.ts` - Automated test runner that handles proper execution order
 - `test-state.json` - Generated state file shared between tests
+- `buffered-test-state.json` - Generated state from buffered transaction test
 
 ## Prerequisites
 

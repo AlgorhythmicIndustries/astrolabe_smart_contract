@@ -3,10 +3,10 @@ import {
   createKeyPairFromBytes,
   createSignerFromKeyPair,
   address,
-  getTransferSolInstruction,
   createNoopSigner,
   lamports,
 } from '@solana/kit';
+import { getTransferSolInstruction } from '@solana-program/system';
 import * as fs from 'fs';
 import { createSimpleTransaction, deriveSmartAccountInfo } from '../simpleTransaction';
 

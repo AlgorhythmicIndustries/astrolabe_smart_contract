@@ -111,6 +111,30 @@ impl<'info> CreateTransactionFromBuffer<'info> {
         msg!("CreateTransactionFromBuffer: reading buffer_size={}, final_size={}", 
              transaction_buffer.buffer.len(), 
              transaction_buffer.final_buffer_size);
+        
+        // Debug: Log the first 50 bytes of the buffer to see what we actually stored
+        let debug_bytes = &transaction_buffer.buffer[..std::cmp::min(50, transaction_buffer.buffer.len())];
+        msg!("CreateTransactionFromBuffer: buffer first_50_bytes={:?}", debug_bytes);
+        
+        // Debug: Try to manually parse the expected CreateTransactionArgs structure
+        if transaction_buffer.buffer.len() >= 7 {
+            msg!("CreateTransactionFromBuffer: manual_parse account_index={}, account_bump={}, ephemeral_signers={}", 
+                 transaction_buffer.buffer[0],
+                 transaction_buffer.buffer[1], 
+                 transaction_buffer.buffer[2]);
+            
+            // Try to read the Vec<u8> length (next 4 bytes as little-endian u32)
+            if transaction_buffer.buffer.len() >= 7 {
+                let vec_len_bytes = [
+                    transaction_buffer.buffer[3],
+                    transaction_buffer.buffer[4], 
+                    transaction_buffer.buffer[5],
+                    transaction_buffer.buffer[6]
+                ];
+                let vec_len = u32::from_le_bytes(vec_len_bytes);
+                msg!("CreateTransactionFromBuffer: transaction_message_length={}", vec_len);
+            }
+        }
 
         // Create the args for the `create_transaction` instruction
         let create_args = CreateTransactionArgs {

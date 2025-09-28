@@ -32,7 +32,7 @@ async function setupProgramConfig() {
   const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
 
   // Load the program config initializer keypair
-  const initializerKeypairFile = fs.readFileSync('../../test-program-config-initializer-keypair.json');
+  const initializerKeypairFile = fs.readFileSync('../test-program-config-initializer-keypair.json');
   const initializerKeypairBytes = new Uint8Array(JSON.parse(initializerKeypairFile.toString()));
   const initializerKeypair = await createKeyPairFromBytes(initializerKeypairBytes);
   const initializerSigner = await createSignerFromKeyPair(initializerKeypair);
@@ -49,6 +49,8 @@ async function setupProgramConfig() {
   console.log('✅ Airdropped 10 SOL to program config initializer');
 
   // Derive the program config PDA
+  console.log('🔧 Deriving program config PDA...');
+  console.log('Program address:', ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS);
   const [programConfigPda] = await getProgramDerivedAddress({
     programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
     seeds: [
@@ -58,6 +60,7 @@ async function setupProgramConfig() {
   });
 
   // Derive the treasury PDA
+  console.log('🔧 Deriving treasury PDA...');
   const [treasuryPda] = await getProgramDerivedAddress({
     programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
     seeds: [
@@ -69,15 +72,22 @@ async function setupProgramConfig() {
   console.log('Program Config PDA:', programConfigPda);
   console.log('Treasury PDA:', treasuryPda);
 
+  // Validate PDAs are properly derived
+  if (!programConfigPda) {
+    throw new Error('Failed to derive program config PDA');
+  }
+  if (!treasuryPda) {
+    throw new Error('Failed to derive treasury PDA');
+  }
+
   try {
     // Build the initialize program config instruction
     const initInstruction = await getInitializeProgramConfigInstructionAsync({
-      programConfig: address(programConfigPda),
-      treasury: address(treasuryPda),
+      programConfig: programConfigPda,
+      treasury: treasuryPda,
       initializer: initializerSigner,
       systemProgram: address('11111111111111111111111111111111'),
-      program: address(ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS),
-      authorityAddress: initializerSigner.address,
+      authority: initializerSigner.address,
       smartAccountCreationFee: BigInt(0),
     });
 
