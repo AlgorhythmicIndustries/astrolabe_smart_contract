@@ -2,6 +2,7 @@ use crate::errors::*;
 use crate::instructions::*;
 use crate::state::*;
 use anchor_lang::{prelude::*, system_program};
+use anchor_lang::solana_program::hash::hash;
 
 #[derive(Accounts)]
 pub struct CreateTransactionFromBuffer<'info> {
@@ -36,20 +37,33 @@ pub struct CreateTransactionFromBuffer<'info> {
 
 impl<'info> CreateTransactionFromBuffer<'info> {
     pub fn validate(&self, args: &CreateTransactionArgs) -> Result<()> {
+        msg!("CreateTransactionFromBuffer validation started");
         let transaction_buffer_account = &self.transaction_buffer;
         let from_buffer_creator = &self.from_buffer_creator;
+        msg!("🔍 DEBUG: transaction_buffer loaded, creator: {}", transaction_buffer_account.creator);
+        msg!("🔍 DEBUG: from_buffer_creator: {}", from_buffer_creator.key());
 
-        // Debug logging for CreateTransactionFromBuffer args - if we reach here, args are OK
-        msg!("CreateTransactionFromBuffer validation started");
-        msg!("  buffer_creator={}", transaction_buffer_account.creator);
-        msg!("  current_creator={}", from_buffer_creator.key());
-        msg!("  creators_match={}", transaction_buffer_account.creator == from_buffer_creator.key());
+        // Accept either an empty args.transaction_message (old clients)
+        // or a populated one that matches the buffer (new clients provide
+        // bytes so Anchor can size/init the account during context build).
+        if !args.transaction_message.is_empty() {
+            // Size must match the declared final size
+            require_eq!(
+                args.transaction_message.len(),
+                transaction_buffer_account.final_buffer_size as usize,
+                SmartAccountError::InvalidInstructionArgs
+            );
 
-        // Check that the transaction message is "empty"
-        require!(
-            args.transaction_message == vec![0, 0, 0, 0, 0, 0],
-            SmartAccountError::InvalidInstructionArgs
-        );
+            // Accept either (a) all zeros of correct length, or (b) bytes matching the buffer hash
+            let is_all_zero = args.transaction_message.iter().all(|b| *b == 0);
+            if !is_all_zero {
+                let args_hash = hash(&args.transaction_message);
+                require!(
+                    args_hash.to_bytes() == transaction_buffer_account.final_buffer_hash,
+                    SmartAccountError::InvalidInstructionArgs
+                );
+            }
+        }
 
         // Validate that the final hash matches the buffer
         transaction_buffer_account.validate_hash()?;

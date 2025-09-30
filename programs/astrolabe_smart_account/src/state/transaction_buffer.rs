@@ -45,13 +45,18 @@ impl TransactionBuffer {
 
     pub fn validate_hash(&self) -> Result<()> {
         let message_buffer_hash = hash(&self.buffer);
+        msg!("validate_hash: message_buffer_hash: {:?}", message_buffer_hash);
+        msg!("validate_hash: final_buffer_hash: {:?}", self.final_buffer_hash);
         require!(
             message_buffer_hash.to_bytes() == self.final_buffer_hash,
             SmartAccountError::FinalBufferHashMismatch
         );
+        
         Ok(())
     }
     pub fn validate_size(&self) -> Result<()> {
+        msg!("validate_size: buffer.len(): {:?}", self.buffer.len());
+        msg!("validate_size: final_buffer_size: {:?}", self.final_buffer_size);
         require_eq!(
             self.buffer.len(),
             self.final_buffer_size as usize,
