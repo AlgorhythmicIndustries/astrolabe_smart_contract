@@ -30,7 +30,7 @@ import {
 } from '../clients/js/src/generated/instructions';
 import { fetchSettings } from '../clients/js/src/generated/accounts/settings';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../clients/js/src/generated/programs';
-import { getTransactionMessageEncoder } from '../transactionMessageEncoder';
+import { getTransactionMessageEncoder } from '../utils/index';
 import { deriveSmartAccountInfo, decodeTransactionMessage, deriveTransactionPda } from '../utils/index';
 
 async function testCorrectBufferedTransaction() {

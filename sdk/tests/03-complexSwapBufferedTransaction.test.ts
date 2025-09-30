@@ -17,8 +17,21 @@ import {
   createTransactionMessage,
   appendTransactionMessageInstruction,
   AccountRole,
+  pipe,
+  getBase64EncodedWireTransaction,
 } from '@solana/kit';
 import { getSetComputeUnitLimitInstruction } from '@solana-program/compute-budget';
+import { 
+  findAssociatedTokenPda as findToken2022Ata, 
+  TOKEN_2022_PROGRAM_ADDRESS, 
+  AssociatedTokenSeeds as token2022AssociatedTokenSeeds, 
+  getCreateAssociatedTokenInstructionAsync as getCreateToken2022Ata 
+} from '@solana-program/token-2022';
+import { findAssociatedTokenPda as findTokenAta, 
+  TOKEN_PROGRAM_ADDRESS, 
+  AssociatedTokenSeeds as tokenAssociatedTokenSeeds, 
+  getCreateAssociatedTokenInstructionAsync as getCreateTokenAta 
+} from '@solana-program/token';
 import * as fs from 'fs';
 import { createComplexBufferedTransaction } from '../complexBufferedTransaction';
 import { deriveSmartAccountInfo } from '../utils/index';
@@ -62,76 +75,63 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
     // Get a real Jupiter swap transaction using the API
     console.log('📦 Fetching REAL Jupiter swap transaction via API...');
     
-    let messageBytes: Uint8Array;
     let finalAddressTableLookups: any[];
     let transactionType: string;
     let versionedTransactionBytes: Uint8Array;
     
     try {
       // USDC to zBTC swap parameters (using your exact parameters)
-      const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'; // USDC mint
-      const ZBTC_MINT = 'susdabGDNbhrnCa6ncrYo81u4s9GM8ecK2UwMyZiq4X'; // Real zBTC mint
-      const swapAmount = 1000000000; // 1000 USDC (6 decimals) - your exact amount
-      const slippage = 1; // 1% slippage - your exact slippage
+      const FROM_TOKEN_MINT = 'zBTCug3er3tLyffELcvDNrKkCymbPWysGcWihESYfLg'; // USDC mint
+      const TO_TOKEN_MINT = 'susdabGDNbhrnCa6ncrYo81u4s9GM8ecK2UwMyZiq4X'; // Real zBTC mint
+      const swapAmount = 75001; // 1000 USDC (6 decimals) - your exact amount
+      const slippage = 10; // 1% slippage - your exact slippage
       
       // Check if susda token account exists for smart account PDA, create if needed
       console.log('🔍 Checking susda (Token-2022) token account for smart account PDA...');
-      const { getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } = await import('@solana/spl-token');
-      const { PublicKey } = await import('@solana/web3.js');
-      
-      const smartAccountPubkey = new PublicKey(smartAccountInfo.smartAccountPda);
-      const susdaMintPubkey = new PublicKey(ZBTC_MINT);
       
       // Check if the mint is Token-2022 by fetching its account info
-      const mintInfo = await rpc.getAccountInfo(address(ZBTC_MINT), { encoding: 'base64' }).send();
-      const TOKEN_2022_ID = 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb';
-      const isToken2022 = mintInfo.value?.owner === TOKEN_2022_ID;
-      const tokenProgramId = isToken2022 ? TOKEN_2022_PROGRAM_ID : TOKEN_PROGRAM_ID;
+      const mintInfo = await rpc.getAccountInfo(address(TO_TOKEN_MINT), { encoding: 'base64' }).send();
+      const isToken2022 = mintInfo.value?.owner === TOKEN_2022_PROGRAM_ADDRESS;
       
       console.log('🔍 Mint owner:', mintInfo.value?.owner);
       console.log('🔍 Is Token-2022:', isToken2022);
       
-      const susdaTokenAccount = getAssociatedTokenAddressSync(
-        susdaMintPubkey,
-        smartAccountPubkey,
-        true, // allowOwnerOffCurve
-        tokenProgramId
-      );
+      // Find the ATA using the appropriate token program
+      const tokenMintAddress = address(TO_TOKEN_MINT);
+      const ownerAddress = smartAccountInfo.smartAccountPda;
+      const [toTokenAccount] = isToken2022
+        ? await findToken2022Ata({
+            owner: ownerAddress,
+            tokenProgram: TOKEN_2022_PROGRAM_ADDRESS,
+            mint: tokenMintAddress,
+          })
+        : await findTokenAta({
+            owner: ownerAddress,
+            tokenProgram: TOKEN_PROGRAM_ADDRESS,
+            mint: tokenMintAddress,
+          });
       
-      console.log('📍 Expected susda ATA:', susdaTokenAccount.toString());
+      console.log('📍 Expected susda ATA:', toTokenAccount);
       
       // Check if the account exists
-      const accountInfo = await rpc.getAccountInfo(address(susdaTokenAccount.toString()), { encoding: 'base64' }).send();
+      const accountInfo = await rpc.getAccountInfo(toTokenAccount, { encoding: 'base64' }).send();
       
       if (!accountInfo.value) {
-        console.log('⚠️  susda token account does not exist, creating it...');
+          console.log(`⚠️  token account for ${TO_TOKEN_MINT} does not exist, creating it...`);
         
-        // Create the ATA using createAssociatedTokenAccountIdempotent with correct token program
-        const { createAssociatedTokenAccountIdempotentInstruction } = await import('@solana/spl-token');
-        const createAtaIx = createAssociatedTokenAccountIdempotentInstruction(
-          new PublicKey(creatorSigner.address), // payer
-          susdaTokenAccount, // ata
-          smartAccountPubkey, // owner
-          susdaMintPubkey, // mint
-          tokenProgramId // Use Token-2022 program if it's a Token-2022 mint
-        );
+        // Create the ATA using the appropriate token program
+        const createAtaIx = isToken2022
+          ? await getCreateToken2022Ata({ mint: address(TO_TOKEN_MINT), owner: smartAccountInfo.smartAccountPda, payer: creatorSigner })
+          : await getCreateTokenAta({ mint: address(TO_TOKEN_MINT), owner: smartAccountInfo.smartAccountPda, payer: creatorSigner });
         
         // Build and send the transaction
-        const { pipe } = await import('@solana/kit');
         const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
         
         const createAtaMsg = await pipe(
           createTransactionMessage({ version: 0 }),
           (tx: any) => setTransactionMessageFeePayerSigner(creatorSigner, tx),
           (tx: any) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
-          (tx: any) => appendTransactionMessageInstruction({
-            programAddress: address('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'),
-            accounts: createAtaIx.keys.map((key: any) => ({
-              address: address(key.pubkey.toString()),
-              role: key.isWritable ? (key.isSigner ? AccountRole.WRITABLE_SIGNER : AccountRole.WRITABLE) : (key.isSigner ? AccountRole.READONLY_SIGNER : AccountRole.READONLY),
-            })),
-            data: new Uint8Array(createAtaIx.data),
-          }, tx)
+          (tx: any) => appendTransactionMessageInstruction(createAtaIx, tx)
         );
         
         const signedAtaTx = await signTransactionMessageWithSigners(createAtaMsg as any);
@@ -141,16 +141,16 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
           lifetimeConstraint: { lastValidBlockHeight: latestBlockhash.lastValidBlockHeight },
         } as any, { commitment: 'confirmed' });
         
-        console.log('✅ susda token account created:', susdaTokenAccount.toString());
+        console.log('✅ susda token account created:', toTokenAccount.toString());
       } else {
-        console.log('✅ susda token account already exists:', susdaTokenAccount.toString());
+        console.log('✅ susda token account already exists:', toTokenAccount.toString());
       }
       
       console.log('🔄 Getting Jupiter quote: 1000 USDC → zBTC (1% slippage)...');
       
       const quote = await getSwapQuote(
-        USDC_MINT,
-        ZBTC_MINT,
+        FROM_TOKEN_MINT,
+        TO_TOKEN_MINT,
         swapAmount,
         slippage,
         undefined // No platform fee - matching your params
@@ -207,7 +207,7 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
         throw error;
       }
       
-      transactionType = 'REAL 1000 USDC → zBTC swap';
+        transactionType = `REAL ${swapAmount} ${FROM_TOKEN_MINT} → ${TO_TOKEN_MINT} swap`;
       console.log('✅ Jupiter transaction loaded (' + versionedTransactionBytes.length + ' bytes)');
       
     } catch (error) {
@@ -345,7 +345,6 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
         // First simulate to see compute units and any potential errors
         console.log('  🔍 Simulating execute transaction...');
         try {
-          const { getBase64EncodedWireTransaction } = await import('@solana/kit');
           const base64Tx = getBase64EncodedWireTransaction(signed);
           const simulationResult = await rpc.simulateTransaction(base64Tx, {
             encoding: 'base64',
