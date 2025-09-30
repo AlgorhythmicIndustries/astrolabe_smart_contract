@@ -8,7 +8,8 @@ import {
 } from '@solana/kit';
 import { getTransferSolInstruction } from '@solana-program/system';
 import * as fs from 'fs';
-import { createSimpleTransaction, deriveSmartAccountInfo } from '../simpleTransaction';
+import { createSimpleTransaction } from '../simpleTransaction';
+import { deriveSmartAccountInfo } from '../utils/index';
 
 async function testSimpleTransaction() {
   console.log('Testing simpleTransaction.ts...');
@@ -68,7 +69,8 @@ async function testSimpleTransaction() {
     
   } catch (error) {
     console.error('❌ createSimpleTransaction failed:', error);
+    throw error; // Re-throw to properly fail the test
   }
 }
 
-testSimpleTransaction().catch(console.error);
+testSimpleTransaction();

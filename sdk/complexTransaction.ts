@@ -38,7 +38,6 @@ import {
   deriveTransactionPda,
   deriveProposalPda,
   fetchSmartAccountSettings,
-  decodeTransactionMessage,
 } from './utils/index';
 
 export interface ComplexTransactionParams {
@@ -179,7 +178,7 @@ export async function createComplexTransaction(
   console.log('🔍 messageBytes first 16 bytes:', Array.from(compiledInnerMessage.messageBytes.slice(0, 16)).map(b => b.toString(16).padStart(2, '0')).join(' '));
   console.log('✅ Message decoded successfully');
 
-  const decodedMessage = decodeTransactionMessage(compiledInnerMessage.messageBytes);
+  const decodedMessage = getCompiledTransactionMessageDecoder().decode(compiledInnerMessage.messageBytes);
   console.log('✅ Inner transaction compiled:', {
     staticAccounts: decodedMessage.staticAccounts.length,
     instructions: decodedMessage.instructions.length,
@@ -227,7 +226,6 @@ export async function createComplexTransaction(
 
   // 5. Create the transaction account instruction
   console.log('🔧 Creating CreateTransaction instruction with transactionMessage of', transactionMessageBytes.length, 'bytes');
-  console.log('🔍 transactionMessage first 16 bytes:', Array.from(transactionMessageBytes.slice(0, 16)).map(b => b.toString(16).padStart(2, '0')).join(' '));
   
   const createTransactionInstruction = getCreateTransactionInstruction({
     settings: smartAccountSettings,
