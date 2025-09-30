@@ -26,7 +26,7 @@ export async function getSwapQuote(
   url.searchParams.append('inputMint', actualInputMint);
   url.searchParams.append('outputMint', actualOutputMint);
   url.searchParams.append('amount', amount.toString());
-  url.searchParams.append('slippageBps', Math.round(slippage * 100).toString());
+  url.searchParams.append('slippageBps', Math.round(slippage * 1000).toString());
   url.searchParams.append('restrictIntermediateTokens', 'true');
   // Additional routing restrictions for smaller transactions
   url.searchParams.append('maxAccounts', '32'); // Limit total accounts

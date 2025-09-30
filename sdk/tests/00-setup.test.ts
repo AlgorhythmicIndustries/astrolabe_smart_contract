@@ -114,6 +114,7 @@ async function setupProgramConfig() {
       throw error;
     }
   }
+
 }
 
-setupProgramConfig().catch(console.error);
+setupProgramConfig();

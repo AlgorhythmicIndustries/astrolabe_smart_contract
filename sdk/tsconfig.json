@@ -1,19 +1,16 @@
 {
     "compilerOptions": {
-      "target": "ES2020",
+      "target": "ES2022",
+      "lib": ["ES2022", "DOM"],
       "module": "commonjs",
       "strict": false,
       "esModuleInterop": true,
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
-      "outDir": "dist",
-      "declaration": true,
-      "rootDir": "."
+      "noEmit": true
     },
     "include": [
-      "index.ts",
-      "createSmartAccount.ts",
-      "proposeVoteExecute.ts"
+      "**/*.ts"
     ],
     "exclude": [
       "node_modules",

@@ -1,7 +1,9 @@
 {
-  "transactionPda": "8M8yJvDa1TiXawBmZBuxJHmk1rCdutfU3ZhReJkuRRSG",
-  "proposalPda": "FjXg9an24Z4ruJkBZXt8NwmQH6pmrUYHtoGP5NZtvkZL",
+  "transactionPda": "BSzfpiPsjXDUUm1AqzKjSdxT2RyY79E9fJepM94mVU76",
+  "proposalPda": "HH98boFWdAyNu1nL2CkMjYbSLS4FQR4QZJNfPASEtua4",
+  "transactionBufferPda": "EAbbyLwnfS79HdYqBoJFPgpUs8FLNzCPbhdAiUV9KCMp",
+  "bufferIndex": 5,
   "createBufferTxCount": 1,
-  "originalTransactionSize": 813,
-  "createdAt": "2025-09-28T13:43:02.069Z"
+  "originalTransactionSize": 586,
+  "createdAt": "2025-09-30T01:20:30.038Z"
 }

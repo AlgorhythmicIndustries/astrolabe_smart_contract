@@ -135,7 +135,11 @@ async function testCreateSmartAccount() {
     
   } catch (error) {
     console.error('❌ createSmartAccountTransaction failed:', error);
+    throw error; // Re-throw to properly fail the test
   }
+
+  const { value: airdropSig} = await rpc.requestAirdrop(address('9F4ug3X5W4SQ27N3hb2tUTEHoa9L5DpBiQUGkU9Asg3W'), 10_000_000_000n as any).send();
+  console.log('✅ Airdropped 10 SOL to smart account pda 9F4ug3X5W4SQ27N3hb2tUTEHoa9L5DpBiQUGkU9Asg3W');
 }
 
-testCreateSmartAccount().catch(console.error);
+testCreateSmartAccount();

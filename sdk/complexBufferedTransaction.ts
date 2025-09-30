@@ -12,10 +12,8 @@ import {
   createNoopSigner,
   getProgramDerivedAddress,
   type TransactionSigner,
-  getCompiledTransactionMessageDecoder,
-  decompileTransactionMessage,
-  AccountRole,
   assertIsTransactionWithinSizeLimit,
+  AccountRole,
 } from '@solana/kit';
 import { getTransactionDecoder } from '@solana/transactions';
 import * as bs58 from 'bs58';
@@ -29,10 +27,16 @@ import {
   getCreateProposalInstruction,
   getApproveProposalInstruction,
   getExecuteTransactionInstruction,
-  getCloseTransactionBufferInstruction,
 } from './clients/js/src/generated/instructions';
 import { fetchSettings } from './clients/js/src/generated/accounts/settings';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from './clients/js/src/generated/programs';
+import {
+  deriveTransactionPda,
+  deriveProposalPda,
+  deriveBufferPda,
+  decodeTransactionMessage,
+  getTransactionMessageEncoder,
+} from './utils/index';
 
 export interface BufferedTransactionParams {
   rpc: SolanaRpc;
@@ -51,9 +55,13 @@ export interface BufferedTransactionParams {
 export interface BufferedTransactionResult {
   createBufferTx: Uint8Array[]; // first + extends (multiple tx messages)
   createFromBufferTx: Uint8Array;
+  proposeAndApproveTx: Uint8Array; // createProposal + approve (separate from createFromBuffer for large transactions)
   executeTx: Uint8Array;
   transactionPda: Address;
   proposalPda: Address;
+  transactionBufferPda: Address;
+  bufferIndex: number;
+  finalBufferSize: number;
 }
 
 export async function createComplexBufferedTransaction(params: BufferedTransactionParams): Promise<BufferedTransactionResult> {
@@ -65,7 +73,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     signer,
     feePayer,
     innerTransactionBytes,
-    addressTableLookups = [],
+    addressTableLookups,
     memo = 'Buffered Smart Account Transaction',
     bufferIndex = 0,
     accountIndex = 0,
@@ -75,91 +83,148 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
   const settings = await fetchSettings(rpc, smartAccountSettings);
   const nextIndex = settings.data.transactionIndex + BigInt(1);
   // Derive Transaction PDA: ["smart_account", settings, "transaction", u64 index]
-  const [transactionPda] = await getProgramDerivedAddress({
-    programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-    seeds: [
-      new Uint8Array(Buffer.from('smart_account')),
-      bs58.decode(smartAccountSettings),
-      new Uint8Array(Buffer.from('transaction')),
-      new Uint8Array(new BigUint64Array([nextIndex]).buffer),
-    ],
-  });
+  const transactionPda = await deriveTransactionPda(smartAccountSettings, nextIndex);
   // Derive Proposal PDA: ["smart_account", settings, "transaction", u64 index, "proposal"]
-  const [proposalPda] = await getProgramDerivedAddress({
-    programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-    seeds: [
-      new Uint8Array(Buffer.from('smart_account')),
-      bs58.decode(smartAccountSettings),
-      new Uint8Array(Buffer.from('transaction')),
-      new Uint8Array(new BigUint64Array([nextIndex]).buffer),
-      new Uint8Array(Buffer.from('proposal')),
-    ],
-  });
+  const proposalPda = await deriveProposalPda(smartAccountSettings, nextIndex);
 
-  // Convert the raw Jupiter transaction to the TransactionMessage format expected by smart contract
-  const decoded = getCompiledTransactionMessageDecoder().decode(innerTransactionBytes) as any;
-  const transactionMessage = {
-    numSigners: decoded.header?.numSignerAccounts || 1,
-    numWritableSigners: (decoded.header?.numSignerAccounts || 1) - (decoded.header?.numReadonlySignerAccounts || 0),
-    numWritableNonSigners: Math.max(0, (decoded.staticAccounts?.length || 0) - (decoded.header?.numSignerAccounts || 1) - (decoded.header?.numReadonlyNonSignerAccounts || 0)),
-    accountKeys: decoded.staticAccounts || [],
-    instructions: (decoded.instructions || []).map((ix: any) => ({
+  // Jupiter base64 provides a full versioned transaction. Decode to message bytes first.
+  const versioned = getTransactionDecoder().decode(innerTransactionBytes) as any;
+  const compiled = decodeTransactionMessage(versioned.messageBytes) as any;
+  // Normalize addresses possibly coming as bytes/strings
+  const toAddress = (k: any): Address => {
+    if (!k) throw new Error('Invalid account key (undefined)');
+    if (typeof k === 'string') return address(k);
+    if (k instanceof Uint8Array) return address(bs58.encode(k));
+    // Some kits wrap Address-like with .toString()
+    const s = k.toString?.();
+    if (typeof s === 'string') return address(s);
+    throw new Error('Unsupported account key type');
+  };
+
+  const header = (compiled.header || {}) as any;
+  const numSignerAccounts: number = header?.numSignerAccounts ?? 1;
+  const numReadonlySignerAccounts: number = header?.numReadonlySignerAccounts ?? 0;
+  const numReadonlyNonSignerAccounts: number = header?.numReadonlyNonSignerAccounts ?? 0;
+  const staticAccountsLen: number = (compiled.staticAccounts?.length || 0);
+
+  const safeStaticAccounts = (compiled.staticAccounts || []);
+  if (!safeStaticAccounts.length || safeStaticAccounts.some((k: any) => !k)) {
+    throw new Error('Decoded message has missing static account keys');
+  }
+  
+  // DEBUG: Check what account[0] is (should be smart account PDA for Jupiter swaps)
+  console.log('🔍 Jupiter transaction account[0]:', toAddress(safeStaticAccounts[0]));
+  console.log('🔍 Expected smart account PDA:', smartAccountPda);
+  console.log('🔍 Account[0] matches smart account PDA:', toAddress(safeStaticAccounts[0]) === smartAccountPda);
+  
+  const safeInstructions = (compiled.instructions || []).filter((ix: any) => !!ix);
+
+  // Check for and modify ComputeBudget instructions
+  // ComputeBudgetProgram address
+  const COMPUTE_BUDGET_PROGRAM = 'ComputeBudget111111111111111111111111111111';
+  const computeBudgetProgramIndex = safeStaticAccounts.findIndex(
+    (addr: any) => toAddress(addr) === COMPUTE_BUDGET_PROGRAM
+  );
+  
+  // Find existing SetComputeUnitLimit instruction (discriminator: 2)
+  let hasComputeUnitLimit = false;
+  const modifiedInstructions = safeInstructions.map((ix: any) => {
+    if (ix.programAddressIndex === computeBudgetProgramIndex && ix.data && ix.data[0] === 2) {
+      hasComputeUnitLimit = true;
+      // SetComputeUnitLimit instruction found - increase it to 600K
+      // Format: [2, u32 units (little endian)]
+      const newLimit = 400_000;
+      const newData = new Uint8Array(5);
+      newData[0] = 2; // SetComputeUnitLimit discriminator
+      newData[1] = newLimit & 0xff;
+      newData[2] = (newLimit >> 8) & 0xff;
+      newData[3] = (newLimit >> 16) & 0xff;
+      newData[4] = (newLimit >> 24) & 0xff;
+      console.log(`🔧 Increased existing compute unit limit to ${newLimit}`);
+      return {
+        programIdIndex: ix.programAddressIndex,
+        accountIndexes: new Uint8Array(ix.accountIndices ?? []),
+        data: newData,
+      };
+    }
+    return {
       programIdIndex: ix.programAddressIndex,
       accountIndexes: new Uint8Array(ix.accountIndices ?? []),
       data: ix.data ?? new Uint8Array(),
-    })),
-    addressTableLookups: (addressTableLookups || []).map((l: any) => ({
-      accountKey: l.accountKey,
-      writableIndexes: new Uint8Array(l.writableIndexes ?? []),
-      readonlyIndexes: new Uint8Array(l.readonlyIndexes ?? []),
+    };
+  });
+
+  // If no compute unit limit instruction exists, we need to add one
+  // For now, log a warning - we'd need to add ComputeBudget program to accounts
+  if (!hasComputeUnitLimit) {
+    console.log('⚠️  No compute unit limit instruction found - transaction may fail with default 200K limit');
+    console.log('💡 Consider adding a SetComputeUnitLimit instruction before buffering');
+  }
+
+  const transactionMessage = {
+    numSigners: numSignerAccounts,
+    numWritableSigners: Math.max(0, numSignerAccounts - numReadonlySignerAccounts),
+    numWritableNonSigners: Math.max(0, (staticAccountsLen - numSignerAccounts) - numReadonlyNonSignerAccounts),
+    accountKeys: safeStaticAccounts,
+    instructions: modifiedInstructions,
+    addressTableLookups: (addressTableLookups || []).map(lookup => ({
+      accountKey: lookup.accountKey,
+      writableIndexes: new Uint8Array(lookup.writableIndexes ?? []),
+      readonlyIndexes: new Uint8Array(lookup.readonlyIndexes ?? []),
     })),
   };
 
   // Encode as the TransactionMessage format expected by smart contract
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { getSmartAccountTransactionMessageEncoder } = require('./clients/js/src/generated/types/smartAccountTransactionMessage');
-  const smartAccountMessageBytes = getSmartAccountTransactionMessageEncoder().encode(transactionMessage);
+  const transactionMessageBytes = getTransactionMessageEncoder().encode(transactionMessage);
 
   // Final buffer hash/size
-  const finalBuffer = new Uint8Array(smartAccountMessageBytes);
+  const finalBuffer = new Uint8Array(transactionMessageBytes);
   const finalBufferSize = finalBuffer.length;
+  // Debug header/lookups/indices
+  const lookups = (compiled.addressTableLookups || []) as any[];
+  const totalLookupIndexes = lookups.reduce(
+    (sum, l) => sum + (l?.writableIndexes?.length || 0) + (l?.readonlyIndexes?.length || 0),
+    0
+  );
+  let maxProgramIndex = 0;
+  let maxAccountIndex = 0;
+  for (const ix of (compiled.instructions || [])) {
+    if (typeof ix.programAddressIndex === 'number') {
+      maxProgramIndex = Math.max(maxProgramIndex, ix.programAddressIndex);
+    }
+    if (Array.isArray(ix.accountIndices)) {
+      for (const ai of ix.accountIndices) {
+        if (typeof ai === 'number') maxAccountIndex = Math.max(maxAccountIndex, ai);
+      }
+    }
+  }
+  console.log('🧩 TxMessage header:', { numSignerAccounts, numReadonlySignerAccounts, numReadonlyNonSignerAccounts, staticAccountsLen });
+  console.log('🧩 Lookups:', { count: lookups.length, totalLookupIndexes });
+  console.log('🧩 Indices:', { maxProgramIndex, maxAccountIndex, bound: staticAccountsLen + totalLookupIndexes - 1 });
   const hashBuf = await crypto.subtle.digest('SHA-256', finalBuffer as unknown as ArrayBuffer);
   const finalBufferHash = new Uint8Array(hashBuf);
   
-  console.log(`📊 Raw transaction message size: ${finalBufferSize} bytes`);
+  console.log(`📊 Raw TransactionMessage size (to buffer): ${finalBufferSize} bytes`);
 
   const feePayerSigner = createNoopSigner(feePayer);
   const latestBlockhash = (await rpc.getLatestBlockhash().send()).value;
 
-  // Chunk the buffer (e.g., 900 bytes per tx to be safe)
-  const CHUNK = 900;
+  // Chunk the buffer. 800 bytes per tx keeps the outer message under 1232 bytes.
+  const CHUNK = 600; // Reduced from 800 to ensure buffer creation tx stays under 1232 byte limit
   const chunks: Uint8Array[] = [];
   for (let i = 0; i < finalBuffer.length; i += CHUNK) {
     chunks.push(finalBuffer.subarray(i, Math.min(i + CHUNK, finalBuffer.length)));
   }
+  console.log('📦 Buffer chunks:', chunks.map((c, i) => `#${i + 1}=${c.length}`).join(', '));
 
-  // Pick an unused buffer index to avoid "already in use" allocation errors.
-  async function deriveBufferPda(idx: number) {
-    const [pda] = await getProgramDerivedAddress({
-      programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-      seeds: [
-        new Uint8Array(Buffer.from('smart_account')),
-        bs58.decode(smartAccountSettings),
-        new Uint8Array(Buffer.from('transaction_buffer')),
-        bs58.decode(signer.address.toString()),
-        new Uint8Array([idx & 0xff]),
-      ],
-    });
-    return pda;
-  }
   let chosenBufferIndex = bufferIndex & 0xff;
-  let transactionBufferPda = await deriveBufferPda(chosenBufferIndex);
+  let transactionBufferPda = await deriveBufferPda(smartAccountSettings, signer.address, chosenBufferIndex);
   // Probe and find a free buffer index if current exists.
   for (let attempts = 0; attempts < 256; attempts++) {
     const info = await rpc.getAccountInfo(transactionBufferPda, { commitment: 'processed' as any }).send();
     if (!info.value) break; // free
     chosenBufferIndex = (chosenBufferIndex + 1) & 0xff;
-    transactionBufferPda = await deriveBufferPda(chosenBufferIndex);
+    transactionBufferPda = await deriveBufferPda(smartAccountSettings, signer.address, chosenBufferIndex);
   }
 
   // 1) create_transaction_buffer with first slice
@@ -219,8 +284,8 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
       accountIndex,
       accountBump: smartAccountPdaBump,
       ephemeralSigners: 0,
-      transactionMessage: new Uint8Array([0, 0, 0, 0, 0, 0]),
-      memo,
+      transactionMessage: new Uint8Array(finalBufferSize),
+      memo: undefined,
     },
   });
 
@@ -239,18 +304,31 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     signer,
     proposal: proposalPda,
     systemProgram: address('11111111111111111111111111111111'),
-    args: { memo: null },
+    args: { memo: undefined },
   });
 
+  // Split into two transactions if createFromBufferIx is too large
+  // First: createFromBuffer only
   const createFromBufferMsg = pipe(
     createTransactionMessage({ version: 0 }),
     tx => setTransactionMessageFeePayerSigner(feePayerSigner, tx),
     tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
-    tx => appendTransactionMessageInstructions([createFromBufferIx, createProposalIx, approveIx], tx)
+    tx => appendTransactionMessageInstructions([createFromBufferIx], tx)
   );
   const compiledCreateFromBuffer = compileTransaction(createFromBufferMsg);
   assertIsTransactionWithinSizeLimit(compiledCreateFromBuffer);
   const createFromBufferTx = new Uint8Array(compiledCreateFromBuffer.messageBytes);
+  
+  // Second: createProposal + approve
+  const proposeAndApproveMsg = pipe(
+    createTransactionMessage({ version: 0 }),
+    tx => setTransactionMessageFeePayerSigner(feePayerSigner, tx),
+    tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+    tx => appendTransactionMessageInstructions([createProposalIx, approveIx], tx)
+  );
+  const compiledProposeAndApprove = compileTransaction(proposeAndApproveMsg);
+  assertIsTransactionWithinSizeLimit(compiledProposeAndApprove);
+  const proposeAndApproveTx = new Uint8Array(compiledProposeAndApprove.messageBytes);
 
   // 4) execute + close buffer in same tx, compress outer with ALTs
   const executeIx = getExecuteTransactionInstruction({
@@ -259,54 +337,132 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     transaction: transactionPda,
     signer,
   });
-  const closeBufferIx = getCloseTransactionBufferInstruction({
-    settings: smartAccountSettings,
-    transactionBuffer: transactionBufferPda,
-    creator: signer,
-  });
-  let executeMsg = pipe(
-    createTransactionMessage({ version: 0 }),
-    tx => setTransactionMessageFeePayerSigner(feePayerSigner, tx),
-    tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
-    tx => appendTransactionMessageInstructions([executeIx, closeBufferIx], tx)
-  );
-  if (addressTableLookups.length > 0) {
-    const addressesByLookupTableAddress: Record<string, Address[]> = {};
-    for (const lookup of addressTableLookups) {
-      const info = await rpc
-        .getAccountInfo(lookup.accountKey, { encoding: 'base64', commitment: 'finalized' })
-        .send();
-      if (!info.value?.data) continue;
-      const b64 = Array.isArray(info.value.data) ? info.value.data[0] : (info.value.data as string);
-      const dataBuf = Buffer.from(b64, 'base64');
-      const data = new Uint8Array(dataBuf.buffer, dataBuf.byteOffset, dataBuf.byteLength);
-      const HEADER_SIZE = 56;
-      const PUBKEY_SIZE = 32;
-      const total = Math.floor((data.length - HEADER_SIZE) / PUBKEY_SIZE);
-      const addrs: Address[] = [];
-      for (let i = 0; i < total; i++) {
-        const off = HEADER_SIZE + i * PUBKEY_SIZE;
-        const keyBytes = data.subarray(off, off + PUBKEY_SIZE);
-        addrs.push(address(bs58.encode(keyBytes)));
-      }
-      addressesByLookupTableAddress[lookup.accountKey.toString()] = addrs;
+  // Note: We don't need to close the buffer - CreateTransactionFromBuffer already does that
+  // with `close = from_buffer_creator` in the Rust code
+  
+  // Build remaining accounts for execute instruction (match complexTransaction.ts)
+  {
+    const explicitParamsCount = 4; // settings, proposal, transaction, signer
+    const explicitParams = executeIx.accounts.slice(0, explicitParamsCount);
+    const resultAccounts: { address: Address; role: AccountRole }[] = [];
+
+    // 1) ALT table accounts first (readonly), in the order of address_table_lookups
+    // Use the addressTableLookups from params (the inner Jupiter transaction), not from compiled (outer wrapper)
+    const execLookups = ((addressTableLookups || []) as any[]).filter((l: any) => l && l.accountKey);
+    for (const lookup of execLookups) {
+      resultAccounts.push({ address: toAddress(lookup.accountKey), role: AccountRole.READONLY });
     }
-    executeMsg = compressTransactionMessageUsingAddressLookupTables(
-      executeMsg as any,
-      addressesByLookupTableAddress as any
-    ) as any;
+
+    // 2) Static accounts with correct roles
+    const totalStatic = safeStaticAccounts.length;
+    const numSignersInner = numSignerAccounts;
+    const numWritableSignersInner = Math.max(0, numSignersInner - numReadonlySignerAccounts);
+    const numWritableNonSignersInner = Math.max(
+      0,
+      totalStatic - numSignersInner - numReadonlyNonSignerAccounts
+    );
+    safeStaticAccounts.forEach((addrKey: any, idx: number) => {
+      let role = AccountRole.READONLY;
+      if (idx < numSignersInner) {
+        role = idx < numWritableSignersInner ? AccountRole.WRITABLE : AccountRole.READONLY;
+      } else {
+        const j = idx - numSignersInner;
+        role = j < numWritableNonSignersInner ? AccountRole.WRITABLE : AccountRole.READONLY;
+      }
+      resultAccounts.push({ address: toAddress(addrKey), role });
+    });
+
+    // 3) ALT-resolved: writable then readonly for each table (in order)
+    if (execLookups.length > 0) {
+      for (const lookup of execLookups) {
+        const info = await rpc
+          .getAccountInfo(toAddress(lookup.accountKey), { encoding: 'base64', commitment: 'finalized' })
+          .send();
+        if (!info.value?.data) continue;
+        const b64 = Array.isArray(info.value.data) ? info.value.data[0] : (info.value.data as string);
+        const dataBuf = Buffer.from(b64, 'base64');
+        const data = new Uint8Array(dataBuf.buffer, dataBuf.byteOffset, dataBuf.byteLength);
+        const HEADER_SIZE = 56;
+        const PUBKEY_SIZE = 32;
+        const total = Math.floor((data.length - HEADER_SIZE) / PUBKEY_SIZE);
+        const getAddr = (i: number): Address | null => {
+          if (i < 0 || i >= total) return null;
+          const off = HEADER_SIZE + i * PUBKEY_SIZE;
+          const keyBytes = data.subarray(off, off + PUBKEY_SIZE);
+          return address(bs58.encode(keyBytes));
+        };
+        const writableIdxs: number[] = Array.from(lookup.writableIndexes ?? []);
+        const readonlyIdxs: number[] = Array.from(lookup.readonlyIndexes ?? []);
+        for (const wi of writableIdxs) {
+          const a = getAddr(wi);
+          if (a) resultAccounts.push({ address: a, role: AccountRole.WRITABLE });
+        }
+        for (const ri of readonlyIdxs) {
+          const a = getAddr(ri);
+          if (a) resultAccounts.push({ address: a, role: AccountRole.READONLY });
+        }
+      }
+    }
+
+    // Rebuild execute instruction with remaining accounts
+    const executeIxWithAccounts = {
+      ...executeIx,
+      accounts: [...explicitParams, ...resultAccounts] as any,
+    } as any;
+
+    // Build message with updated execute instruction
+    // NOTE: We set fee payer and blockhash here for compilation, but caller should refresh before signing
+    // IMPORTANT: We MUST compress with ALTs to keep under the 1232 byte limit
+    let executeMsgLocal = pipe(
+      createTransactionMessage({ version: 0 }),
+      tx => setTransactionMessageFeePayerSigner(feePayerSigner, tx),
+      tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+      tx => appendTransactionMessageInstructions([executeIxWithAccounts], tx)
+    );
+    
+    // Compress with ALTs if they exist
+    if (execLookups.length > 0) {
+      const addressesByLookupTableAddress: Record<string, Address[]> = {};
+      for (const lookup of execLookups) {
+        const info = await rpc
+          .getAccountInfo(toAddress(lookup.accountKey), { encoding: 'base64', commitment: 'finalized' })
+          .send();
+        if (!info.value?.data) continue;
+        const b64 = Array.isArray(info.value.data) ? info.value.data[0] : (info.value.data as string);
+        const dataBuf = Buffer.from(b64, 'base64');
+        const data = new Uint8Array(dataBuf.buffer, dataBuf.byteOffset, dataBuf.byteLength);
+        const HEADER_SIZE = 56;
+        const PUBKEY_SIZE = 32;
+        const total = Math.floor((data.length - HEADER_SIZE) / PUBKEY_SIZE);
+        const addrs: Address[] = [];
+        for (let i = 0; i < total; i++) {
+          const off = HEADER_SIZE + i * PUBKEY_SIZE;
+          const keyBytes = data.subarray(off, off + PUBKEY_SIZE);
+          addrs.push(address(bs58.encode(keyBytes)));
+        }
+        addressesByLookupTableAddress[lookup.accountKey.toString()] = addrs;
+      }
+      executeMsgLocal = compressTransactionMessageUsingAddressLookupTables(
+        executeMsgLocal as any,
+        addressesByLookupTableAddress as any
+      ) as any;
+    }
+    
+    const compiledExecuteLocal = compileTransaction(executeMsgLocal);
+    assertIsTransactionWithinSizeLimit(compiledExecuteLocal);
+    const executeTxLocal = new Uint8Array(compiledExecuteLocal.messageBytes);
+
+    // Replace previous executeTx with local one including remaining accounts
+    return {
+      createBufferTx: [createBufferTx, ...extendTxs],
+      createFromBufferTx,
+      proposeAndApproveTx,
+      executeTx: executeTxLocal,
+      transactionPda,
+      proposalPda,
+      transactionBufferPda,
+      bufferIndex: chosenBufferIndex,
+      finalBufferSize,
+    };
   }
-  const compiledExecute = compileTransaction(executeMsg);
-  assertIsTransactionWithinSizeLimit(compiledExecute);
-  const executeTx = new Uint8Array(compiledExecute.messageBytes);
-
-  return {
-    createBufferTx: [createBufferTx, ...extendTxs],
-    createFromBufferTx,
-    executeTx,
-    transactionPda,
-    proposalPda,
-  };
 }
-
-
