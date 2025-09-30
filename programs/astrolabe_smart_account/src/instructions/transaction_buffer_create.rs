@@ -54,26 +54,39 @@ pub struct CreateTransactionBuffer<'info> {
 
 impl CreateTransactionBuffer<'_> {
     fn validate(&self, args: &CreateTransactionBufferArgs) -> Result<()> {
+        msg!("🔍 DEBUG: CreateTransactionBuffer validation started");
+        
         let Self {
             settings, buffer_creator, ..
         } = self;
 
+        msg!("🔍 DEBUG: buffer_creator={}", buffer_creator.key());
+        msg!("🔍 DEBUG: settings.signers.len()={}", settings.signers.len());
+        
         // buffer_creator is a signer on the smart account
+        let is_signer = settings.is_signer(buffer_creator.key());
+        msg!("🔍 DEBUG: is_signer={:?}", is_signer);
         require!(
-            settings.is_signer(buffer_creator.key()).is_some(),
+            is_signer.is_some(),
             SmartAccountError::NotASigner
         );
+        
         // buffer_creator has initiate permissions
+        let has_permission = settings.signer_has_permission(buffer_creator.key(), Permission::Initiate);
+        msg!("🔍 DEBUG: has_initiate_permission={}", has_permission);
         require!(
-            settings.signer_has_permission(buffer_creator.key(), Permission::Initiate),
+            has_permission,
             SmartAccountError::Unauthorized
         );
 
         // Final Buffer Size must not exceed 4000 bytes
+        msg!("🔍 DEBUG: final_buffer_size={}, MAX_BUFFER_SIZE={}", args.final_buffer_size, MAX_BUFFER_SIZE);
         require!(
             args.final_buffer_size as usize <= MAX_BUFFER_SIZE,
             SmartAccountError::FinalBufferSizeExceeded
         );
+        
+        msg!("🔍 DEBUG: CreateTransactionBuffer validation completed successfully");
         Ok(())
     }
 
@@ -83,6 +96,10 @@ impl CreateTransactionBuffer<'_> {
         ctx: Context<Self>,
         args: CreateTransactionBufferArgs,
     ) -> Result<()> {
+        msg!("🔍 DEBUG: CreateTransactionBuffer ENTRY - validation passed");
+        msg!("🔍 DEBUG: buffer_index={}, account_index={}, final_buffer_size={}", 
+             args.buffer_index, args.account_index, args.final_buffer_size);
+        msg!("🔍 DEBUG: buffer.len()={}", args.buffer.len());
 
         
 
@@ -97,8 +114,8 @@ impl CreateTransactionBuffer<'_> {
         // Initialize the transaction fields.
         transaction_buffer.settings = settings.key();
         transaction_buffer.creator = buffer_creator.key();
-        transaction_buffer.account_index = args.account_index;
         transaction_buffer.buffer_index = buffer_index;
+        transaction_buffer.account_index = args.account_index;
         transaction_buffer.final_buffer_hash = args.final_buffer_hash;
         transaction_buffer.final_buffer_size = args.final_buffer_size;
         transaction_buffer.buffer = args.buffer;
