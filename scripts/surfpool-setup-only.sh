@@ -83,6 +83,20 @@ if curl -s -f "$VALIDATOR_RPC_URL" -H "Content-Type: application/json" \
             log "Wallet balance sufficient"
         fi
         
+        # Also check and run configuration if needed
+        log "Checking program configuration..."
+        config_output=$(npx ts-node "$CONFIG_SCRIPT" 2>&1)
+        config_exit_code=$?
+
+        if [ $config_exit_code -eq 0 ]; then
+            log "Configuration completed successfully"
+        elif echo "$config_output" | grep -q "already in use\|already initialized"; then
+            log "Configuration already exists (skipping)"
+        else
+            log "WARNING: Configuration script had issues but continuing"
+            log "Configuration output: $config_output"
+        fi
+        
         log "Setup verification complete - all requirements met"
         exit 0
     fi
