@@ -14,6 +14,7 @@ import {
   lamports,
   address,
   getProgramDerivedAddress,
+  assertIsSendableTransaction,
 } from '@solana/kit';
 import fs from 'fs';
 import {
@@ -119,6 +120,7 @@ async function main() {
     ], tx)
   );
   const signedTransaction = await signTransactionMessageWithSigners(transactionMessage);
+  assertIsSendableTransaction(signedTransaction);
   
   const sendAndConfirm = sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions });
   const signature = await sendAndConfirm(signedTransaction, { commitment: 'confirmed' });

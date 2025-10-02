@@ -14,7 +14,7 @@ import {
   createNoopSigner,
   sendAndConfirmTransactionFactory,
   signTransactionMessageWithSigners,
-  assertIsTransactionWithinSizeLimit,
+  assertIsSendableTransaction,
   getProgramDerivedAddress,
   lamports,
 } from '@solana/kit';
@@ -236,7 +236,7 @@ async function testCorrectBufferedTransaction() {
     );
 
     const signedCreateBuffer = await signTransactionMessageWithSigners(createBufferMsg);
-    assertIsTransactionWithinSizeLimit(signedCreateBuffer);
+    assertIsSendableTransaction(signedCreateBuffer);
 
     // 🔍 DEBUG: Add comprehensive error handling for buffer creation
     try {
@@ -304,7 +304,7 @@ async function testCorrectBufferedTransaction() {
     );
 
     const signedCreateFromBuffer = await signTransactionMessageWithSigners(createFromBufferMsg);
-    assertIsTransactionWithinSizeLimit(signedCreateFromBuffer);
+    assertIsSendableTransaction(signedCreateFromBuffer);
 
     const createFromBufferSignature = await sendAndConfirm(signedCreateFromBuffer, { commitment: 'confirmed' });
     console.log('✅ Transaction created from buffer:', createFromBufferSignature);
@@ -378,6 +378,7 @@ async function testCorrectBufferedTransaction() {
     );
 
     const signedExecute = await signTransactionMessageWithSigners(executeMsg);
+    assertIsSendableTransaction(signedExecute);
     const executeSignature = await sendAndConfirm(signedExecute, { commitment: 'confirmed' });
     
     console.log('🎉 TRANSACTION EXECUTED SUCCESSFULLY!');
