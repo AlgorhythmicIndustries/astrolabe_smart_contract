@@ -11,6 +11,7 @@ import {
   appendTransactionMessageInstructions,
   signTransactionMessageWithSigners,
   sendAndConfirmTransactionFactory,
+  assertIsSendableTransaction,
   lamports,
   address,
   getProgramDerivedAddress,
@@ -119,7 +120,7 @@ async function main() {
     ], tx)
   );
   const signedTransaction = await signTransactionMessageWithSigners(transactionMessage);
-  
+  assertIsSendableTransaction(signedTransaction);
   
   // --- Start Debugging ---
   /*
