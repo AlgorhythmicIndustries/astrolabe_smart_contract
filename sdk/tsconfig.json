@@ -14,15 +14,12 @@
       "allowSyntheticDefaultImports": true,
       "isolatedModules": true
     },
-    "include": [
-      "index.ts",
-      "createSmartAccount.ts",
-      "simpleTransaction.ts", 
-      "complexTransaction.ts",
-      "complexBufferedTransaction.ts",
-      "utils/**/*.ts",
-      "clients/**/*.ts"
-    ],
+  "include": [
+    "*.ts",
+    "utils/**/*.ts",
+    "clients/**/*.ts",
+    "types/**/*.ts"
+  ],
     "exclude": [
       "node_modules",
       "dist",
