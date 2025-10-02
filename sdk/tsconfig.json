@@ -2,18 +2,24 @@
     "compilerOptions": {
       "target": "ES2022",
       "lib": ["ES2022", "DOM"],
-      "module": "commonjs",
+      "module": "ESNext",
+      "moduleResolution": "bundler",
       "strict": false,
       "esModuleInterop": true,
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
-      "noEmit": true
+      "noEmit": true,
+      "declaration": false,
+      "allowImportingTsExtensions": true
     },
     "include": [
       "**/*.ts"
     ],
     "exclude": [
       "node_modules",
-      "dist"
+      "dist",
+      "examples/executeTransferTest.ts",
+      "scripts/clean-buffers.ts",
+      "tests/**/*.ts"
     ]
   }
