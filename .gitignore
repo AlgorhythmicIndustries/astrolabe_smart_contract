@@ -15,6 +15,5 @@ lib
 runbooks/
 txtx.yml
 .surfpool
-sdk/dist
 sdk/clients/js/src/generated/**/*.js
 sdk/clients/rust/src/generated
