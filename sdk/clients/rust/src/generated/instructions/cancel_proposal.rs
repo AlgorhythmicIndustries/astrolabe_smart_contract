@@ -11,6 +11,8 @@ use borsh::BorshSerialize;
 
 pub const CANCEL_PROPOSAL_DISCRIMINATOR: [u8; 8] = [106, 74, 128, 146, 19, 65, 39, 23];
 
+pub const CANCEL_PROPOSAL_DISCRIMINATOR: [u8; 8] = [106, 74, 128, 146, 19, 65, 39, 23];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct CancelProposal {

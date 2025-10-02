@@ -12,6 +12,8 @@ use solana_pubkey::Pubkey;
 pub const SET_ARCHIVAL_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] =
     [178, 199, 4, 13, 237, 234, 152, 202];
 
+pub const SET_ARCHIVAL_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [178, 199, 4, 13, 237, 234, 152, 202];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct SetArchivalAuthorityAsAuthority {

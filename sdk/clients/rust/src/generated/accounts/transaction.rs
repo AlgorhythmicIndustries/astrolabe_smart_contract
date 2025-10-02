@@ -55,6 +55,8 @@ pub struct Transaction {
 
 pub const TRANSACTION_DISCRIMINATOR: [u8; 8] = [11, 24, 174, 129, 203, 117, 242, 23];
 
+pub const TRANSACTION_DISCRIMINATOR: [u8; 8] = [11, 24, 174, 129, 203, 117, 242, 23];
+
 impl Transaction {
     #[inline(always)]
     pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {

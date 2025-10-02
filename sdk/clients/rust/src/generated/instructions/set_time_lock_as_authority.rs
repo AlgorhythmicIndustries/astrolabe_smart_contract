@@ -10,6 +10,8 @@ use borsh::BorshSerialize;
 
 pub const SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [2, 234, 93, 93, 40, 92, 31, 234];
 
+pub const SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [2, 234, 93, 93, 40, 92, 31, 234];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct SetTimeLockAsAuthority {

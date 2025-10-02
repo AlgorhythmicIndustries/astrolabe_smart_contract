@@ -11,6 +11,8 @@ use solana_pubkey::Pubkey;
 
 pub const INITIALIZE_PROGRAM_CONFIG_DISCRIMINATOR: [u8; 8] = [6, 131, 61, 237, 40, 110, 83, 124];
 
+pub const INITIALIZE_PROGRAM_CONFIG_DISCRIMINATOR: [u8; 8] = [6, 131, 61, 237, 40, 110, 83, 124];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct InitializeProgramConfig {

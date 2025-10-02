@@ -42,6 +42,8 @@ pub struct SettingsTransaction {
 
 pub const SETTINGS_TRANSACTION_DISCRIMINATOR: [u8; 8] = [199, 151, 72, 87, 77, 124, 16, 0];
 
+pub const SETTINGS_TRANSACTION_DISCRIMINATOR: [u8; 8] = [199, 151, 72, 87, 77, 124, 16, 0];
+
 impl SettingsTransaction {
     #[inline(always)]
     pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {

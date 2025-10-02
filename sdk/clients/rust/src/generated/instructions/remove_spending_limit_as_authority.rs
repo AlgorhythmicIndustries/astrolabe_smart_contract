@@ -11,6 +11,8 @@ use borsh::BorshSerialize;
 pub const REMOVE_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] =
     [94, 32, 68, 127, 251, 44, 145, 7];
 
+pub const REMOVE_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [94, 32, 68, 127, 251, 44, 145, 7];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct RemoveSpendingLimitAsAuthority {

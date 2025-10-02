@@ -27,7 +27,7 @@ import {
   import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from './clients/js/src/generated/programs';
   import { getSmartAccountTransactionMessageEncoder } from './clients/js/src/generated/types/smartAccountTransactionMessage';
   import * as bs58 from 'bs58';
-  import { deriveSmartAccountInfo, deriveProposalPda, deriveTransactionPda, fetchSmartAccountSettings, decodeTransactionMessage } from './utils/index';
+  import { deriveSmartAccountInfo, deriveProposalPda, deriveTransactionPda, fetchSmartAccountSettings } from './utils/index';
   
   type SolanaRpc = ReturnType<typeof createSolanaRpc>;
 
@@ -192,7 +192,7 @@ import {
     console.log('🔍 messageBytes type:', typeof compiledInnerMessage.messageBytes);
     console.log('🔍 messageBytes length:', compiledInnerMessage.messageBytes ? compiledInnerMessage.messageBytes.length : 'undefined');
     
-    const decodedMessage = decodeTransactionMessage(compiledInnerMessage.messageBytes);
+    const decodedMessage = getCompiledTransactionMessageDecoder().decode(compiledInnerMessage.messageBytes);
     console.log('✅ Message decoded successfully');
     
     console.log('✅ Inner transaction compiled:', {
@@ -215,7 +215,24 @@ import {
       })),
       addressTableLookups: [],
     };
-  
+
+    // 🔍 DETAILED DEBUG LOGGING FOR COMPARISON
+    console.log('📊 DETAILED SmartAccountMessage structure:');
+    console.log('  numSigners:', smartAccountMessage.numSigners);
+    console.log('  numWritableSigners:', smartAccountMessage.numWritableSigners);
+    console.log('  numWritableNonSigners:', smartAccountMessage.numWritableNonSigners);
+    console.log('  accountKeys.length:', smartAccountMessage.accountKeys.length);
+    console.log('  accountKeys:', smartAccountMessage.accountKeys.map(key => key.toString()));
+    console.log('  instructions.length:', smartAccountMessage.instructions.length);
+    smartAccountMessage.instructions.forEach((ix, i) => {
+      console.log(`  instruction[${i}]:`, {
+        programIdIndex: ix.programIdIndex,
+        accountIndexes: Array.from(ix.accountIndexes),
+        data: Array.from(ix.data)
+      });
+    });
+    console.log('  addressTableLookups.length:', smartAccountMessage.addressTableLookups.length);
+
     const transactionMessageBytes = getSmartAccountTransactionMessageEncoder().encode(smartAccountMessage);
     console.log('✅ Smart account transaction message encoded:', {
       messageSize: transactionMessageBytes.length,
@@ -223,6 +240,10 @@ import {
       numAccounts: smartAccountMessage.accountKeys.length,
       numInstructions: smartAccountMessage.instructions.length
     });
+    
+    // 🔍 LOG THE EXACT BYTES FOR COMPARISON
+    console.log('📊 Encoded bytes (first 50):', Array.from(transactionMessageBytes.slice(0, 50)));
+    console.log('📊 Encoded hex (first 100 chars):', Array.from(transactionMessageBytes.slice(0, 50)).map(b => b.toString(16).padStart(2, '0')).join(''));
   
     // 5. Create the transaction account instruction
     // IMPORTANT: The accountIndex should match the index used when creating the smart account

@@ -11,6 +11,8 @@ use borsh::BorshSerialize;
 
 pub const REJECT_PROPOSAL_DISCRIMINATOR: [u8; 8] = [114, 162, 164, 82, 191, 11, 102, 25];
 
+pub const REJECT_PROPOSAL_DISCRIMINATOR: [u8; 8] = [114, 162, 164, 82, 191, 11, 102, 25];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct RejectProposal {

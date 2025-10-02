@@ -13,6 +13,8 @@ use solana_pubkey::Pubkey;
 pub const ADD_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] =
     [169, 189, 84, 54, 30, 244, 223, 212];
 
+pub const ADD_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [169, 189, 84, 54, 30, 244, 223, 212];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct AddSpendingLimitAsAuthority {

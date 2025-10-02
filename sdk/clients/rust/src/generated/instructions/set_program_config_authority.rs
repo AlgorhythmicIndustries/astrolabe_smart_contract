@@ -12,6 +12,8 @@ use solana_pubkey::Pubkey;
 pub const SET_PROGRAM_CONFIG_AUTHORITY_DISCRIMINATOR: [u8; 8] =
     [130, 40, 234, 111, 237, 155, 246, 203];
 
+pub const SET_PROGRAM_CONFIG_AUTHORITY_DISCRIMINATOR: [u8; 8] = [130, 40, 234, 111, 237, 155, 246, 203];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct SetProgramConfigAuthority {

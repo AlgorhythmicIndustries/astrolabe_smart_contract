@@ -13,6 +13,8 @@ use solana_pubkey::Pubkey;
 
 pub const CREATE_SMART_ACCOUNT_DISCRIMINATOR: [u8; 8] = [197, 102, 253, 231, 77, 84, 50, 17];
 
+pub const CREATE_SMART_ACCOUNT_DISCRIMINATOR: [u8; 8] = [197, 102, 253, 231, 77, 84, 50, 17];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct CreateSmartAccount {

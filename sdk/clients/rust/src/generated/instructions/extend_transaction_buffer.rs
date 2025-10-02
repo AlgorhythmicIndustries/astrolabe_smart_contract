@@ -10,6 +10,8 @@ use borsh::BorshSerialize;
 
 pub const EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR: [u8; 8] = [190, 86, 246, 95, 231, 154, 229, 91];
 
+pub const EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR: [u8; 8] = [190, 86, 246, 95, 231, 154, 229, 91];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct ExtendTransactionBuffer {

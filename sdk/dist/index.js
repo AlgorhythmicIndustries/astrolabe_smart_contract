@@ -18,3 +18,4 @@ __exportStar(require("./createSmartAccount"), exports);
 __exportStar(require("./simpleTransaction"), exports);
 __exportStar(require("./complexTransaction"), exports);
 __exportStar(require("./complexBufferedTransaction"), exports);
+__exportStar(require("./simpleTransaction"), exports);

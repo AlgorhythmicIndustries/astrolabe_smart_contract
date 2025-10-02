@@ -10,6 +10,8 @@ use borsh::BorshSerialize;
 
 pub const USE_SPENDING_LIMIT_DISCRIMINATOR: [u8; 8] = [41, 179, 70, 5, 194, 147, 239, 158];
 
+pub const USE_SPENDING_LIMIT_DISCRIMINATOR: [u8; 8] = [41, 179, 70, 5, 194, 147, 239, 158];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct UseSpendingLimit {

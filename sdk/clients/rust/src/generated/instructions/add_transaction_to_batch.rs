@@ -10,6 +10,8 @@ use borsh::BorshSerialize;
 
 pub const ADD_TRANSACTION_TO_BATCH_DISCRIMINATOR: [u8; 8] = [147, 75, 197, 227, 20, 149, 150, 113];
 
+pub const ADD_TRANSACTION_TO_BATCH_DISCRIMINATOR: [u8; 8] = [147, 75, 197, 227, 20, 149, 150, 113];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct AddTransactionToBatch {

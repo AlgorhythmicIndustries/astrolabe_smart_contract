@@ -11,6 +11,8 @@ use borsh::BorshSerialize;
 
 pub const ADD_SIGNER_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [80, 198, 228, 154, 7, 234, 99, 56];
 
+pub const ADD_SIGNER_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [80, 198, 228, 154, 7, 234, 99, 56];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct AddSignerAsAuthority {

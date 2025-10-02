@@ -10,6 +10,8 @@ use borsh::BorshSerialize;
 
 pub const CREATE_PROPOSAL_DISCRIMINATOR: [u8; 8] = [132, 116, 68, 174, 216, 160, 198, 22];
 
+pub const CREATE_PROPOSAL_DISCRIMINATOR: [u8; 8] = [132, 116, 68, 174, 216, 160, 198, 22];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct CreateProposal {

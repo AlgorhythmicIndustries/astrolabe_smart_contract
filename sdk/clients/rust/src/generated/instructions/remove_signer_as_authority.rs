@@ -11,6 +11,8 @@ use solana_pubkey::Pubkey;
 
 pub const REMOVE_SIGNER_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [58, 19, 149, 16, 181, 16, 125, 148];
 
+pub const REMOVE_SIGNER_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [58, 19, 149, 16, 181, 16, 125, 148];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct RemoveSignerAsAuthority {

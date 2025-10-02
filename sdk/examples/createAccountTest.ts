@@ -12,14 +12,14 @@ import {
   signTransactionMessageWithSigners,
   sendAndConfirmTransactionFactory,
   getSignatureFromTransaction,
-  getComputeUnitEstimateForTransactionMessageFactory,
   prependTransactionMessageInstructions,
+  assertIsTransactionWithinSizeLimit,
   lamports,
   Address,
   address,
   getProgramDerivedAddress,
 } from '@solana/kit';
-import fs from 'fs';
+import * as fs from 'fs';
 import {
   getCreateSmartAccountInstructionAsync,
 } from '../clients/js/src/generated/instructions';
@@ -30,11 +30,7 @@ import {
   ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
 } from '../clients/js/src/generated/programs';
 import { Buffer } from 'buffer';
-import {
-  getSetComputeUnitLimitInstruction,
-  getSetComputeUnitPriceInstruction,
-} from '@solana-program/compute-budget';
-import bs58 from 'bs58';
+import * as bs58 from 'bs58';
 
 
 async function main() {
@@ -53,7 +49,7 @@ async function main() {
   await airdrop({
     commitment: 'confirmed',
     recipientAddress: creatorSigner.address,
-    lamports: lamports(10_000_000n)
+    lamports: lamports(BigInt(10_000_000))
   });
 
   // Fetch program config PDA and treasury from on-chain (assume already initialized)
@@ -78,7 +74,7 @@ async function main() {
   const settingsSeedLE = new Uint8Array(16); // u128 is 16 bytes
   const view = new DataView(settingsSeedLE.buffer);
   view.setBigUint64(0, BigInt(nextIndex), true); // low 64 bits
-  view.setBigUint64(8, 0n, true); // high 64 bits
+  view.setBigUint64(8, BigInt(0), true); // high 64 bits
 
 
   // 2. Derive the settings PDA
@@ -100,7 +96,7 @@ async function main() {
       new Uint8Array(Buffer.from('smart_account')),
       bs58.decode(brandedSettingsPda),
       new Uint8Array(Buffer.from('smart_account')),
-      new Uint8Array([1, 0, 0, 0, 0, 0, 0, 0]), // account_index as u64 LE
+      new Uint8Array([0]), // account_index as u8
     ],
   });
   console.log('Smart Account Wallet PDA:', smartAccountWalletPda);
@@ -122,32 +118,19 @@ async function main() {
     memo: null,
   });
 
-  // 5. Build the transaction message without compute budget instructions
+  // 5. Build the transaction message
   const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
-  const baseTransactionMessage = pipe(
+  const finalTransactionMessage = pipe(
     createTransactionMessage({ version: 0 }),
     (tx) => setTransactionMessageFeePayerSigner(creatorSigner, tx),
     (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
     (tx) => appendTransactionMessageInstructions([createSmartAccountInstruction], tx)
   );
 
-  // 6. Estimate compute units
-  const getComputeUnitEstimate = getComputeUnitEstimateForTransactionMessageFactory({ rpc });
-  const estimatedComputeUnits = await getComputeUnitEstimate(baseTransactionMessage);
-  const computeUnitLimit = Math.floor(estimatedComputeUnits * 1.2); // Add 20% buffer
-  console.log(`Estimated compute units: ${estimatedComputeUnits}, setting limit to ${computeUnitLimit}`);
-
-
-  // 7. Build the final transaction with compute budget instructions
-  const finalTransactionMessage = prependTransactionMessageInstructions(
-    [
-        getSetComputeUnitPriceInstruction({ microLamports: 10000n }),
-        getSetComputeUnitLimitInstruction({ units: computeUnitLimit }),
-    ],
-    baseTransactionMessage
-  );
-
   const signedCreateTransaction = await signTransactionMessageWithSigners(finalTransactionMessage);
+
+  // Validate the transaction
+  assertIsTransactionWithinSizeLimit(signedCreateTransaction);
 
   const signature = getSignatureFromTransaction(signedCreateTransaction);
   console.log('--- Inspecting Signatures ---');
