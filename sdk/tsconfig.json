@@ -2,24 +2,32 @@
     "compilerOptions": {
       "target": "ES2022",
       "lib": ["ES2022", "DOM"],
-      "module": "ESNext",
-      "moduleResolution": "bundler",
+      "module": "CommonJS",
+      "moduleResolution": "node",
       "strict": false,
       "esModuleInterop": true,
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
-      "noEmit": true,
-      "declaration": false,
-      "allowImportingTsExtensions": true
+      "noEmit": false,
+      "outDir": "./dist",
+      "declaration": true,
+      "allowSyntheticDefaultImports": true,
+      "isolatedModules": true
     },
     "include": [
-      "**/*.ts"
+      "index.ts",
+      "createSmartAccount.ts",
+      "simpleTransaction.ts", 
+      "complexTransaction.ts",
+      "complexBufferedTransaction.ts",
+      "utils/**/*.ts",
+      "clients/**/*.ts"
     ],
     "exclude": [
       "node_modules",
       "dist",
-      "examples/executeTransferTest.ts",
-      "scripts/clean-buffers.ts",
+      "examples/**/*.ts",
+      "scripts/**/*.ts",
       "tests/**/*.ts"
     ]
   }

@@ -11,7 +11,7 @@
     ],
     "workspaces": [],
     "scripts": {
-        "build": "tsc --noEmit",
+        "build": "rm -rf dist && tsc",
         "typecheck": "tsc --noEmit",
         "postinstall": "echo 'SDK installed successfully'",
         "test": "npx tsx tests/run-tests.ts",
