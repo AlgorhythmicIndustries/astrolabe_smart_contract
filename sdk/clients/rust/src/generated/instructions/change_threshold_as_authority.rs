@@ -11,6 +11,8 @@ use borsh::BorshSerialize;
 pub const CHANGE_THRESHOLD_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] =
     [51, 141, 78, 133, 70, 47, 95, 124];
 
+pub const CHANGE_THRESHOLD_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [51, 141, 78, 133, 70, 47, 95, 124];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct ChangeThresholdAsAuthority {

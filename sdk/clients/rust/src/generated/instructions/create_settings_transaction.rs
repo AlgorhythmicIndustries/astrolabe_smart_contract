@@ -12,6 +12,8 @@ use borsh::BorshSerialize;
 pub const CREATE_SETTINGS_TRANSACTION_DISCRIMINATOR: [u8; 8] =
     [101, 168, 254, 203, 222, 102, 95, 192];
 
+pub const CREATE_SETTINGS_TRANSACTION_DISCRIMINATOR: [u8; 8] = [101, 168, 254, 203, 222, 102, 95, 192];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct CreateSettingsTransaction {

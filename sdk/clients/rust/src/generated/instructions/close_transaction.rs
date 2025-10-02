@@ -10,6 +10,8 @@ use borsh::BorshSerialize;
 
 pub const CLOSE_TRANSACTION_DISCRIMINATOR: [u8; 8] = [97, 46, 152, 170, 42, 215, 192, 218];
 
+pub const CLOSE_TRANSACTION_DISCRIMINATOR: [u8; 8] = [97, 46, 152, 170, 42, 215, 192, 218];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct CloseTransaction {

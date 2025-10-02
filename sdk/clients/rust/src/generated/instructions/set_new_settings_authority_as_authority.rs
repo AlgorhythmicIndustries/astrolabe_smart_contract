@@ -12,6 +12,8 @@ use solana_pubkey::Pubkey;
 pub const SET_NEW_SETTINGS_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] =
     [221, 112, 133, 229, 146, 58, 90, 56];
 
+pub const SET_NEW_SETTINGS_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [221, 112, 133, 229, 146, 58, 90, 56];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct SetNewSettingsAuthorityAsAuthority {

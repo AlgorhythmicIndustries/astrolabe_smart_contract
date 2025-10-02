@@ -11,6 +11,8 @@ use borsh::BorshSerialize;
 pub const SET_PROGRAM_CONFIG_SMART_ACCOUNT_CREATION_FEE_DISCRIMINATOR: [u8; 8] =
     [222, 30, 134, 176, 131, 113, 195, 202];
 
+pub const SET_PROGRAM_CONFIG_SMART_ACCOUNT_CREATION_FEE_DISCRIMINATOR: [u8; 8] = [222, 30, 134, 176, 131, 113, 195, 202];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct SetProgramConfigSmartAccountCreationFee {

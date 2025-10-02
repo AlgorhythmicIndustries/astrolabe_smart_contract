@@ -12,6 +12,8 @@ use borsh::BorshSerialize;
 pub const CREATE_TRANSACTION_FROM_BUFFER_DISCRIMINATOR: [u8; 8] =
     [53, 192, 39, 239, 124, 84, 43, 249];
 
+pub const CREATE_TRANSACTION_FROM_BUFFER_DISCRIMINATOR: [u8; 8] = [53, 192, 39, 239, 124, 84, 43, 249];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct CreateTransactionFromBuffer {

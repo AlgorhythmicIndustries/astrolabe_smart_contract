@@ -10,6 +10,8 @@ use borsh::BorshSerialize;
 
 pub const CREATE_BATCH_DISCRIMINATOR: [u8; 8] = [159, 198, 248, 43, 248, 31, 235, 86];
 
+pub const CREATE_BATCH_DISCRIMINATOR: [u8; 8] = [159, 198, 248, 43, 248, 31, 235, 86];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct CreateBatch {

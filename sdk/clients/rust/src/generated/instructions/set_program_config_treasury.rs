@@ -12,6 +12,8 @@ use solana_pubkey::Pubkey;
 pub const SET_PROGRAM_CONFIG_TREASURY_DISCRIMINATOR: [u8; 8] =
     [244, 119, 192, 190, 182, 101, 227, 189];
 
+pub const SET_PROGRAM_CONFIG_TREASURY_DISCRIMINATOR: [u8; 8] = [244, 119, 192, 190, 182, 101, 227, 189];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct SetProgramConfigTreasury {

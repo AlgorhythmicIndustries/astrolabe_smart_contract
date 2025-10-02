@@ -37,6 +37,8 @@ pub struct ProgramConfig {
 
 pub const PROGRAM_CONFIG_DISCRIMINATOR: [u8; 8] = [196, 210, 90, 231, 144, 149, 140, 63];
 
+pub const PROGRAM_CONFIG_DISCRIMINATOR: [u8; 8] = [196, 210, 90, 231, 144, 149, 140, 63];
+
 impl ProgramConfig {
     pub const LEN: usize = 160;
 

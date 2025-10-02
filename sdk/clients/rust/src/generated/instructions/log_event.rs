@@ -10,6 +10,8 @@ use borsh::BorshSerialize;
 
 pub const LOG_EVENT_DISCRIMINATOR: [u8; 8] = [5, 9, 90, 141, 223, 134, 57, 217];
 
+pub const LOG_EVENT_DISCRIMINATOR: [u8; 8] = [5, 9, 90, 141, 223, 134, 57, 217];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct LogEvent {

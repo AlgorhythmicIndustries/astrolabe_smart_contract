@@ -10,6 +10,8 @@ use borsh::BorshSerialize;
 
 pub const EXECUTE_TRANSACTION_SYNC_DISCRIMINATOR: [u8; 8] = [43, 102, 248, 89, 231, 97, 104, 134];
 
+pub const EXECUTE_TRANSACTION_SYNC_DISCRIMINATOR: [u8; 8] = [43, 102, 248, 89, 231, 97, 104, 134];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct ExecuteTransactionSync {

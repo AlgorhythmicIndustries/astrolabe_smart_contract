@@ -10,6 +10,8 @@ use borsh::BorshSerialize;
 
 pub const CLOSE_BATCH_DISCRIMINATOR: [u8; 8] = [166, 174, 35, 253, 209, 211, 181, 28];
 
+pub const CLOSE_BATCH_DISCRIMINATOR: [u8; 8] = [166, 174, 35, 253, 209, 211, 181, 28];
+
 /// Accounts.
 #[derive(Debug)]
 pub struct CloseBatch {
