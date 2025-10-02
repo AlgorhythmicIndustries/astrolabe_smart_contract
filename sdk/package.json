@@ -5,7 +5,11 @@
     "types": "dist/index.d.ts",
     "files": [
         "dist",
-        "tsconfig.json"
+        "tsconfig.json",
+        "*.ts",
+        "utils/**/*.ts",
+        "clients/**/*.ts",
+        "types/**/*.ts"
     ],
     "workspaces": [],
     "scripts": {
