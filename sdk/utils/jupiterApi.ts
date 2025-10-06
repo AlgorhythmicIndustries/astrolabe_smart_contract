@@ -78,6 +78,7 @@ export async function getSwapTransaction(
         wrapAndUnwrapSol,
         dynamicComputeUnitLimit,
         prioritizationFeeLamports,
+        asLegacyTransaction: false, // CRITICAL: Must match quote parameter for versioned transactions
       }),
     });
 

@@ -131,16 +131,22 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
   const modifiedInstructions = safeInstructions.map((ix: any) => {
     if (ix.programAddressIndex === computeBudgetProgramIndex && ix.data && ix.data[0] === 2) {
       hasComputeUnitLimit = true;
-      // SetComputeUnitLimit instruction found - increase it to 600K
+      // SetComputeUnitLimit instruction found - read Jupiter's calculated limit and add smart account overhead
       // Format: [2, u32 units (little endian)]
-      const newLimit = 400_000;
+      const jupiterLimit = ix.data[1] | (ix.data[2] << 8) | (ix.data[3] << 16) | (ix.data[4] << 24);
+      
+      // Add smart account overhead (ExecuteTransaction instruction + account validations)
+      // Typical overhead: ~80,000-100,000 compute units
+      const SMART_ACCOUNT_OVERHEAD = 100_000;
+      const newLimit = Math.min(jupiterLimit + SMART_ACCOUNT_OVERHEAD, 1_400_000); // Cap at 1.4M (Solana max)
+      
       const newData = new Uint8Array(5);
       newData[0] = 2; // SetComputeUnitLimit discriminator
       newData[1] = newLimit & 0xff;
       newData[2] = (newLimit >> 8) & 0xff;
       newData[3] = (newLimit >> 16) & 0xff;
       newData[4] = (newLimit >> 24) & 0xff;
-      console.log(`🔧 Increased existing compute unit limit to ${newLimit}`);
+      console.log(`🔧 Increased compute unit limit: Jupiter=${jupiterLimit} + Overhead=${SMART_ACCOUNT_OVERHEAD} = ${newLimit}`);
       return {
         programIdIndex: ix.programAddressIndex,
         accountIndexes: new Uint8Array(ix.accountIndices ?? []),
@@ -209,8 +215,19 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
   const feePayerSigner = createNoopSigner(feePayer);
   const latestBlockhash = (await rpc.getLatestBlockhash().send()).value;
 
-  // Chunk the buffer. 800 bytes per tx keeps the outer message under 1232 bytes.
-  const CHUNK = 600; // Reduced from 800 to ensure buffer creation tx stays under 1232 byte limit
+  // Dynamic chunk sizing: Calculate optimal chunk size based on transaction size limits
+  // CreateFromBuffer transaction breakdown:
+  // - Transaction overhead (headers, accounts, etc.): ~400 bytes
+  // - Instruction data (discriminator + args + transactionMessage): ~20 bytes + buffer_size
+  // - Total: ~420 + buffer_size must be < 1232 bytes (Solana limit)
+  const CREATEFROMBUFFER_OVERHEAD = 420; // Conservative estimate
+  const TX_SIZE_LIMIT = 1232;
+  const MAX_SINGLE_CHUNK = TX_SIZE_LIMIT - CREATEFROMBUFFER_OVERHEAD; // ~812 bytes
+  
+  // If buffer fits in single chunk, use it all. Otherwise, use safe 600-byte chunks.
+  const CHUNK = finalBufferSize <= MAX_SINGLE_CHUNK ? finalBufferSize : 600;
+  
+  console.log(`📦 Dynamic chunk sizing: buffer=${finalBufferSize}B, chunk=${CHUNK}B, chunks=${Math.ceil(finalBufferSize / CHUNK)}`);
   const chunks: Uint8Array[] = [];
   for (let i = 0; i < finalBuffer.length; i += CHUNK) {
     chunks.push(finalBuffer.subarray(i, Math.min(i + CHUNK, finalBuffer.length)));
@@ -284,6 +301,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
       accountIndex,
       accountBump: smartAccountPdaBump,
       ephemeralSigners: 0,
+      // Must pass full buffer size - Anchor needs this for account reallocation
       transactionMessage: new Uint8Array(finalBufferSize),
       memo: undefined,
     },
