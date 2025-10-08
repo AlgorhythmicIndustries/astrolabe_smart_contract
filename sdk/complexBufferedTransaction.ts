@@ -50,6 +50,7 @@ export interface BufferedTransactionParams {
   memo?: string;
   bufferIndex?: number; // 0..255
   accountIndex?: number; // usually 0
+  transactionIndexOffset?: number; // Offset to add to nextIndex (e.g., +1 if phase0 will execute first)
 }
 
 export interface BufferedTransactionResult {
@@ -77,11 +78,13 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     memo = 'Buffered Smart Account Transaction',
     bufferIndex = 0,
     accountIndex = 0,
+    transactionIndexOffset = 0,
   } = params;
 
   // Derive PDAs and fetch settings
   const settings = await fetchSettings(rpc, smartAccountSettings);
-  const nextIndex = settings.data.transactionIndex + BigInt(1);
+  const nextIndex = settings.data.transactionIndex + BigInt(1) + BigInt(transactionIndexOffset);
+  console.log(`🔧 complexBufferedTransaction: Using transaction index ${nextIndex} (current: ${settings.data.transactionIndex}, offset: ${transactionIndexOffset})`);
   // Derive Transaction PDA: ["smart_account", settings, "transaction", u64 index]
   const transactionPda = await deriveTransactionPda(smartAccountSettings, nextIndex);
   // Derive Proposal PDA: ["smart_account", settings, "transaction", u64 index, "proposal"]
