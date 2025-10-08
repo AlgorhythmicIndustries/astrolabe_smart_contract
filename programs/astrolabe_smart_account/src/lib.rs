@@ -238,10 +238,6 @@ pub mod astrolabe_smart_account {
         ctx: Context<'_, '_, 'info, 'info, CreateTransactionFromBuffer<'info>>,
         args: CreateTransactionArgs,
     ) -> Result<()> {
-        // Debug logging for entry point - args deserialized successfully if we reach here
-        msg!("create_transaction_from_buffer ENTRY - args deserialized successfully");
-        msg!("create_transaction_from_buffer ENTRY - from_buffer_creator: {}", ctx.accounts.from_buffer_creator.key());
-        
         CreateTransactionFromBuffer::create_transaction_from_buffer(ctx, args)
     }
 

@@ -53,19 +53,15 @@ pub struct CreateTransactionBuffer<'info> {
 }
 
 impl CreateTransactionBuffer<'_> {
-    fn validate(&self, args: &CreateTransactionBufferArgs) -> Result<()> {
-        msg!("🔍 DEBUG: CreateTransactionBuffer validation started");
-        
+    fn validate(&self, args: &CreateTransactionBufferArgs) -> Result<()> {        
         let Self {
             settings, buffer_creator, ..
         } = self;
 
-        msg!("🔍 DEBUG: buffer_creator={}", buffer_creator.key());
-        msg!("🔍 DEBUG: settings.signers.len()={}", settings.signers.len());
         
         // buffer_creator is a signer on the smart account
         let is_signer = settings.is_signer(buffer_creator.key());
-        msg!("🔍 DEBUG: is_signer={:?}", is_signer);
+        
         require!(
             is_signer.is_some(),
             SmartAccountError::NotASigner
@@ -73,20 +69,17 @@ impl CreateTransactionBuffer<'_> {
         
         // buffer_creator has initiate permissions
         let has_permission = settings.signer_has_permission(buffer_creator.key(), Permission::Initiate);
-        msg!("🔍 DEBUG: has_initiate_permission={}", has_permission);
         require!(
             has_permission,
             SmartAccountError::Unauthorized
         );
 
         // Final Buffer Size must not exceed 4000 bytes
-        msg!("🔍 DEBUG: final_buffer_size={}, MAX_BUFFER_SIZE={}", args.final_buffer_size, MAX_BUFFER_SIZE);
         require!(
             args.final_buffer_size as usize <= MAX_BUFFER_SIZE,
             SmartAccountError::FinalBufferSizeExceeded
         );
         
-        msg!("🔍 DEBUG: CreateTransactionBuffer validation completed successfully");
         Ok(())
     }
 
@@ -96,13 +89,7 @@ impl CreateTransactionBuffer<'_> {
         ctx: Context<Self>,
         args: CreateTransactionBufferArgs,
     ) -> Result<()> {
-        msg!("🔍 DEBUG: CreateTransactionBuffer ENTRY - validation passed");
-        msg!("🔍 DEBUG: buffer_index={}, account_index={}, final_buffer_size={}", 
-             args.buffer_index, args.account_index, args.final_buffer_size);
-        msg!("🔍 DEBUG: buffer.len()={}", args.buffer.len());
-
         
-
         // Readonly Accounts
         let transaction_buffer = &mut ctx.accounts.transaction_buffer;
         let settings = &ctx.accounts.settings;
@@ -119,14 +106,6 @@ impl CreateTransactionBuffer<'_> {
         transaction_buffer.final_buffer_hash = args.final_buffer_hash;
         transaction_buffer.final_buffer_size = args.final_buffer_size;
         transaction_buffer.buffer = args.buffer;
-
-        // Debug logging for buffer creation
-        msg!("CreateTransactionBuffer: buffer_size={}, final_size={}", 
-             transaction_buffer.buffer.len(), 
-             transaction_buffer.final_buffer_size);
-        msg!("CreateTransactionBuffer: first_32_bytes={:?}", 
-             &transaction_buffer.buffer[..std::cmp::min(32, transaction_buffer.buffer.len())]);
-        msg!("CreateTransactionBuffer: buffer_creator={}", buffer_creator.key());
 
         // Invariant function on the transaction buffer
         transaction_buffer.invariant()?;
