@@ -136,8 +136,8 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
       const jupiterLimit = ix.data[1] | (ix.data[2] << 8) | (ix.data[3] << 16) | (ix.data[4] << 24);
       
       // Add smart account overhead (ExecuteTransaction instruction + account validations)
-      // Typical overhead: ~80,000-100,000 compute units
-      const SMART_ACCOUNT_OVERHEAD = 100_000;
+      // Increased to 200k for complex swaps with multiple hops and Token-2022 interactions
+      const SMART_ACCOUNT_OVERHEAD = 400_000;
       const newLimit = Math.min(jupiterLimit + SMART_ACCOUNT_OVERHEAD, 1_400_000); // Cap at 1.4M (Solana max)
       
       const newData = new Uint8Array(5);
