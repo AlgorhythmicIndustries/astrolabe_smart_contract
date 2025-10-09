@@ -75,6 +75,13 @@ SDK tests are **integration tests** requiring a live Solana validator:
 2. Deploy program: surfpool start automatically deploys the program but it must be configured with tests
 3. Tests must run in sequence to maintain blockchain state
 4. State files (`test-state.json`, `buffered-test-state.json`) shared between tests
+5. If the cause of a problem is a race condition, you cannot determine whether it was solved or not by running the tests a single time. Instead, use a 'for loop' like:
+
+```
+for i in {1..5}; do echo ""; echo "🚀 Run $i of 5"; anchor && echo "✅ PASS" || echo "❌ FAIL"; echo ""; done
+```
+to determine if the condition is fixed (if 'anchor test' was the command to run). For 5 runs, 5/5 or 0/5 would indicate the lack of the race condition. Any other value would indicate the race condition still exists. If the condition is more rare you might want to try 10 runs
+
 
 ## Development Environment
 
