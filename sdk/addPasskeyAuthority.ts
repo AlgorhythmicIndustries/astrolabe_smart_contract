@@ -9,6 +9,7 @@ import {
   address,
   compileTransaction,
   createSolanaRpc,
+  getTransactionEncoder,
 } from '@solana/kit';
 import { getAddSignerAsAuthorityInstruction } from './clients/js/src/generated/instructions';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from './clients/js/src/generated/programs';
@@ -132,9 +133,12 @@ export async function addPasskeyAuthorityTransaction(
 
   // Compile the transaction to get the buffer to be sent to the backend
   const compiledTransaction = compileTransaction(baseTransactionMessage);
+  
+  // Encode the full transaction (with empty signatures) for the backend
+  const transactionBytes = getTransactionEncoder().encode(compiledTransaction);
 
   return {
-    transactionBuffer: new Uint8Array(compiledTransaction.messageBytes),
+    transactionBuffer: new Uint8Array(transactionBytes),
     newSignerKey: newSigner.key,
   };
 }
