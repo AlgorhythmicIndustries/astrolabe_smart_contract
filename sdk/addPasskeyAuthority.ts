@@ -10,8 +10,11 @@ import {
   compileTransaction,
   createSolanaRpc,
   getTransactionEncoder,
+  getAddressEncoder,
 } from '@solana/kit';
-import { getAddSignerAsAuthorityInstruction } from './clients/js/src/generated/instructions';
+import { 
+  getExecuteSettingsTransactionSyncInstruction 
+} from './clients/js/src/generated/instructions';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from './clients/js/src/generated/programs';
 import type { SmartAccountSignerArgs } from './clients/js/src/generated/types';
 
@@ -26,14 +29,14 @@ export type AddPasskeyAuthorityParams = {
   /** The settings account address of the smart account. */
   smartAccountSettings: Address;
   /**
-   * The settings authority that can add signers directly.
-   * This is typically the backend fee payer for Astrolabe controlled accounts.
-   * This account must sign the final transaction on the backend.
+   * The creator/signer who is adding the new passkey.
+   * For autonomous smart accounts, this is one of the existing signers (the user's original passkey).
+   * This account must sign the final transaction.
    */
-  settingsAuthority: Address;
+  creator: Address;
   /**
-   * The public key of the account that will pay for transaction fees and any reallocation costs.
-   * This is typically the same as settingsAuthority but can be different if needed.
+   * The public key of the account that will pay for transaction fees and any account rent.
+   * This is typically the backend fee payer to make the operation gasless for the user.
    */
   feePayer: Address;
   /**
@@ -58,13 +61,13 @@ export type AddPasskeyAuthorityResult = {
 /**
  * Creates an unsigned, compiled transaction buffer to add a new passkey as an authority to an existing smart account.
  * 
- * This function constructs a transaction using the `add_signer_as_authority` instruction, which allows
- * a settings authority (typically the backend) to directly add a new signer without going through
- * the proposal/voting process. This is appropriate for controlled smart accounts where the settings_authority
- * is set to a trusted backend key.
+ * This function constructs a transaction using the `execute_settings_transaction_sync` instruction,
+ * which is the correct approach for autonomous smart accounts (accounts without a settings_authority).
+ * This instruction atomically creates and executes a settings change in a single transaction,
+ * which is valid for accounts with threshold=1 where a single signer can execute immediately.
  * 
- * The resulting buffer is intended to be sent to a backend where it will be signed by the `settingsAuthority`
- * account and submitted to the network.
+ * The resulting buffer is intended to be sent to a backend where it will be signed by the `creator`
+ * (the user's existing passkey) and the `feePayer` (backend), then submitted to the network.
  * 
  * ## Permissions
  * 
@@ -85,13 +88,13 @@ export type AddPasskeyAuthorityResult = {
  * const result = await addPasskeyAuthorityTransaction({
  *   rpc,
  *   smartAccountSettings: settingsAddress,
- *   settingsAuthority: backendAuthority,
- *   feePayer: backendAuthority,
+ *   creator: userOriginalPasskeyPubkey, // User's original passkey
+ *   feePayer: backendFeePayerPubkey,    // Backend pays fees
  *   newSigner: {
- *     key: passkeyPublicKey,
+ *     key: newPasskeyPublicKey,
  *     permissions: { mask: 0x07 } // Full permissions
  *   },
- *   memo: 'Added new passkey via QR code'
+ *   memo: 'Added new passkey'
  * });
  * 
  * // Send result.transactionBuffer to backend for signing and submission
@@ -103,32 +106,46 @@ export async function addPasskeyAuthorityTransaction(
   const {
     rpc,
     smartAccountSettings,
-    settingsAuthority,
+    creator,
     feePayer,
     newSigner,
     memo = null,
   } = params;
 
-  // Build the add_signer_as_authority instruction.
-  // The settingsAuthority is represented as a NoopSigner because the transaction
-  // will be signed later by the backend.
-  const addSignerInstruction = getAddSignerAsAuthorityInstruction({
+  // Fetch the settings account to determine numSigners
+  const settingsAccountInfo = await rpc.getAccountInfo(smartAccountSettings, { encoding: 'base64' }).send();
+  if (!settingsAccountInfo.value) {
+    throw new Error(`Settings account not found: ${smartAccountSettings}`);
+  }
+
+  // For now, assume we have 1 signer (the creator) signing this transaction
+  // In the future, we may need to parse the settings account to get the exact threshold
+  const numSigners = 1;
+
+  // Build the execute_settings_transaction_sync instruction
+  // This atomically creates and executes a settings change in one instruction
+  const executeInstruction = getExecuteSettingsTransactionSyncInstruction({
     settings: smartAccountSettings,
-    settingsAuthority: createNoopSigner(settingsAuthority),
     rentPayer: createNoopSigner(feePayer),
     systemProgram: address('11111111111111111111111111111111'),
     program: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
-    newSigner,
+    numSigners,
+    actions: [
+      {
+        __kind: 'AddSigner',
+        newSigner,
+      }
+    ],
     memo,
   });
 
-  // Build the transaction message. The fee payer is typically the backend authority.
+  // Build the transaction message
   const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
   const baseTransactionMessage = pipe(
     createTransactionMessage({ version: 0 }),
     (tx) => setTransactionMessageFeePayerSigner(createNoopSigner(feePayer), tx),
     (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
-    (tx) => appendTransactionMessageInstructions([addSignerInstruction], tx)
+    (tx) => appendTransactionMessageInstructions([executeInstruction], tx)
   );
 
   // Compile the transaction to get the buffer to be sent to the backend
