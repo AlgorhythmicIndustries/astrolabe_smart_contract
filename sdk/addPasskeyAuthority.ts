@@ -11,6 +11,7 @@ import {
   createSolanaRpc,
   getTransactionEncoder,
   getAddressEncoder,
+  AccountRole,
 } from '@solana/kit';
 import { 
   getExecuteSettingsTransactionSyncInstruction 
@@ -124,6 +125,7 @@ export async function addPasskeyAuthorityTransaction(
 
   // Build the execute_settings_transaction_sync instruction
   // This atomically creates and executes a settings change in one instruction
+  // Note: The creator must be included as a remaining account (signer)
   const executeInstruction = getExecuteSettingsTransactionSyncInstruction({
     settings: smartAccountSettings,
     rentPayer: createNoopSigner(feePayer),
@@ -139,13 +141,28 @@ export async function addPasskeyAuthorityTransaction(
     memo,
   });
 
+  // Add the creator as a remaining account (they must sign to authorize the settings change)
+  // The creator must be a NoopSigner so the backend can add the actual signature later
+  const creatorSigner = createNoopSigner(creator);
+  const instructionWithCreator = {
+    ...executeInstruction,
+    accounts: [
+      ...executeInstruction.accounts,
+      {
+        address: creator,
+        role: AccountRole.READONLY_SIGNER, // Creator must sign but doesn't need write access
+        signer: creatorSigner,
+      }
+    ]
+  };
+
   // Build the transaction message
   const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
   const baseTransactionMessage = pipe(
     createTransactionMessage({ version: 0 }),
     (tx) => setTransactionMessageFeePayerSigner(createNoopSigner(feePayer), tx),
     (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
-    (tx) => appendTransactionMessageInstructions([executeInstruction], tx)
+    (tx) => appendTransactionMessageInstructions([instructionWithCreator], tx)
   );
 
   // Compile the transaction to get the buffer to be sent to the backend
