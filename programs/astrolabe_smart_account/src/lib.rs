@@ -85,6 +85,7 @@ pub mod astrolabe_smart_account {
     use super::*;
 
     /// Initialize the program config.
+    #[instruction(discriminator = [1])]
     pub fn initialize_program_config(
         ctx: Context<InitProgramConfig>,
         args: InitProgramConfigArgs,
@@ -93,6 +94,7 @@ pub mod astrolabe_smart_account {
     }
 
     /// Set the `authority` parameter of the program config.
+    #[instruction(discriminator = [2])]
     pub fn set_program_config_authority(
         ctx: Context<ProgramConfig>,
         args: ProgramConfigSetAuthorityArgs,
@@ -101,6 +103,7 @@ pub mod astrolabe_smart_account {
     }
 
     /// Set the `smart_account_creation_fee` parameter of the program config.
+    #[instruction(discriminator = [3])]
     pub fn set_program_config_smart_account_creation_fee(
         ctx: Context<ProgramConfig>,
         args: ProgramConfigSetSmartAccountCreationFeeArgs,
@@ -109,6 +112,7 @@ pub mod astrolabe_smart_account {
     }
 
     /// Set the `treasury` parameter of the program config.
+    #[instruction(discriminator = [4])]
     pub fn set_program_config_treasury(
         ctx: Context<ProgramConfig>,
         args: ProgramConfigSetTreasuryArgs,
@@ -116,6 +120,7 @@ pub mod astrolabe_smart_account {
         ProgramConfig::set_treasury(ctx, args)
     }
     /// Create a smart account.
+    #[instruction(discriminator = [5])]
     pub fn create_smart_account<'info>(
         ctx: Context<'_, '_, 'info, 'info, CreateSmartAccount<'info>>,
         args: CreateSmartAccountArgs,
@@ -124,6 +129,7 @@ pub mod astrolabe_smart_account {
     }
 
     /// Add a new signer to the controlled smart account.
+    #[instruction(discriminator = [6])]
     pub fn add_signer_as_authority(
         ctx: Context<ExecuteSettingsTransactionAsAuthority>,
         args: AddSignerArgs,
@@ -132,6 +138,7 @@ pub mod astrolabe_smart_account {
     }
 
     /// Remove a signer from the controlled smart account.
+    #[instruction(discriminator = [7])]
     pub fn remove_signer_as_authority(
         ctx: Context<ExecuteSettingsTransactionAsAuthority>,
         args: RemoveSignerArgs,
@@ -140,6 +147,7 @@ pub mod astrolabe_smart_account {
     }
 
     /// Set the `time_lock` config parameter for the controlled smart account.
+    #[instruction(discriminator = [8])]
     pub fn set_time_lock_as_authority(
         ctx: Context<ExecuteSettingsTransactionAsAuthority>,
         args: SetTimeLockArgs,
@@ -148,6 +156,7 @@ pub mod astrolabe_smart_account {
     }
 
     /// Set the `threshold` config parameter for the controlled smart account.
+    #[instruction(discriminator = [9])]
     pub fn change_threshold_as_authority(
         ctx: Context<ExecuteSettingsTransactionAsAuthority>,
         args: ChangeThresholdArgs,
@@ -156,6 +165,7 @@ pub mod astrolabe_smart_account {
     }
 
     /// Set the smart account `settings_authority`.
+    #[instruction(discriminator = [10])]
     pub fn set_new_settings_authority_as_authority(
         ctx: Context<ExecuteSettingsTransactionAsAuthority>,
         args: SetNewSettingsAuthorityArgs,
@@ -164,6 +174,7 @@ pub mod astrolabe_smart_account {
     }
 
     /// Set the smart account `archival_authority`.
+    #[instruction(discriminator = [11])]
     pub fn set_archival_authority_as_authority(
         ctx: Context<ExecuteSettingsTransactionAsAuthority>,
         args: SetArchivalAuthorityArgs,
@@ -172,6 +183,7 @@ pub mod astrolabe_smart_account {
     }
 
     /// Create a new spending limit for the controlled smart account.
+    #[instruction(discriminator = [12])]
     pub fn add_spending_limit_as_authority(
         ctx: Context<AddSpendingLimitAsAuthority>,
         args: AddSpendingLimitArgs,
@@ -180,6 +192,7 @@ pub mod astrolabe_smart_account {
     }
 
     /// Remove the spending limit from the controlled smart account.
+    #[instruction(discriminator = [13])]
     pub fn remove_spending_limit_as_authority(
         ctx: Context<RemoveSpendingLimitAsAuthority>,
         args: RemoveSpendingLimitArgs,
@@ -188,6 +201,7 @@ pub mod astrolabe_smart_account {
     }
 
     /// Create a new settings transaction.
+    #[instruction(discriminator = [14])]
     pub fn create_settings_transaction(
         ctx: Context<CreateSettingsTransaction>,
         args: CreateSettingsTransactionArgs,
@@ -197,6 +211,7 @@ pub mod astrolabe_smart_account {
 
     /// Execute a settings transaction.
     /// The transaction must be `Approved`.
+    #[instruction(discriminator = [15])]
     pub fn execute_settings_transaction<'info>(
         ctx: Context<'_, '_, 'info, 'info, ExecuteSettingsTransaction<'info>>,
     ) -> Result<()> {
@@ -204,6 +219,7 @@ pub mod astrolabe_smart_account {
     }
 
     /// Create a new vault transaction.
+    #[instruction(discriminator = [16])]
     pub fn create_transaction(
         ctx: Context<CreateTransaction>,
         args: CreateTransactionArgs,
@@ -212,6 +228,7 @@ pub mod astrolabe_smart_account {
     }
 
     /// Create a transaction buffer account.
+    #[instruction(discriminator = [17])]
     pub fn create_transaction_buffer(
         ctx: Context<CreateTransactionBuffer>,
         args: CreateTransactionBufferArgs,
@@ -220,11 +237,13 @@ pub mod astrolabe_smart_account {
     }
 
     /// Close a transaction buffer account.
+    #[instruction(discriminator = [18])]
     pub fn close_transaction_buffer(ctx: Context<CloseTransactionBuffer>) -> Result<()> {
         CloseTransactionBuffer::close_transaction_buffer(ctx)
     }
 
     /// Extend a transaction buffer account.
+    #[instruction(discriminator = [19])]
     pub fn extend_transaction_buffer(
         ctx: Context<ExtendTransactionBuffer>,
         args: ExtendTransactionBufferArgs,
@@ -234,6 +253,7 @@ pub mod astrolabe_smart_account {
 
     /// Create a new vault transaction from a completed transaction buffer.
     /// Finalized buffer hash must match `final_buffer_hash`
+    #[instruction(discriminator = [20])]
     pub fn create_transaction_from_buffer<'info>(
         ctx: Context<'_, '_, 'info, 'info, CreateTransactionFromBuffer<'info>>,
         args: CreateTransactionArgs,
@@ -243,16 +263,19 @@ pub mod astrolabe_smart_account {
 
     /// Execute a smart account transaction.
     /// The transaction must be `Approved`.
+    #[instruction(discriminator = [21])]
     pub fn execute_transaction(ctx: Context<ExecuteTransaction>) -> Result<()> {
         ExecuteTransaction::execute_transaction(ctx)
     }
 
     /// Create a new batch.
+    #[instruction(discriminator = [22])]
     pub fn create_batch(ctx: Context<CreateBatch>, args: CreateBatchArgs) -> Result<()> {
         CreateBatch::create_batch(ctx, args)
     }
 
     /// Add a transaction to the batch.
+    #[instruction(discriminator = [23])]
     pub fn add_transaction_to_batch(
         ctx: Context<AddTransactionToBatch>,
         args: AddTransactionToBatchArgs,
@@ -261,39 +284,46 @@ pub mod astrolabe_smart_account {
     }
 
     /// Execute a transaction from the batch.
+    #[instruction(discriminator = [24])]
     pub fn execute_batch_transaction(ctx: Context<ExecuteBatchTransaction>) -> Result<()> {
         ExecuteBatchTransaction::execute_batch_transaction(ctx)
     }
 
     /// Create a new smart account proposal.
+    #[instruction(discriminator = [25])]
     pub fn create_proposal(ctx: Context<CreateProposal>, args: CreateProposalArgs) -> Result<()> {
         CreateProposal::create_proposal(ctx, args)
     }
 
     /// Update status of a smart account proposal from `Draft` to `Active`.
+    #[instruction(discriminator = [26])]
     pub fn activate_proposal(ctx: Context<ActivateProposal>) -> Result<()> {
         ActivateProposal::activate_proposal(ctx)
     }
 
     /// Approve a smart account proposal on behalf of the `member`.
     /// The proposal must be `Active`.
+    #[instruction(discriminator = [27])]
     pub fn approve_proposal(ctx: Context<VoteOnProposal>, args: VoteOnProposalArgs) -> Result<()> {
         VoteOnProposal::approve_proposal(ctx, args)
     }
 
     /// Reject a smart account proposal on behalf of the `member`.
     /// The proposal must be `Active`.
+    #[instruction(discriminator = [28])]
     pub fn reject_proposal(ctx: Context<VoteOnProposal>, args: VoteOnProposalArgs) -> Result<()> {
         VoteOnProposal::reject_proposal(ctx, args)
     }
 
     /// Cancel a smart account proposal on behalf of the `member`.
     /// The proposal must be `Approved`.
+    #[instruction(discriminator = [29])]
     pub fn cancel_proposal(ctx: Context<VoteOnProposal>, args: VoteOnProposalArgs) -> Result<()> {
         VoteOnProposal::cancel_proposal(ctx, args)
     }
 
     /// Use a spending limit to transfer tokens from a smart account vault to a destination account.
+    #[instruction(discriminator = [30])]
     pub fn use_spending_limit(
         ctx: Context<UseSpendingLimit>,
         args: UseSpendingLimitArgs,
@@ -305,6 +335,7 @@ pub mod astrolabe_smart_account {
     /// `transaction` can be closed if either:
     /// - the `proposal` is in a terminal state: `Executed`, `Rejected`, or `Cancelled`.
     /// - the `proposal` is stale.
+    #[instruction(discriminator = [31])]
     pub fn close_settings_transaction(ctx: Context<CloseSettingsTransaction>) -> Result<()> {
         CloseSettingsTransaction::close_settings_transaction(ctx)
     }
@@ -313,6 +344,7 @@ pub mod astrolabe_smart_account {
     /// `transaction` can be closed if either:
     /// - the `proposal` is in a terminal state: `Executed`, `Rejected`, or `Cancelled`.
     /// - the `proposal` is stale and not `Approved`.
+    #[instruction(discriminator = [32])]
     pub fn close_transaction(ctx: Context<CloseTransaction>) -> Result<()> {
         CloseTransaction::close_transaction(ctx)
     }
@@ -322,6 +354,7 @@ pub mod astrolabe_smart_account {
     /// - it's marked as executed within the `batch`;
     /// - the `proposal` is in a terminal state: `Executed`, `Rejected`, or `Cancelled`.
     /// - the `proposal` is stale and not `Approved`.
+    #[instruction(discriminator = [33])]
     pub fn close_batch_transaction(ctx: Context<CloseBatchTransaction>) -> Result<()> {
         CloseBatchTransaction::close_batch_transaction(ctx)
     }
@@ -331,11 +364,13 @@ pub mod astrolabe_smart_account {
     ///
     /// This instruction is only allowed to be executed when all `VaultBatchTransaction` accounts
     /// in the `batch` are already closed: `batch.size == 0`.
+    #[instruction(discriminator = [34])]
     pub fn close_batch(ctx: Context<CloseBatch>) -> Result<()> {
         CloseBatch::close_batch(ctx)
     }
 
     /// Synchronously execute a transaction
+    #[instruction(discriminator = [35])]
     pub fn execute_transaction_sync(
         ctx: Context<SyncTransaction>,
         args: SyncTransactionArgs,
@@ -344,6 +379,7 @@ pub mod astrolabe_smart_account {
     }
 
     /// Synchronously execute a config transaction
+    #[instruction(discriminator = [36])]
     pub fn execute_settings_transaction_sync<'info>(
         ctx: Context<'_, '_, 'info, 'info, SyncSettingsTransaction<'info>>,
         args: SyncSettingsTransactionArgs,
@@ -351,6 +387,7 @@ pub mod astrolabe_smart_account {
         SyncSettingsTransaction::sync_settings_transaction(ctx, args)
     }
     /// Log an event
+    #[instruction(discriminator = [37])]
     pub fn log_event<'info>(ctx: Context<'_, '_, 'info, 'info, LogEvent<'info>>, args: LogEventArgs) -> Result<()> {
         LogEvent::log_event(ctx, args)
     }

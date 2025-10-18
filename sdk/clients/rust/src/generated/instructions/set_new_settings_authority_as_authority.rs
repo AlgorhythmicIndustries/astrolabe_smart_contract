@@ -12,8 +12,6 @@ use solana_pubkey::Pubkey;
 pub const SET_NEW_SETTINGS_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] =
     [221, 112, 133, 229, 146, 58, 90, 56];
 
-pub const SET_NEW_SETTINGS_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [221, 112, 133, 229, 146, 58, 90, 56];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct SetNewSettingsAuthorityAsAuthority {
@@ -74,9 +72,10 @@ impl SetNewSettingsAuthorityAsAuthority {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data =
-            borsh::to_vec(&SetNewSettingsAuthorityAsAuthorityInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = SetNewSettingsAuthorityAsAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -99,6 +98,10 @@ impl SetNewSettingsAuthorityAsAuthorityInstructionData {
             discriminator: [221, 112, 133, 229, 146, 58, 90, 56],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for SetNewSettingsAuthorityAsAuthorityInstructionData {
@@ -112,6 +115,12 @@ impl Default for SetNewSettingsAuthorityAsAuthorityInstructionData {
 pub struct SetNewSettingsAuthorityAsAuthorityInstructionArgs {
     pub new_settings_authority: Pubkey,
     pub memo: Option<String>,
+}
+
+impl SetNewSettingsAuthorityAsAuthorityInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `SetNewSettingsAuthorityAsAuthority`.
@@ -336,9 +345,10 @@ impl<'a, 'b> SetNewSettingsAuthorityAsAuthorityCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data =
-            borsh::to_vec(&SetNewSettingsAuthorityAsAuthorityInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = SetNewSettingsAuthorityAsAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

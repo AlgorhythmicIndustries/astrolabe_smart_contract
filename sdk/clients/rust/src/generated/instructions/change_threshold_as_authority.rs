@@ -11,8 +11,6 @@ use borsh::BorshSerialize;
 pub const CHANGE_THRESHOLD_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] =
     [51, 141, 78, 133, 70, 47, 95, 124];
 
-pub const CHANGE_THRESHOLD_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [51, 141, 78, 133, 70, 47, 95, 124];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct ChangeThresholdAsAuthority {
@@ -73,8 +71,10 @@ impl ChangeThresholdAsAuthority {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = borsh::to_vec(&ChangeThresholdAsAuthorityInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = ChangeThresholdAsAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -97,6 +97,10 @@ impl ChangeThresholdAsAuthorityInstructionData {
             discriminator: [51, 141, 78, 133, 70, 47, 95, 124],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for ChangeThresholdAsAuthorityInstructionData {
@@ -110,6 +114,12 @@ impl Default for ChangeThresholdAsAuthorityInstructionData {
 pub struct ChangeThresholdAsAuthorityInstructionArgs {
     pub new_threshold: u16,
     pub memo: Option<String>,
+}
+
+impl ChangeThresholdAsAuthorityInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `ChangeThresholdAsAuthority`.
@@ -334,8 +344,10 @@ impl<'a, 'b> ChangeThresholdAsAuthorityCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = borsh::to_vec(&ChangeThresholdAsAuthorityInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = ChangeThresholdAsAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

@@ -10,8 +10,6 @@ use borsh::BorshSerialize;
 
 pub const CREATE_BATCH_DISCRIMINATOR: [u8; 8] = [159, 198, 248, 43, 248, 31, 235, 86];
 
-pub const CREATE_BATCH_DISCRIMINATOR: [u8; 8] = [159, 198, 248, 43, 248, 31, 235, 86];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct CreateBatch {
@@ -50,8 +48,8 @@ impl CreateBatch {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = borsh::to_vec(&CreateBatchInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = CreateBatchInstructionData::new().try_to_vec().unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -74,6 +72,10 @@ impl CreateBatchInstructionData {
             discriminator: [159, 198, 248, 43, 248, 31, 235, 86],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for CreateBatchInstructionData {
@@ -87,6 +89,12 @@ impl Default for CreateBatchInstructionData {
 pub struct CreateBatchInstructionArgs {
     pub account_index: u8,
     pub memo: Option<String>,
+}
+
+impl CreateBatchInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `CreateBatch`.
@@ -286,8 +294,8 @@ impl<'a, 'b> CreateBatchCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = borsh::to_vec(&CreateBatchInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = CreateBatchInstructionData::new().try_to_vec().unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

@@ -223,9 +223,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([90, 186, 203, 234, 70, 185, 191, 21])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([26])),
       0
     )
   ) {
@@ -234,9 +232,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([80, 198, 228, 154, 7, 234, 99, 56])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([6])),
       0
     )
   ) {
@@ -245,9 +241,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([169, 189, 84, 54, 30, 244, 223, 212])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([12])),
       0
     )
   ) {
@@ -256,9 +250,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([147, 75, 197, 227, 20, 149, 150, 113])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([23])),
       0
     )
   ) {
@@ -267,9 +259,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([136, 108, 102, 85, 98, 114, 7, 147])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([27])),
       0
     )
   ) {
@@ -278,9 +268,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([106, 74, 128, 146, 19, 65, 39, 23])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([29])),
       0
     )
   ) {
@@ -289,9 +277,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([51, 141, 78, 133, 70, 47, 95, 124])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([9])),
       0
     )
   ) {
@@ -300,9 +286,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([166, 174, 35, 253, 209, 211, 181, 28])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([34])),
       0
     )
   ) {
@@ -311,9 +295,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([86, 144, 133, 225, 45, 209, 62, 251])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([33])),
       0
     )
   ) {
@@ -322,9 +304,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([251, 112, 34, 108, 214, 13, 41, 116])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([31])),
       0
     )
   ) {
@@ -333,9 +313,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([97, 46, 152, 170, 42, 215, 192, 218])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([32])),
       0
     )
   ) {
@@ -344,9 +322,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([224, 221, 123, 213, 0, 204, 5, 191])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([18])),
       0
     )
   ) {
@@ -355,9 +331,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([159, 198, 248, 43, 248, 31, 235, 86])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([22])),
       0
     )
   ) {
@@ -366,9 +340,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([132, 116, 68, 174, 216, 160, 198, 22])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([25])),
       0
     )
   ) {
@@ -377,9 +349,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([101, 168, 254, 203, 222, 102, 95, 192])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([14])),
       0
     )
   ) {
@@ -388,9 +358,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([197, 102, 253, 231, 77, 84, 50, 17])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([5])),
       0
     )
   ) {
@@ -399,9 +367,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([227, 193, 53, 239, 55, 126, 112, 105])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([16])),
       0
     )
   ) {
@@ -410,9 +376,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([57, 97, 250, 156, 59, 211, 32, 208])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([17])),
       0
     )
   ) {
@@ -421,9 +385,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([53, 192, 39, 239, 124, 84, 43, 249])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([20])),
       0
     )
   ) {
@@ -432,9 +394,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([237, 67, 201, 173, 33, 130, 88, 134])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([24])),
       0
     )
   ) {
@@ -443,9 +403,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([131, 210, 27, 88, 27, 204, 143, 189])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([15])),
       0
     )
   ) {
@@ -454,9 +412,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([138, 209, 64, 163, 79, 67, 233, 76])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([36])),
       0
     )
   ) {
@@ -465,9 +421,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([231, 173, 49, 91, 235, 24, 68, 19])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([21])),
       0
     )
   ) {
@@ -476,9 +430,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([43, 102, 248, 89, 231, 97, 104, 134])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([35])),
       0
     )
   ) {
@@ -487,9 +439,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([190, 86, 246, 95, 231, 154, 229, 91])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([19])),
       0
     )
   ) {
@@ -498,9 +448,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([6, 131, 61, 237, 40, 110, 83, 124])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([1])),
       0
     )
   ) {
@@ -509,9 +457,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([5, 9, 90, 141, 223, 134, 57, 217])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([37])),
       0
     )
   ) {
@@ -520,9 +466,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([114, 162, 164, 82, 191, 11, 102, 25])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([28])),
       0
     )
   ) {
@@ -531,9 +475,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([58, 19, 149, 16, 181, 16, 125, 148])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([7])),
       0
     )
   ) {
@@ -542,9 +484,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([94, 32, 68, 127, 251, 44, 145, 7])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([13])),
       0
     )
   ) {
@@ -553,9 +493,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([178, 199, 4, 13, 237, 234, 152, 202])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([11])),
       0
     )
   ) {
@@ -564,9 +502,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([221, 112, 133, 229, 146, 58, 90, 56])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([10])),
       0
     )
   ) {
@@ -575,9 +511,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([130, 40, 234, 111, 237, 155, 246, 203])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([2])),
       0
     )
   ) {
@@ -586,9 +520,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([222, 30, 134, 176, 131, 113, 195, 202])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([3])),
       0
     )
   ) {
@@ -597,9 +529,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([244, 119, 192, 190, 182, 101, 227, 189])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([4])),
       0
     )
   ) {
@@ -608,9 +538,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([2, 234, 93, 93, 40, 92, 31, 234])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([8])),
       0
     )
   ) {
@@ -619,9 +547,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([41, 179, 70, 5, 194, 147, 239, 158])
-      ),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([30])),
       0
     )
   ) {

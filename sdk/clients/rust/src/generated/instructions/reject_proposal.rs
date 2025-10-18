@@ -11,8 +11,6 @@ use borsh::BorshSerialize;
 
 pub const REJECT_PROPOSAL_DISCRIMINATOR: [u8; 8] = [114, 162, 164, 82, 191, 11, 102, 25];
 
-pub const REJECT_PROPOSAL_DISCRIMINATOR: [u8; 8] = [114, 162, 164, 82, 191, 11, 102, 25];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct RejectProposal {
@@ -58,8 +56,8 @@ impl RejectProposal {
             ));
         }
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = borsh::to_vec(&RejectProposalInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = RejectProposalInstructionData::new().try_to_vec().unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -82,6 +80,10 @@ impl RejectProposalInstructionData {
             discriminator: [114, 162, 164, 82, 191, 11, 102, 25],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for RejectProposalInstructionData {
@@ -94,6 +96,12 @@ impl Default for RejectProposalInstructionData {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RejectProposalInstructionArgs {
     pub args: VoteOnProposalArgs,
+}
+
+impl RejectProposalInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `RejectProposal`.
@@ -268,8 +276,8 @@ impl<'a, 'b> RejectProposalCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = borsh::to_vec(&RejectProposalInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = RejectProposalInstructionData::new().try_to_vec().unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

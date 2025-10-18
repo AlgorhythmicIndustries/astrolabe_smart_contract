@@ -10,8 +10,6 @@ use borsh::BorshSerialize;
 
 pub const SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [2, 234, 93, 93, 40, 92, 31, 234];
 
-pub const SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [2, 234, 93, 93, 40, 92, 31, 234];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct SetTimeLockAsAuthority {
@@ -72,8 +70,10 @@ impl SetTimeLockAsAuthority {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = borsh::to_vec(&SetTimeLockAsAuthorityInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = SetTimeLockAsAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -96,6 +96,10 @@ impl SetTimeLockAsAuthorityInstructionData {
             discriminator: [2, 234, 93, 93, 40, 92, 31, 234],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for SetTimeLockAsAuthorityInstructionData {
@@ -109,6 +113,12 @@ impl Default for SetTimeLockAsAuthorityInstructionData {
 pub struct SetTimeLockAsAuthorityInstructionArgs {
     pub time_lock: u32,
     pub memo: Option<String>,
+}
+
+impl SetTimeLockAsAuthorityInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `SetTimeLockAsAuthority`.
@@ -330,8 +340,10 @@ impl<'a, 'b> SetTimeLockAsAuthorityCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = borsh::to_vec(&SetTimeLockAsAuthorityInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = SetTimeLockAsAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

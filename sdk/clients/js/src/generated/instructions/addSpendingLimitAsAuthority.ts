@@ -61,11 +61,11 @@ import {
 } from '../types';
 
 export const ADD_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([
-  169, 189, 84, 54, 30, 244, 223, 212,
+  12,
 ]);
 
 export function getAddSpendingLimitAsAuthorityDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     ADD_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR
   );
 }
@@ -189,7 +189,7 @@ export type AddSpendingLimitAsAuthorityInstructionDataArgs = {
 export function getAddSpendingLimitAsAuthorityInstructionDataEncoder(): Encoder<AddSpendingLimitAsAuthorityInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['seed', getAddressEncoder()],
       ['accountIndex', getU8Encoder()],
       ['mint', getAddressEncoder()],
@@ -214,7 +214,7 @@ export function getAddSpendingLimitAsAuthorityInstructionDataEncoder(): Encoder<
 
 export function getAddSpendingLimitAsAuthorityInstructionDataDecoder(): Decoder<AddSpendingLimitAsAuthorityInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['seed', getAddressDecoder()],
     ['accountIndex', getU8Decoder()],
     ['mint', getAddressDecoder()],

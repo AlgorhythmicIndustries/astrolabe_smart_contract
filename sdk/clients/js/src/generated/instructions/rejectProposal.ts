@@ -39,12 +39,10 @@ import {
   type VoteOnProposalArgsArgs,
 } from '../types';
 
-export const REJECT_PROPOSAL_DISCRIMINATOR = new Uint8Array([
-  114, 162, 164, 82, 191, 11, 102, 25,
-]);
+export const REJECT_PROPOSAL_DISCRIMINATOR = new Uint8Array([28]);
 
 export function getRejectProposalDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     REJECT_PROPOSAL_DISCRIMINATOR
   );
 }
@@ -91,7 +89,7 @@ export type RejectProposalInstructionDataArgs = {
 export function getRejectProposalInstructionDataEncoder(): Encoder<RejectProposalInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['args', getVoteOnProposalArgsEncoder()],
     ]),
     (value) => ({ ...value, discriminator: REJECT_PROPOSAL_DISCRIMINATOR })
@@ -100,7 +98,7 @@ export function getRejectProposalInstructionDataEncoder(): Encoder<RejectProposa
 
 export function getRejectProposalInstructionDataDecoder(): Decoder<RejectProposalInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['args', getVoteOnProposalArgsDecoder()],
   ]);
 }

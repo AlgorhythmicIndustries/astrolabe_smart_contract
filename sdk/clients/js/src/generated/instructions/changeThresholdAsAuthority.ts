@@ -46,12 +46,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const CHANGE_THRESHOLD_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([
-  51, 141, 78, 133, 70, 47, 95, 124,
-]);
+export const CHANGE_THRESHOLD_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([9]);
 
 export function getChangeThresholdAsAuthorityDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     CHANGE_THRESHOLD_AS_AUTHORITY_DISCRIMINATOR
   );
 }
@@ -109,7 +107,7 @@ export type ChangeThresholdAsAuthorityInstructionDataArgs = {
 export function getChangeThresholdAsAuthorityInstructionDataEncoder(): Encoder<ChangeThresholdAsAuthorityInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['newThreshold', getU16Encoder()],
       [
         'memo',
@@ -127,7 +125,7 @@ export function getChangeThresholdAsAuthorityInstructionDataEncoder(): Encoder<C
 
 export function getChangeThresholdAsAuthorityInstructionDataDecoder(): Decoder<ChangeThresholdAsAuthorityInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['newThreshold', getU16Decoder()],
     [
       'memo',

@@ -60,12 +60,10 @@ import {
   type SmartAccountSignerArgs,
 } from '../types';
 
-export const CREATE_SMART_ACCOUNT_DISCRIMINATOR = new Uint8Array([
-  197, 102, 253, 231, 77, 84, 50, 17,
-]);
+export const CREATE_SMART_ACCOUNT_DISCRIMINATOR = new Uint8Array([5]);
 
 export function getCreateSmartAccountDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     CREATE_SMART_ACCOUNT_DISCRIMINATOR
   );
 }
@@ -160,7 +158,7 @@ export type CreateSmartAccountInstructionDataArgs = {
 export function getCreateSmartAccountInstructionDataEncoder(): Encoder<CreateSmartAccountInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['settingsAuthority', getOptionEncoder(getAddressEncoder())],
       ['threshold', getU16Encoder()],
       ['signers', getArrayEncoder(getSmartAccountSignerEncoder())],
@@ -183,7 +181,7 @@ export function getCreateSmartAccountInstructionDataEncoder(): Encoder<CreateSma
 
 export function getCreateSmartAccountInstructionDataDecoder(): Decoder<CreateSmartAccountInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['settingsAuthority', getOptionDecoder(getAddressDecoder())],
     ['threshold', getU16Decoder()],
     ['signers', getArrayDecoder(getSmartAccountSignerDecoder())],

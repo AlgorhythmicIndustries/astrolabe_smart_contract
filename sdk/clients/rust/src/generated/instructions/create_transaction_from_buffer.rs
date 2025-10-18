@@ -12,8 +12,6 @@ use borsh::BorshSerialize;
 pub const CREATE_TRANSACTION_FROM_BUFFER_DISCRIMINATOR: [u8; 8] =
     [53, 192, 39, 239, 124, 84, 43, 249];
 
-pub const CREATE_TRANSACTION_FROM_BUFFER_DISCRIMINATOR: [u8; 8] = [53, 192, 39, 239, 124, 84, 43, 249];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct CreateTransactionFromBuffer {
@@ -70,8 +68,10 @@ impl CreateTransactionFromBuffer {
             true,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = borsh::to_vec(&CreateTransactionFromBufferInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = CreateTransactionFromBufferInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -94,6 +94,10 @@ impl CreateTransactionFromBufferInstructionData {
             discriminator: [53, 192, 39, 239, 124, 84, 43, 249],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for CreateTransactionFromBufferInstructionData {
@@ -106,6 +110,12 @@ impl Default for CreateTransactionFromBufferInstructionData {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateTransactionFromBufferInstructionArgs {
     pub args: CreateTransactionArgs,
+}
+
+impl CreateTransactionFromBufferInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `CreateTransactionFromBuffer`.
@@ -335,8 +345,10 @@ impl<'a, 'b> CreateTransactionFromBufferCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = borsh::to_vec(&CreateTransactionFromBufferInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = CreateTransactionFromBufferInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

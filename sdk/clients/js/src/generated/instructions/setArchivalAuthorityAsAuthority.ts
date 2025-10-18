@@ -47,11 +47,11 @@ import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
 export const SET_ARCHIVAL_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array(
-  [178, 199, 4, 13, 237, 234, 152, 202]
+  [11]
 );
 
 export function getSetArchivalAuthorityAsAuthorityDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     SET_ARCHIVAL_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR
   );
 }
@@ -109,7 +109,7 @@ export type SetArchivalAuthorityAsAuthorityInstructionDataArgs = {
 export function getSetArchivalAuthorityAsAuthorityInstructionDataEncoder(): Encoder<SetArchivalAuthorityAsAuthorityInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['newArchivalAuthority', getOptionEncoder(getAddressEncoder())],
       [
         'memo',
@@ -127,7 +127,7 @@ export function getSetArchivalAuthorityAsAuthorityInstructionDataEncoder(): Enco
 
 export function getSetArchivalAuthorityAsAuthorityInstructionDataDecoder(): Decoder<SetArchivalAuthorityAsAuthorityInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['newArchivalAuthority', getOptionDecoder(getAddressDecoder())],
     [
       'memo',

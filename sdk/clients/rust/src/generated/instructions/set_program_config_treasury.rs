@@ -12,8 +12,6 @@ use solana_pubkey::Pubkey;
 pub const SET_PROGRAM_CONFIG_TREASURY_DISCRIMINATOR: [u8; 8] =
     [244, 119, 192, 190, 182, 101, 227, 189];
 
-pub const SET_PROGRAM_CONFIG_TREASURY_DISCRIMINATOR: [u8; 8] = [244, 119, 192, 190, 182, 101, 227, 189];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct SetProgramConfigTreasury {
@@ -46,8 +44,10 @@ impl SetProgramConfigTreasury {
             true,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = borsh::to_vec(&SetProgramConfigTreasuryInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = SetProgramConfigTreasuryInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -70,6 +70,10 @@ impl SetProgramConfigTreasuryInstructionData {
             discriminator: [244, 119, 192, 190, 182, 101, 227, 189],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for SetProgramConfigTreasuryInstructionData {
@@ -82,6 +86,12 @@ impl Default for SetProgramConfigTreasuryInstructionData {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SetProgramConfigTreasuryInstructionArgs {
     pub new_treasury: Pubkey,
+}
+
+impl SetProgramConfigTreasuryInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `SetProgramConfigTreasury`.
@@ -217,8 +227,10 @@ impl<'a, 'b> SetProgramConfigTreasuryCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = borsh::to_vec(&SetProgramConfigTreasuryInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = SetProgramConfigTreasuryInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

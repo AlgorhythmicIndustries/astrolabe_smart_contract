@@ -10,8 +10,6 @@ use borsh::BorshSerialize;
 
 pub const ADD_TRANSACTION_TO_BATCH_DISCRIMINATOR: [u8; 8] = [147, 75, 197, 227, 20, 149, 150, 113];
 
-pub const ADD_TRANSACTION_TO_BATCH_DISCRIMINATOR: [u8; 8] = [147, 75, 197, 227, 20, 149, 150, 113];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct AddTransactionToBatch {
@@ -69,8 +67,10 @@ impl AddTransactionToBatch {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = borsh::to_vec(&AddTransactionToBatchInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = AddTransactionToBatchInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -93,6 +93,10 @@ impl AddTransactionToBatchInstructionData {
             discriminator: [147, 75, 197, 227, 20, 149, 150, 113],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for AddTransactionToBatchInstructionData {
@@ -106,6 +110,12 @@ impl Default for AddTransactionToBatchInstructionData {
 pub struct AddTransactionToBatchInstructionArgs {
     pub ephemeral_signers: u8,
     pub transaction_message: Vec<u8>,
+}
+
+impl AddTransactionToBatchInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `AddTransactionToBatch`.
@@ -345,8 +355,10 @@ impl<'a, 'b> AddTransactionToBatchCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = borsh::to_vec(&AddTransactionToBatchInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = AddTransactionToBatchInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

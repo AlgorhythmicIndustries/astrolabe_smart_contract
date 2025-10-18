@@ -10,8 +10,6 @@ use borsh::BorshSerialize;
 
 pub const CLOSE_SETTINGS_TRANSACTION_DISCRIMINATOR: [u8; 8] = [251, 112, 34, 108, 214, 13, 41, 116];
 
-pub const CLOSE_SETTINGS_TRANSACTION_DISCRIMINATOR: [u8; 8] = [251, 112, 34, 108, 214, 13, 41, 116];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct CloseSettingsTransaction {
@@ -61,7 +59,9 @@ impl CloseSettingsTransaction {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let data = borsh::to_vec(&CloseSettingsTransactionInstructionData::new()).unwrap();
+        let data = CloseSettingsTransactionInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         solana_instruction::Instruction {
             program_id: crate::ASTROLABE_SMART_ACCOUNT_ID,
@@ -82,6 +82,10 @@ impl CloseSettingsTransactionInstructionData {
         Self {
             discriminator: [251, 112, 34, 108, 214, 13, 41, 116],
         }
+    }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
     }
 }
 
@@ -296,7 +300,9 @@ impl<'a, 'b> CloseSettingsTransactionCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let data = borsh::to_vec(&CloseSettingsTransactionInstructionData::new()).unwrap();
+        let data = CloseSettingsTransactionInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         let instruction = solana_instruction::Instruction {
             program_id: crate::ASTROLABE_SMART_ACCOUNT_ID,

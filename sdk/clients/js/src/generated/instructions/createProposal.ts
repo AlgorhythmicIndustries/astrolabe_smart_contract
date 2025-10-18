@@ -38,12 +38,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const CREATE_PROPOSAL_DISCRIMINATOR = new Uint8Array([
-  132, 116, 68, 174, 216, 160, 198, 22,
-]);
+export const CREATE_PROPOSAL_DISCRIMINATOR = new Uint8Array([25]);
 
 export function getCreateProposalDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     CREATE_PROPOSAL_DISCRIMINATOR
   );
 }
@@ -101,7 +99,7 @@ export type CreateProposalInstructionDataArgs = {
 export function getCreateProposalInstructionDataEncoder(): FixedSizeEncoder<CreateProposalInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['transactionIndex', getU64Encoder()],
       ['draft', getBooleanEncoder()],
     ]),
@@ -111,7 +109,7 @@ export function getCreateProposalInstructionDataEncoder(): FixedSizeEncoder<Crea
 
 export function getCreateProposalInstructionDataDecoder(): FixedSizeDecoder<CreateProposalInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['transactionIndex', getU64Decoder()],
     ['draft', getBooleanDecoder()],
   ]);

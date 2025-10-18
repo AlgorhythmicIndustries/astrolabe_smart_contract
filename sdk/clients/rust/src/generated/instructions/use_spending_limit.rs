@@ -10,8 +10,6 @@ use borsh::BorshSerialize;
 
 pub const USE_SPENDING_LIMIT_DISCRIMINATOR: [u8; 8] = [41, 179, 70, 5, 194, 147, 239, 158];
 
-pub const USE_SPENDING_LIMIT_DISCRIMINATOR: [u8; 8] = [41, 179, 70, 5, 194, 147, 239, 158];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct UseSpendingLimit {
@@ -131,8 +129,8 @@ impl UseSpendingLimit {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = borsh::to_vec(&UseSpendingLimitInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = UseSpendingLimitInstructionData::new().try_to_vec().unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -155,6 +153,10 @@ impl UseSpendingLimitInstructionData {
             discriminator: [41, 179, 70, 5, 194, 147, 239, 158],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for UseSpendingLimitInstructionData {
@@ -169,6 +171,12 @@ pub struct UseSpendingLimitInstructionArgs {
     pub amount: u64,
     pub decimals: u8,
     pub memo: Option<String>,
+}
+
+impl UseSpendingLimitInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `UseSpendingLimit`.
@@ -530,8 +538,8 @@ impl<'a, 'b> UseSpendingLimitCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = borsh::to_vec(&UseSpendingLimitInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = UseSpendingLimitInstructionData::new().try_to_vec().unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

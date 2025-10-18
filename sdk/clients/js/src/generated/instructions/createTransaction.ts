@@ -40,12 +40,10 @@ import {
   type CreateTransactionArgsArgs,
 } from '../types';
 
-export const CREATE_TRANSACTION_DISCRIMINATOR = new Uint8Array([
-  227, 193, 53, 239, 55, 126, 112, 105,
-]);
+export const CREATE_TRANSACTION_DISCRIMINATOR = new Uint8Array([16]);
 
 export function getCreateTransactionDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     CREATE_TRANSACTION_DISCRIMINATOR
   );
 }
@@ -97,7 +95,7 @@ export type CreateTransactionInstructionDataArgs = {
 export function getCreateTransactionInstructionDataEncoder(): Encoder<CreateTransactionInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['args', getCreateTransactionArgsEncoder()],
     ]),
     (value) => ({ ...value, discriminator: CREATE_TRANSACTION_DISCRIMINATOR })
@@ -106,7 +104,7 @@ export function getCreateTransactionInstructionDataEncoder(): Encoder<CreateTran
 
 export function getCreateTransactionInstructionDataDecoder(): Decoder<CreateTransactionInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['args', getCreateTransactionArgsDecoder()],
   ]);
 }

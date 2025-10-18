@@ -52,12 +52,10 @@ import {
   type SettingsActionArgs,
 } from '../types';
 
-export const CREATE_SETTINGS_TRANSACTION_DISCRIMINATOR = new Uint8Array([
-  101, 168, 254, 203, 222, 102, 95, 192,
-]);
+export const CREATE_SETTINGS_TRANSACTION_DISCRIMINATOR = new Uint8Array([14]);
 
 export function getCreateSettingsTransactionDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     CREATE_SETTINGS_TRANSACTION_DISCRIMINATOR
   );
 }
@@ -111,7 +109,7 @@ export type CreateSettingsTransactionInstructionDataArgs = {
 export function getCreateSettingsTransactionInstructionDataEncoder(): Encoder<CreateSettingsTransactionInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['actions', getArrayEncoder(getSettingsActionEncoder())],
       [
         'memo',
@@ -129,7 +127,7 @@ export function getCreateSettingsTransactionInstructionDataEncoder(): Encoder<Cr
 
 export function getCreateSettingsTransactionInstructionDataDecoder(): Decoder<CreateSettingsTransactionInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['actions', getArrayDecoder(getSettingsActionDecoder())],
     [
       'memo',

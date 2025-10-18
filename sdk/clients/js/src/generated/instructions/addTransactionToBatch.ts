@@ -40,12 +40,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const ADD_TRANSACTION_TO_BATCH_DISCRIMINATOR = new Uint8Array([
-  147, 75, 197, 227, 20, 149, 150, 113,
-]);
+export const ADD_TRANSACTION_TO_BATCH_DISCRIMINATOR = new Uint8Array([23]);
 
 export function getAddTransactionToBatchDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     ADD_TRANSACTION_TO_BATCH_DISCRIMINATOR
   );
 }
@@ -109,7 +107,7 @@ export type AddTransactionToBatchInstructionDataArgs = {
 export function getAddTransactionToBatchInstructionDataEncoder(): Encoder<AddTransactionToBatchInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['ephemeralSigners', getU8Encoder()],
       [
         'transactionMessage',
@@ -125,7 +123,7 @@ export function getAddTransactionToBatchInstructionDataEncoder(): Encoder<AddTra
 
 export function getAddTransactionToBatchInstructionDataDecoder(): Decoder<AddTransactionToBatchInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['ephemeralSigners', getU8Decoder()],
     [
       'transactionMessage',

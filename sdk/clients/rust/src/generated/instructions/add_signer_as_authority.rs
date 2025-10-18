@@ -11,8 +11,6 @@ use borsh::BorshSerialize;
 
 pub const ADD_SIGNER_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [80, 198, 228, 154, 7, 234, 99, 56];
 
-pub const ADD_SIGNER_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [80, 198, 228, 154, 7, 234, 99, 56];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct AddSignerAsAuthority {
@@ -73,8 +71,10 @@ impl AddSignerAsAuthority {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = borsh::to_vec(&AddSignerAsAuthorityInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = AddSignerAsAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -97,6 +97,10 @@ impl AddSignerAsAuthorityInstructionData {
             discriminator: [80, 198, 228, 154, 7, 234, 99, 56],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for AddSignerAsAuthorityInstructionData {
@@ -110,6 +114,12 @@ impl Default for AddSignerAsAuthorityInstructionData {
 pub struct AddSignerAsAuthorityInstructionArgs {
     pub new_signer: SmartAccountSigner,
     pub memo: Option<String>,
+}
+
+impl AddSignerAsAuthorityInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `AddSignerAsAuthority`.
@@ -331,8 +341,10 @@ impl<'a, 'b> AddSignerAsAuthorityCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = borsh::to_vec(&AddSignerAsAuthorityInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = AddSignerAsAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

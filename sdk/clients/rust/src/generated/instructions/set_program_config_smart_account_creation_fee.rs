@@ -11,8 +11,6 @@ use borsh::BorshSerialize;
 pub const SET_PROGRAM_CONFIG_SMART_ACCOUNT_CREATION_FEE_DISCRIMINATOR: [u8; 8] =
     [222, 30, 134, 176, 131, 113, 195, 202];
 
-pub const SET_PROGRAM_CONFIG_SMART_ACCOUNT_CREATION_FEE_DISCRIMINATOR: [u8; 8] = [222, 30, 134, 176, 131, 113, 195, 202];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct SetProgramConfigSmartAccountCreationFee {
@@ -45,9 +43,10 @@ impl SetProgramConfigSmartAccountCreationFee {
             true,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data =
-            borsh::to_vec(&SetProgramConfigSmartAccountCreationFeeInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = SetProgramConfigSmartAccountCreationFeeInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -70,6 +69,10 @@ impl SetProgramConfigSmartAccountCreationFeeInstructionData {
             discriminator: [222, 30, 134, 176, 131, 113, 195, 202],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for SetProgramConfigSmartAccountCreationFeeInstructionData {
@@ -82,6 +85,12 @@ impl Default for SetProgramConfigSmartAccountCreationFeeInstructionData {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SetProgramConfigSmartAccountCreationFeeInstructionArgs {
     pub new_smart_account_creation_fee: u64,
+}
+
+impl SetProgramConfigSmartAccountCreationFeeInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `SetProgramConfigSmartAccountCreationFee`.
@@ -223,9 +232,10 @@ impl<'a, 'b> SetProgramConfigSmartAccountCreationFeeCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data =
-            borsh::to_vec(&SetProgramConfigSmartAccountCreationFeeInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = SetProgramConfigSmartAccountCreationFeeInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

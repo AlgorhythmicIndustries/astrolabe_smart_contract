@@ -30,12 +30,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const CLOSE_BATCH_DISCRIMINATOR = new Uint8Array([
-  166, 174, 35, 253, 209, 211, 181, 28,
-]);
+export const CLOSE_BATCH_DISCRIMINATOR = new Uint8Array([34]);
 
 export function getCloseBatchDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(CLOSE_BATCH_DISCRIMINATOR);
+  return fixEncoderSize(getBytesEncoder(), 1).encode(CLOSE_BATCH_DISCRIMINATOR);
 }
 
 export type CloseBatchInstruction<
@@ -81,14 +79,14 @@ export type CloseBatchInstructionDataArgs = {};
 
 export function getCloseBatchInstructionDataEncoder(): FixedSizeEncoder<CloseBatchInstructionDataArgs> {
   return transformEncoder(
-    getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
+    getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 1)]]),
     (value) => ({ ...value, discriminator: CLOSE_BATCH_DISCRIMINATOR })
   );
 }
 
 export function getCloseBatchInstructionDataDecoder(): FixedSizeDecoder<CloseBatchInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
   ]);
 }
 

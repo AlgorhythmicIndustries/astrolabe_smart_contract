@@ -37,11 +37,8 @@ pub struct CreateTransactionFromBuffer<'info> {
 
 impl<'info> CreateTransactionFromBuffer<'info> {
     pub fn validate(&self, args: &CreateTransactionArgs) -> Result<()> {
-        msg!("CreateTransactionFromBuffer validation started");
         let transaction_buffer_account = &self.transaction_buffer;
         let from_buffer_creator = &self.from_buffer_creator;
-        msg!("🔍 DEBUG: transaction_buffer loaded, creator: {}", transaction_buffer_account.creator);
-        msg!("🔍 DEBUG: from_buffer_creator: {}", from_buffer_creator.key());
 
         // Accept either an empty args.transaction_message (old clients)
         // or a populated one that matches the buffer (new clients provide
@@ -124,35 +121,6 @@ impl<'info> CreateTransactionFromBuffer<'info> {
         // Reallocate the transaction account to the new length of the
         // actual transaction message
         AccountInfo::realloc(&transaction_account_info, new_len, true)?;
-
-        // Debug logging for buffer reading
-        msg!("CreateTransactionFromBuffer: reading buffer_size={}, final_size={}", 
-             transaction_buffer.buffer.len(), 
-             transaction_buffer.final_buffer_size);
-        
-        // Debug: Log the first 50 bytes of the buffer to see what we actually stored
-        let debug_bytes = &transaction_buffer.buffer[..std::cmp::min(50, transaction_buffer.buffer.len())];
-        msg!("CreateTransactionFromBuffer: buffer first_50_bytes={:?}", debug_bytes);
-        
-        // Debug: Try to manually parse the expected CreateTransactionArgs structure
-        if transaction_buffer.buffer.len() >= 7 {
-            msg!("CreateTransactionFromBuffer: manual_parse account_index={}, account_bump={}, ephemeral_signers={}", 
-                 transaction_buffer.buffer[0],
-                 transaction_buffer.buffer[1], 
-                 transaction_buffer.buffer[2]);
-            
-            // Try to read the Vec<u8> length (next 4 bytes as little-endian u32)
-            if transaction_buffer.buffer.len() >= 7 {
-                let vec_len_bytes = [
-                    transaction_buffer.buffer[3],
-                    transaction_buffer.buffer[4], 
-                    transaction_buffer.buffer[5],
-                    transaction_buffer.buffer[6]
-                ];
-                let vec_len = u32::from_le_bytes(vec_len_bytes);
-                msg!("CreateTransactionFromBuffer: transaction_message_length={}", vec_len);
-            }
-        }
 
         // Create the args for the `create_transaction` instruction
         let create_args = CreateTransactionArgs {

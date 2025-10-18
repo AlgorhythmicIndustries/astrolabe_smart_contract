@@ -46,12 +46,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const REMOVE_SIGNER_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([
-  58, 19, 149, 16, 181, 16, 125, 148,
-]);
+export const REMOVE_SIGNER_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([7]);
 
 export function getRemoveSignerAsAuthorityDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     REMOVE_SIGNER_AS_AUTHORITY_DISCRIMINATOR
   );
 }
@@ -109,7 +107,7 @@ export type RemoveSignerAsAuthorityInstructionDataArgs = {
 export function getRemoveSignerAsAuthorityInstructionDataEncoder(): Encoder<RemoveSignerAsAuthorityInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['oldSigner', getAddressEncoder()],
       [
         'memo',
@@ -127,7 +125,7 @@ export function getRemoveSignerAsAuthorityInstructionDataEncoder(): Encoder<Remo
 
 export function getRemoveSignerAsAuthorityInstructionDataDecoder(): Decoder<RemoveSignerAsAuthorityInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['oldSigner', getAddressDecoder()],
     [
       'memo',

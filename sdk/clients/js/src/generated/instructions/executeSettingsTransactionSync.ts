@@ -54,11 +54,11 @@ import {
 } from '../types';
 
 export const EXECUTE_SETTINGS_TRANSACTION_SYNC_DISCRIMINATOR = new Uint8Array([
-  138, 209, 64, 163, 79, 67, 233, 76,
+  36,
 ]);
 
 export function getExecuteSettingsTransactionSyncDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     EXECUTE_SETTINGS_TRANSACTION_SYNC_DISCRIMINATOR
   );
 }
@@ -115,7 +115,7 @@ export type ExecuteSettingsTransactionSyncInstructionDataArgs = {
 export function getExecuteSettingsTransactionSyncInstructionDataEncoder(): Encoder<ExecuteSettingsTransactionSyncInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['numSigners', getU8Encoder()],
       ['actions', getArrayEncoder(getSettingsActionEncoder())],
       [
@@ -134,7 +134,7 @@ export function getExecuteSettingsTransactionSyncInstructionDataEncoder(): Encod
 
 export function getExecuteSettingsTransactionSyncInstructionDataDecoder(): Decoder<ExecuteSettingsTransactionSyncInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['numSigners', getU8Decoder()],
     ['actions', getArrayDecoder(getSettingsActionDecoder())],
     [

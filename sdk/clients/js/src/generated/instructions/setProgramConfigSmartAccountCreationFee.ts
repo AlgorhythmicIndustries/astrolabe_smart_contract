@@ -36,10 +36,10 @@ import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
 export const SET_PROGRAM_CONFIG_SMART_ACCOUNT_CREATION_FEE_DISCRIMINATOR =
-  new Uint8Array([222, 30, 134, 176, 131, 113, 195, 202]);
+  new Uint8Array([3]);
 
 export function getSetProgramConfigSmartAccountCreationFeeDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     SET_PROGRAM_CONFIG_SMART_ACCOUNT_CREATION_FEE_DISCRIMINATOR
   );
 }
@@ -76,7 +76,7 @@ export type SetProgramConfigSmartAccountCreationFeeInstructionDataArgs = {
 export function getSetProgramConfigSmartAccountCreationFeeInstructionDataEncoder(): FixedSizeEncoder<SetProgramConfigSmartAccountCreationFeeInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['newSmartAccountCreationFee', getU64Encoder()],
     ]),
     (value) => ({
@@ -89,7 +89,7 @@ export function getSetProgramConfigSmartAccountCreationFeeInstructionDataEncoder
 
 export function getSetProgramConfigSmartAccountCreationFeeInstructionDataDecoder(): FixedSizeDecoder<SetProgramConfigSmartAccountCreationFeeInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['newSmartAccountCreationFee', getU64Decoder()],
   ]);
 }

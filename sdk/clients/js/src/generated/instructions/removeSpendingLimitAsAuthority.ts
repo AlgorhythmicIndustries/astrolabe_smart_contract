@@ -44,11 +44,11 @@ import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
 export const REMOVE_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([
-  94, 32, 68, 127, 251, 44, 145, 7,
+  13,
 ]);
 
 export function getRemoveSpendingLimitAsAuthorityDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     REMOVE_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR
   );
 }
@@ -101,7 +101,7 @@ export type RemoveSpendingLimitAsAuthorityInstructionDataArgs = {
 export function getRemoveSpendingLimitAsAuthorityInstructionDataEncoder(): Encoder<RemoveSpendingLimitAsAuthorityInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       [
         'memo',
         getOptionEncoder(
@@ -118,7 +118,7 @@ export function getRemoveSpendingLimitAsAuthorityInstructionDataEncoder(): Encod
 
 export function getRemoveSpendingLimitAsAuthorityInstructionDataDecoder(): Decoder<RemoveSpendingLimitAsAuthorityInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     [
       'memo',
       getOptionDecoder(addDecoderSizePrefix(getUtf8Decoder(), getU32Decoder())),

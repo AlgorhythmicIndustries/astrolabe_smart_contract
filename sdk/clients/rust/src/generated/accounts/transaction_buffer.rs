@@ -39,8 +39,6 @@ pub struct TransactionBuffer {
 
 pub const TRANSACTION_BUFFER_DISCRIMINATOR: [u8; 8] = [90, 36, 35, 219, 93, 225, 110, 96];
 
-pub const TRANSACTION_BUFFER_DISCRIMINATOR: [u8; 8] = [90, 36, 35, 219, 93, 225, 110, 96];
-
 impl TransactionBuffer {
     #[inline(always)]
     pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {

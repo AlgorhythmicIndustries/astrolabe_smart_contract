@@ -11,8 +11,6 @@ use solana_pubkey::Pubkey;
 
 pub const REMOVE_SIGNER_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [58, 19, 149, 16, 181, 16, 125, 148];
 
-pub const REMOVE_SIGNER_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [58, 19, 149, 16, 181, 16, 125, 148];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct RemoveSignerAsAuthority {
@@ -73,8 +71,10 @@ impl RemoveSignerAsAuthority {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = borsh::to_vec(&RemoveSignerAsAuthorityInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = RemoveSignerAsAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -97,6 +97,10 @@ impl RemoveSignerAsAuthorityInstructionData {
             discriminator: [58, 19, 149, 16, 181, 16, 125, 148],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for RemoveSignerAsAuthorityInstructionData {
@@ -110,6 +114,12 @@ impl Default for RemoveSignerAsAuthorityInstructionData {
 pub struct RemoveSignerAsAuthorityInstructionArgs {
     pub old_signer: Pubkey,
     pub memo: Option<String>,
+}
+
+impl RemoveSignerAsAuthorityInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `RemoveSignerAsAuthority`.
@@ -331,8 +341,10 @@ impl<'a, 'b> RemoveSignerAsAuthorityCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = borsh::to_vec(&RemoveSignerAsAuthorityInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = RemoveSignerAsAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {
