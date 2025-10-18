@@ -12,8 +12,6 @@ use solana_pubkey::Pubkey;
 pub const SET_ARCHIVAL_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] =
     [178, 199, 4, 13, 237, 234, 152, 202];
 
-pub const SET_ARCHIVAL_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [178, 199, 4, 13, 237, 234, 152, 202];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct SetArchivalAuthorityAsAuthority {
@@ -74,9 +72,10 @@ impl SetArchivalAuthorityAsAuthority {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data =
-            borsh::to_vec(&SetArchivalAuthorityAsAuthorityInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = SetArchivalAuthorityAsAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -99,6 +98,10 @@ impl SetArchivalAuthorityAsAuthorityInstructionData {
             discriminator: [178, 199, 4, 13, 237, 234, 152, 202],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for SetArchivalAuthorityAsAuthorityInstructionData {
@@ -112,6 +115,12 @@ impl Default for SetArchivalAuthorityAsAuthorityInstructionData {
 pub struct SetArchivalAuthorityAsAuthorityInstructionArgs {
     pub new_archival_authority: Option<Pubkey>,
     pub memo: Option<String>,
+}
+
+impl SetArchivalAuthorityAsAuthorityInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `SetArchivalAuthorityAsAuthority`.
@@ -334,9 +343,10 @@ impl<'a, 'b> SetArchivalAuthorityAsAuthorityCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data =
-            borsh::to_vec(&SetArchivalAuthorityAsAuthorityInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = SetArchivalAuthorityAsAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

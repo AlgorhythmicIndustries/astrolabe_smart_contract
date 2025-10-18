@@ -36,8 +36,6 @@ pub struct BatchTransaction {
 
 pub const BATCH_TRANSACTION_DISCRIMINATOR: [u8; 8] = [92, 20, 61, 146, 155, 62, 112, 72];
 
-pub const BATCH_TRANSACTION_DISCRIMINATOR: [u8; 8] = [92, 20, 61, 146, 155, 62, 112, 72];
-
 impl BatchTransaction {
     #[inline(always)]
     pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {

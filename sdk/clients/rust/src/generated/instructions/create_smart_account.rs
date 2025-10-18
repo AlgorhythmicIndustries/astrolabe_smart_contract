@@ -13,8 +13,6 @@ use solana_pubkey::Pubkey;
 
 pub const CREATE_SMART_ACCOUNT_DISCRIMINATOR: [u8; 8] = [197, 102, 253, 231, 77, 84, 50, 17];
 
-pub const CREATE_SMART_ACCOUNT_DISCRIMINATOR: [u8; 8] = [197, 102, 253, 231, 77, 84, 50, 17];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct CreateSmartAccount {
@@ -63,8 +61,10 @@ impl CreateSmartAccount {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = borsh::to_vec(&CreateSmartAccountInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = CreateSmartAccountInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -87,6 +87,10 @@ impl CreateSmartAccountInstructionData {
             discriminator: [197, 102, 253, 231, 77, 84, 50, 17],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for CreateSmartAccountInstructionData {
@@ -105,6 +109,12 @@ pub struct CreateSmartAccountInstructionArgs {
     pub time_lock: u32,
     pub rent_collector: Option<Pubkey>,
     pub memo: Option<String>,
+}
+
+impl CreateSmartAccountInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `CreateSmartAccount`.
@@ -370,8 +380,10 @@ impl<'a, 'b> CreateSmartAccountCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = borsh::to_vec(&CreateSmartAccountInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = CreateSmartAccountInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

@@ -12,8 +12,6 @@ use borsh::BorshSerialize;
 pub const EXECUTE_SETTINGS_TRANSACTION_SYNC_DISCRIMINATOR: [u8; 8] =
     [138, 209, 64, 163, 79, 67, 233, 76];
 
-pub const EXECUTE_SETTINGS_TRANSACTION_SYNC_DISCRIMINATOR: [u8; 8] = [138, 209, 64, 163, 79, 67, 233, 76];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct ExecuteSettingsTransactionSync {
@@ -68,9 +66,10 @@ impl ExecuteSettingsTransactionSync {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data =
-            borsh::to_vec(&ExecuteSettingsTransactionSyncInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = ExecuteSettingsTransactionSyncInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -93,6 +92,10 @@ impl ExecuteSettingsTransactionSyncInstructionData {
             discriminator: [138, 209, 64, 163, 79, 67, 233, 76],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for ExecuteSettingsTransactionSyncInstructionData {
@@ -107,6 +110,12 @@ pub struct ExecuteSettingsTransactionSyncInstructionArgs {
     pub num_signers: u8,
     pub actions: Vec<SettingsAction>,
     pub memo: Option<String>,
+}
+
+impl ExecuteSettingsTransactionSyncInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `ExecuteSettingsTransactionSync`.
@@ -315,9 +324,10 @@ impl<'a, 'b> ExecuteSettingsTransactionSyncCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data =
-            borsh::to_vec(&ExecuteSettingsTransactionSyncInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = ExecuteSettingsTransactionSyncInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

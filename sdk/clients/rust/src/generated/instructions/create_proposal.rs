@@ -10,8 +10,6 @@ use borsh::BorshSerialize;
 
 pub const CREATE_PROPOSAL_DISCRIMINATOR: [u8; 8] = [132, 116, 68, 174, 216, 160, 198, 22];
 
-pub const CREATE_PROPOSAL_DISCRIMINATOR: [u8; 8] = [132, 116, 68, 174, 216, 160, 198, 22];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct CreateProposal {
@@ -56,8 +54,8 @@ impl CreateProposal {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = borsh::to_vec(&CreateProposalInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = CreateProposalInstructionData::new().try_to_vec().unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -80,6 +78,10 @@ impl CreateProposalInstructionData {
             discriminator: [132, 116, 68, 174, 216, 160, 198, 22],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for CreateProposalInstructionData {
@@ -93,6 +95,12 @@ impl Default for CreateProposalInstructionData {
 pub struct CreateProposalInstructionArgs {
     pub transaction_index: u64,
     pub draft: bool,
+}
+
+impl CreateProposalInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `CreateProposal`.
@@ -294,8 +302,8 @@ impl<'a, 'b> CreateProposalCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = borsh::to_vec(&CreateProposalInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = CreateProposalInstructionData::new().try_to_vec().unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

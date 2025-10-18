@@ -48,8 +48,6 @@ pub struct Batch {
 
 pub const BATCH_DISCRIMINATOR: [u8; 8] = [156, 194, 70, 44, 22, 88, 137, 44];
 
-pub const BATCH_DISCRIMINATOR: [u8; 8] = [156, 194, 70, 44, 22, 88, 137, 44];
-
 impl Batch {
     pub const LEN: usize = 123;
 

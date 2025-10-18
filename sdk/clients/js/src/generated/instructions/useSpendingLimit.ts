@@ -47,12 +47,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const USE_SPENDING_LIMIT_DISCRIMINATOR = new Uint8Array([
-  41, 179, 70, 5, 194, 147, 239, 158,
-]);
+export const USE_SPENDING_LIMIT_DISCRIMINATOR = new Uint8Array([30]);
 
 export function getUseSpendingLimitDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     USE_SPENDING_LIMIT_DISCRIMINATOR
   );
 }
@@ -141,7 +139,7 @@ export type UseSpendingLimitInstructionDataArgs = {
 export function getUseSpendingLimitInstructionDataEncoder(): Encoder<UseSpendingLimitInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['amount', getU64Encoder()],
       ['decimals', getU8Encoder()],
       [
@@ -157,7 +155,7 @@ export function getUseSpendingLimitInstructionDataEncoder(): Encoder<UseSpending
 
 export function getUseSpendingLimitInstructionDataDecoder(): Decoder<UseSpendingLimitInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['amount', getU64Decoder()],
     ['decimals', getU8Decoder()],
     [

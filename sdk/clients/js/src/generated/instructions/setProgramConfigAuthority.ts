@@ -35,12 +35,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const SET_PROGRAM_CONFIG_AUTHORITY_DISCRIMINATOR = new Uint8Array([
-  130, 40, 234, 111, 237, 155, 246, 203,
-]);
+export const SET_PROGRAM_CONFIG_AUTHORITY_DISCRIMINATOR = new Uint8Array([2]);
 
 export function getSetProgramConfigAuthorityDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     SET_PROGRAM_CONFIG_AUTHORITY_DISCRIMINATOR
   );
 }
@@ -77,7 +75,7 @@ export type SetProgramConfigAuthorityInstructionDataArgs = {
 export function getSetProgramConfigAuthorityInstructionDataEncoder(): FixedSizeEncoder<SetProgramConfigAuthorityInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['newAuthority', getAddressEncoder()],
     ]),
     (value) => ({
@@ -89,7 +87,7 @@ export function getSetProgramConfigAuthorityInstructionDataEncoder(): FixedSizeE
 
 export function getSetProgramConfigAuthorityInstructionDataDecoder(): FixedSizeDecoder<SetProgramConfigAuthorityInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['newAuthority', getAddressDecoder()],
   ]);
 }

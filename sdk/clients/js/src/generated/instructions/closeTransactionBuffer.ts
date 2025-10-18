@@ -33,12 +33,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const CLOSE_TRANSACTION_BUFFER_DISCRIMINATOR = new Uint8Array([
-  224, 221, 123, 213, 0, 204, 5, 191,
-]);
+export const CLOSE_TRANSACTION_BUFFER_DISCRIMINATOR = new Uint8Array([18]);
 
 export function getCloseTransactionBufferDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     CLOSE_TRANSACTION_BUFFER_DISCRIMINATOR
   );
 }
@@ -75,7 +73,7 @@ export type CloseTransactionBufferInstructionDataArgs = {};
 
 export function getCloseTransactionBufferInstructionDataEncoder(): FixedSizeEncoder<CloseTransactionBufferInstructionDataArgs> {
   return transformEncoder(
-    getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
+    getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 1)]]),
     (value) => ({
       ...value,
       discriminator: CLOSE_TRANSACTION_BUFFER_DISCRIMINATOR,
@@ -85,7 +83,7 @@ export function getCloseTransactionBufferInstructionDataEncoder(): FixedSizeEnco
 
 export function getCloseTransactionBufferInstructionDataDecoder(): FixedSizeDecoder<CloseTransactionBufferInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
   ]);
 }
 

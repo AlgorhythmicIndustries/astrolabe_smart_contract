@@ -41,11 +41,11 @@ import {
 } from '../types';
 
 export const CREATE_TRANSACTION_FROM_BUFFER_DISCRIMINATOR = new Uint8Array([
-  53, 192, 39, 239, 124, 84, 43, 249,
+  20,
 ]);
 
 export function getCreateTransactionFromBufferDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     CREATE_TRANSACTION_FROM_BUFFER_DISCRIMINATOR
   );
 }
@@ -106,7 +106,7 @@ export type CreateTransactionFromBufferInstructionDataArgs = {
 export function getCreateTransactionFromBufferInstructionDataEncoder(): Encoder<CreateTransactionFromBufferInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['args', getCreateTransactionArgsEncoder()],
     ]),
     (value) => ({
@@ -118,7 +118,7 @@ export function getCreateTransactionFromBufferInstructionDataEncoder(): Encoder<
 
 export function getCreateTransactionFromBufferInstructionDataDecoder(): Decoder<CreateTransactionFromBufferInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['args', getCreateTransactionArgsDecoder()],
   ]);
 }

@@ -30,12 +30,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const CLOSE_TRANSACTION_DISCRIMINATOR = new Uint8Array([
-  97, 46, 152, 170, 42, 215, 192, 218,
-]);
+export const CLOSE_TRANSACTION_DISCRIMINATOR = new Uint8Array([32]);
 
 export function getCloseTransactionDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     CLOSE_TRANSACTION_DISCRIMINATOR
   );
 }
@@ -87,14 +85,14 @@ export type CloseTransactionInstructionDataArgs = {};
 
 export function getCloseTransactionInstructionDataEncoder(): FixedSizeEncoder<CloseTransactionInstructionDataArgs> {
   return transformEncoder(
-    getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
+    getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 1)]]),
     (value) => ({ ...value, discriminator: CLOSE_TRANSACTION_DISCRIMINATOR })
   );
 }
 
 export function getCloseTransactionInstructionDataDecoder(): FixedSizeDecoder<CloseTransactionInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
   ]);
 }
 

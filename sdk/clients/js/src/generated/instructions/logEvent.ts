@@ -39,12 +39,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const LOG_EVENT_DISCRIMINATOR = new Uint8Array([
-  5, 9, 90, 141, 223, 134, 57, 217,
-]);
+export const LOG_EVENT_DISCRIMINATOR = new Uint8Array([37]);
 
 export function getLogEventDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(LOG_EVENT_DISCRIMINATOR);
+  return fixEncoderSize(getBytesEncoder(), 1).encode(LOG_EVENT_DISCRIMINATOR);
 }
 
 export type LogEventInstruction<
@@ -79,7 +77,7 @@ export type LogEventInstructionDataArgs = {
 export function getLogEventInstructionDataEncoder(): Encoder<LogEventInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       [
         'accountSeeds',
         getArrayEncoder(
@@ -95,7 +93,7 @@ export function getLogEventInstructionDataEncoder(): Encoder<LogEventInstruction
 
 export function getLogEventInstructionDataDecoder(): Decoder<LogEventInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     [
       'accountSeeds',
       getArrayDecoder(addDecoderSizePrefix(getBytesDecoder(), getU32Decoder())),

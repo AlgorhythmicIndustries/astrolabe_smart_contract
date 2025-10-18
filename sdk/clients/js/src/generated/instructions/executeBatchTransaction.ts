@@ -33,12 +33,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const EXECUTE_BATCH_TRANSACTION_DISCRIMINATOR = new Uint8Array([
-  237, 67, 201, 173, 33, 130, 88, 134,
-]);
+export const EXECUTE_BATCH_TRANSACTION_DISCRIMINATOR = new Uint8Array([24]);
 
 export function getExecuteBatchTransactionDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     EXECUTE_BATCH_TRANSACTION_DISCRIMINATOR
   );
 }
@@ -83,7 +81,7 @@ export type ExecuteBatchTransactionInstructionDataArgs = {};
 
 export function getExecuteBatchTransactionInstructionDataEncoder(): FixedSizeEncoder<ExecuteBatchTransactionInstructionDataArgs> {
   return transformEncoder(
-    getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
+    getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 1)]]),
     (value) => ({
       ...value,
       discriminator: EXECUTE_BATCH_TRANSACTION_DISCRIMINATOR,
@@ -93,7 +91,7 @@ export function getExecuteBatchTransactionInstructionDataEncoder(): FixedSizeEnc
 
 export function getExecuteBatchTransactionInstructionDataDecoder(): FixedSizeDecoder<ExecuteBatchTransactionInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
   ]);
 }
 

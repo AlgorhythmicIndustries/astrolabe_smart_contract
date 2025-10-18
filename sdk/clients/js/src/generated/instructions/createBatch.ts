@@ -46,12 +46,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const CREATE_BATCH_DISCRIMINATOR = new Uint8Array([
-  159, 198, 248, 43, 248, 31, 235, 86,
-]);
+export const CREATE_BATCH_DISCRIMINATOR = new Uint8Array([22]);
 
 export function getCreateBatchDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     CREATE_BATCH_DISCRIMINATOR
   );
 }
@@ -107,7 +105,7 @@ export type CreateBatchInstructionDataArgs = {
 export function getCreateBatchInstructionDataEncoder(): Encoder<CreateBatchInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['accountIndex', getU8Encoder()],
       [
         'memo',
@@ -122,7 +120,7 @@ export function getCreateBatchInstructionDataEncoder(): Encoder<CreateBatchInstr
 
 export function getCreateBatchInstructionDataDecoder(): Decoder<CreateBatchInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['accountIndex', getU8Decoder()],
     [
       'memo',

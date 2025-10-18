@@ -10,8 +10,6 @@ use borsh::BorshSerialize;
 
 pub const LOG_EVENT_DISCRIMINATOR: [u8; 8] = [5, 9, 90, 141, 223, 134, 57, 217];
 
-pub const LOG_EVENT_DISCRIMINATOR: [u8; 8] = [5, 9, 90, 141, 223, 134, 57, 217];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct LogEvent {
@@ -35,8 +33,8 @@ impl LogEvent {
             true,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = borsh::to_vec(&LogEventInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = LogEventInstructionData::new().try_to_vec().unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -59,6 +57,10 @@ impl LogEventInstructionData {
             discriminator: [5, 9, 90, 141, 223, 134, 57, 217],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for LogEventInstructionData {
@@ -73,6 +75,12 @@ pub struct LogEventInstructionArgs {
     pub account_seeds: Vec<Vec<u8>>,
     pub bump: u8,
     pub event: Vec<u8>,
+}
+
+impl LogEventInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `LogEvent`.
@@ -208,8 +216,8 @@ impl<'a, 'b> LogEventCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = borsh::to_vec(&LogEventInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = LogEventInstructionData::new().try_to_vec().unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

@@ -10,8 +10,6 @@ use borsh::BorshSerialize;
 
 pub const ACTIVATE_PROPOSAL_DISCRIMINATOR: [u8; 8] = [90, 186, 203, 234, 70, 185, 191, 21];
 
-pub const ACTIVATE_PROPOSAL_DISCRIMINATOR: [u8; 8] = [90, 186, 203, 234, 70, 185, 191, 21];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct ActivateProposal {
@@ -40,7 +38,7 @@ impl ActivateProposal {
         accounts.push(solana_instruction::AccountMeta::new(self.signer, true));
         accounts.push(solana_instruction::AccountMeta::new(self.proposal, false));
         accounts.extend_from_slice(remaining_accounts);
-        let data = borsh::to_vec(&ActivateProposalInstructionData::new()).unwrap();
+        let data = ActivateProposalInstructionData::new().try_to_vec().unwrap();
 
         solana_instruction::Instruction {
             program_id: crate::ASTROLABE_SMART_ACCOUNT_ID,
@@ -61,6 +59,10 @@ impl ActivateProposalInstructionData {
         Self {
             discriminator: [90, 186, 203, 234, 70, 185, 191, 21],
         }
+    }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
     }
 }
 
@@ -204,7 +206,7 @@ impl<'a, 'b> ActivateProposalCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let data = borsh::to_vec(&ActivateProposalInstructionData::new()).unwrap();
+        let data = ActivateProposalInstructionData::new().try_to_vec().unwrap();
 
         let instruction = solana_instruction::Instruction {
             program_id: crate::ASTROLABE_SMART_ACCOUNT_ID,

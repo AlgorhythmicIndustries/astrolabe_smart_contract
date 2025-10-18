@@ -11,8 +11,6 @@ use borsh::BorshSerialize;
 pub const REMOVE_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] =
     [94, 32, 68, 127, 251, 44, 145, 7];
 
-pub const REMOVE_SPENDING_LIMIT_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [94, 32, 68, 127, 251, 44, 145, 7];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct RemoveSpendingLimitAsAuthority {
@@ -63,9 +61,10 @@ impl RemoveSpendingLimitAsAuthority {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data =
-            borsh::to_vec(&RemoveSpendingLimitAsAuthorityInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = RemoveSpendingLimitAsAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -88,6 +87,10 @@ impl RemoveSpendingLimitAsAuthorityInstructionData {
             discriminator: [94, 32, 68, 127, 251, 44, 145, 7],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for RemoveSpendingLimitAsAuthorityInstructionData {
@@ -100,6 +103,12 @@ impl Default for RemoveSpendingLimitAsAuthorityInstructionData {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RemoveSpendingLimitAsAuthorityInstructionArgs {
     pub memo: Option<String>,
+}
+
+impl RemoveSpendingLimitAsAuthorityInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `RemoveSpendingLimitAsAuthority`.
@@ -294,9 +303,10 @@ impl<'a, 'b> RemoveSpendingLimitAsAuthorityCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data =
-            borsh::to_vec(&RemoveSpendingLimitAsAuthorityInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = RemoveSpendingLimitAsAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

@@ -69,8 +69,6 @@ pub struct SpendingLimit {
 
 pub const SPENDING_LIMIT_DISCRIMINATOR: [u8; 8] = [10, 201, 27, 160, 218, 195, 222, 152];
 
-pub const SPENDING_LIMIT_DISCRIMINATOR: [u8; 8] = [10, 201, 27, 160, 218, 195, 222, 152];
-
 impl SpendingLimit {
     #[inline(always)]
     pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {

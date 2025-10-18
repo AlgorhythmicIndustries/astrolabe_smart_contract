@@ -10,8 +10,6 @@ use borsh::BorshSerialize;
 
 pub const EXECUTE_TRANSACTION_SYNC_DISCRIMINATOR: [u8; 8] = [43, 102, 248, 89, 231, 97, 104, 134];
 
-pub const EXECUTE_TRANSACTION_SYNC_DISCRIMINATOR: [u8; 8] = [43, 102, 248, 89, 231, 97, 104, 134];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct ExecuteTransactionSync {
@@ -44,8 +42,10 @@ impl ExecuteTransactionSync {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = borsh::to_vec(&ExecuteTransactionSyncInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = ExecuteTransactionSyncInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -68,6 +68,10 @@ impl ExecuteTransactionSyncInstructionData {
             discriminator: [43, 102, 248, 89, 231, 97, 104, 134],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for ExecuteTransactionSyncInstructionData {
@@ -82,6 +86,12 @@ pub struct ExecuteTransactionSyncInstructionArgs {
     pub account_index: u8,
     pub num_signers: u8,
     pub instructions: Vec<u8>,
+}
+
+impl ExecuteTransactionSyncInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `ExecuteTransactionSync`.
@@ -237,8 +247,10 @@ impl<'a, 'b> ExecuteTransactionSyncCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = borsh::to_vec(&ExecuteTransactionSyncInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = ExecuteTransactionSyncInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

@@ -35,12 +35,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const EXECUTE_TRANSACTION_SYNC_DISCRIMINATOR = new Uint8Array([
-  43, 102, 248, 89, 231, 97, 104, 134,
-]);
+export const EXECUTE_TRANSACTION_SYNC_DISCRIMINATOR = new Uint8Array([35]);
 
 export function getExecuteTransactionSyncDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     EXECUTE_TRANSACTION_SYNC_DISCRIMINATOR
   );
 }
@@ -88,7 +86,7 @@ export type ExecuteTransactionSyncInstructionDataArgs = {
 export function getExecuteTransactionSyncInstructionDataEncoder(): Encoder<ExecuteTransactionSyncInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['accountIndex', getU8Encoder()],
       ['numSigners', getU8Encoder()],
       [
@@ -105,7 +103,7 @@ export function getExecuteTransactionSyncInstructionDataEncoder(): Encoder<Execu
 
 export function getExecuteTransactionSyncInstructionDataDecoder(): Decoder<ExecuteTransactionSyncInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['accountIndex', getU8Decoder()],
     ['numSigners', getU8Decoder()],
     ['instructions', addDecoderSizePrefix(getBytesDecoder(), getU32Decoder())],

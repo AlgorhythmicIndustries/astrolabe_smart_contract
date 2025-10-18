@@ -37,12 +37,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR = new Uint8Array([
-  190, 86, 246, 95, 231, 154, 229, 91,
-]);
+export const EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR = new Uint8Array([19]);
 
 export function getExtendTransactionBufferDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR
   );
 }
@@ -83,7 +81,7 @@ export type ExtendTransactionBufferInstructionDataArgs = {
 export function getExtendTransactionBufferInstructionDataEncoder(): Encoder<ExtendTransactionBufferInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['buffer', addEncoderSizePrefix(getBytesEncoder(), getU32Encoder())],
     ]),
     (value) => ({
@@ -95,7 +93,7 @@ export function getExtendTransactionBufferInstructionDataEncoder(): Encoder<Exte
 
 export function getExtendTransactionBufferInstructionDataDecoder(): Decoder<ExtendTransactionBufferInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['buffer', addDecoderSizePrefix(getBytesDecoder(), getU32Decoder())],
   ]);
 }

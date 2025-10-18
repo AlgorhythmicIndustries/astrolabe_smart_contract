@@ -33,12 +33,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const ACTIVATE_PROPOSAL_DISCRIMINATOR = new Uint8Array([
-  90, 186, 203, 234, 70, 185, 191, 21,
-]);
+export const ACTIVATE_PROPOSAL_DISCRIMINATOR = new Uint8Array([26]);
 
 export function getActivateProposalDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     ACTIVATE_PROPOSAL_DISCRIMINATOR
   );
 }
@@ -75,14 +73,14 @@ export type ActivateProposalInstructionDataArgs = {};
 
 export function getActivateProposalInstructionDataEncoder(): FixedSizeEncoder<ActivateProposalInstructionDataArgs> {
   return transformEncoder(
-    getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 8)]]),
+    getStructEncoder([['discriminator', fixEncoderSize(getBytesEncoder(), 1)]]),
     (value) => ({ ...value, discriminator: ACTIVATE_PROPOSAL_DISCRIMINATOR })
   );
 }
 
 export function getActivateProposalInstructionDataDecoder(): FixedSizeDecoder<ActivateProposalInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
   ]);
 }
 

@@ -50,12 +50,10 @@ import {
   type SmartAccountSignerArgs,
 } from '../types';
 
-export const ADD_SIGNER_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([
-  80, 198, 228, 154, 7, 234, 99, 56,
-]);
+export const ADD_SIGNER_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([6]);
 
 export function getAddSignerAsAuthorityDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     ADD_SIGNER_AS_AUTHORITY_DISCRIMINATOR
   );
 }
@@ -113,7 +111,7 @@ export type AddSignerAsAuthorityInstructionDataArgs = {
 export function getAddSignerAsAuthorityInstructionDataEncoder(): Encoder<AddSignerAsAuthorityInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['newSigner', getSmartAccountSignerEncoder()],
       [
         'memo',
@@ -131,7 +129,7 @@ export function getAddSignerAsAuthorityInstructionDataEncoder(): Encoder<AddSign
 
 export function getAddSignerAsAuthorityInstructionDataDecoder(): Decoder<AddSignerAsAuthorityInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['newSigner', getSmartAccountSignerDecoder()],
     [
       'memo',

@@ -11,8 +11,6 @@ use solana_pubkey::Pubkey;
 
 pub const INITIALIZE_PROGRAM_CONFIG_DISCRIMINATOR: [u8; 8] = [6, 131, 61, 237, 40, 110, 83, 124];
 
-pub const INITIALIZE_PROGRAM_CONFIG_DISCRIMINATOR: [u8; 8] = [6, 131, 61, 237, 40, 110, 83, 124];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct InitializeProgramConfig {
@@ -48,8 +46,10 @@ impl InitializeProgramConfig {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = borsh::to_vec(&InitializeProgramConfigInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&args).unwrap();
+        let mut data = InitializeProgramConfigInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -72,6 +72,10 @@ impl InitializeProgramConfigInstructionData {
             discriminator: [6, 131, 61, 237, 40, 110, 83, 124],
         }
     }
+
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 impl Default for InitializeProgramConfigInstructionData {
@@ -86,6 +90,12 @@ pub struct InitializeProgramConfigInstructionArgs {
     pub authority: Pubkey,
     pub smart_account_creation_fee: u64,
     pub treasury: Pubkey,
+}
+
+impl InitializeProgramConfigInstructionArgs {
+    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
+        borsh::to_vec(self)
+    }
 }
 
 /// Instruction builder for `InitializeProgramConfig`.
@@ -262,8 +272,10 @@ impl<'a, 'b> InitializeProgramConfigCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = borsh::to_vec(&InitializeProgramConfigInstructionData::new()).unwrap();
-        let mut args = borsh::to_vec(&self.__args).unwrap();
+        let mut data = InitializeProgramConfigInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {

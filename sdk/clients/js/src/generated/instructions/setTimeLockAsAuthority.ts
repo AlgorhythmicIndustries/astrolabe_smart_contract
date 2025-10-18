@@ -44,12 +44,10 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([
-  2, 234, 93, 93, 40, 92, 31, 234,
-]);
+export const SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR = new Uint8Array([8]);
 
 export function getSetTimeLockAsAuthorityDiscriminatorBytes() {
-  return fixEncoderSize(getBytesEncoder(), 8).encode(
+  return fixEncoderSize(getBytesEncoder(), 1).encode(
     SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR
   );
 }
@@ -107,7 +105,7 @@ export type SetTimeLockAsAuthorityInstructionDataArgs = {
 export function getSetTimeLockAsAuthorityInstructionDataEncoder(): Encoder<SetTimeLockAsAuthorityInstructionDataArgs> {
   return transformEncoder(
     getStructEncoder([
-      ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
+      ['discriminator', fixEncoderSize(getBytesEncoder(), 1)],
       ['timeLock', getU32Encoder()],
       [
         'memo',
@@ -125,7 +123,7 @@ export function getSetTimeLockAsAuthorityInstructionDataEncoder(): Encoder<SetTi
 
 export function getSetTimeLockAsAuthorityInstructionDataDecoder(): Decoder<SetTimeLockAsAuthorityInstructionData> {
   return getStructDecoder([
-    ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
+    ['discriminator', fixDecoderSize(getBytesDecoder(), 1)],
     ['timeLock', getU32Decoder()],
     [
       'memo',
