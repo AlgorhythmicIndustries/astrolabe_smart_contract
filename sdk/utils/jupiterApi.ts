@@ -7,7 +7,8 @@ export async function getSwapQuote(
   outputMint: string,
   amount: number,
   slippage: number,
-  platformFeeBps?: number
+  platformFeeBps?: number,
+  excludeDexes?: string[]
 ): Promise<JupiterQuote> {
 
   // Convert native to WSOL mint
@@ -19,7 +20,8 @@ export async function getSwapQuote(
     outputMint,
     amount,
     slippage,
-    platformFeeBps
+    platformFeeBps,
+    excludeDexes
   });
 
   const url = new URL('https://lite-api.jup.ag/swap/v1/quote');
@@ -37,6 +39,12 @@ export async function getSwapQuote(
   if (platformFeeBps && platformFeeBps > 0) {
     url.searchParams.append('platformFeeBps', platformFeeBps.toString());
     console.log('💰 Adding platform fee:', platformFeeBps, 'basis points');
+  }
+
+  // Add excluded DEXes if provided
+  if (excludeDexes && excludeDexes.length > 0) {
+    url.searchParams.append('excludeDexes', excludeDexes.join(','));
+    console.log('🚫 Excluding DEXes:', excludeDexes.join(', '));
   }
 
   try {
