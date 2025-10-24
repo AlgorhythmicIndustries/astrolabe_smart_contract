@@ -33,3 +33,22 @@ export interface JupiterSwapResponse {
   lastValidBlockHeight: number;
   prioritizationFeeLamports?: number;
 }
+
+// Ultra V3 API types
+export interface UltraOrderResponse {
+  transaction: string; // Base64 encoded transaction
+  inAmount: string;
+  outAmount: string;
+  slippageBps: number;
+  priceImpactPct: string;
+  swapType: string;
+  routePlan: RoutePlanStep[];
+  requestId?: string; // Optional, for tracking
+}
+
+export type JupiterApiMode = 'ultra' | 'legacy';
+
+export interface SwapConfig {
+  apiMode: JupiterApiMode;
+  excludedDexes: string[];
+}
