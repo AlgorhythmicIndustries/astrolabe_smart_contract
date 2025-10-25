@@ -27,14 +27,14 @@ export async function getUltraOrder(
     taker
   });
 
-  const url = new URL('https://api.jup.ag/ultra/v1/order');
+  const url = new URL('https://lite-api.jup.ag/ultra/v1/order');
   url.searchParams.append('inputMint', actualInputMint);
   url.searchParams.append('outputMint', actualOutputMint);
   url.searchParams.append('amount', amount.toString());
   url.searchParams.append('taker', taker);
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url.toString());
     const data = await response.json();
     
     if (!response.ok) {
@@ -72,7 +72,7 @@ export async function executeUltraOrder(
   console.log('Executing Ultra order:', requestId);
 
   try {
-    const response = await fetch('https://api.jup.ag/ultra/v1/execute', {
+    const response = await fetch('https://lite-api.jup.ag/ultra/v1/execute', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
