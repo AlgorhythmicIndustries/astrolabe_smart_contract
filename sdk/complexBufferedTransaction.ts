@@ -139,7 +139,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
       const jupiterLimit = ix.data[1] | (ix.data[2] << 8) | (ix.data[3] << 16) | (ix.data[4] << 24);
       
       // Add smart account overhead (ExecuteTransaction instruction + account validations)
-      // Increased to 500k for complex swaps with multiple hops and Token-2022 interactions
+      // Increased to 600k for complex swaps with multiple hops and Token-2022 interactions
       const SMART_ACCOUNT_OVERHEAD = 600_000;
       const newLimit = Math.min(jupiterLimit + SMART_ACCOUNT_OVERHEAD, 1_400_000); // Cap at 1.4M (Solana max)
       
@@ -163,19 +163,50 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     };
   });
 
-  // If no compute unit limit instruction exists, we need to add one
-  // For now, log a warning - we'd need to add ComputeBudget program to accounts
+  // If no compute unit limit instruction exists, ADD one to prevent 200K default limit
+  let finalStaticAccounts = [...safeStaticAccounts];
+  let finalInstructions = modifiedInstructions;
+  
   if (!hasComputeUnitLimit) {
-    console.log('⚠️  No compute unit limit instruction found - transaction may fail with default 200K limit');
-    console.log('💡 Consider adding a SetComputeUnitLimit instruction before buffering');
+    console.log('⚠️  No compute unit limit instruction found - adding one to prevent 200K default limit');
+    
+    // Default compute limit for complex swaps: 1.2M (enough for multi-hop swaps + smart account overhead)
+    const DEFAULT_COMPUTE_LIMIT = 1_200_000;
+    
+    // Create SetComputeUnitLimit instruction data
+    const computeLimitData = new Uint8Array(5);
+    computeLimitData[0] = 2; // SetComputeUnitLimit discriminator
+    computeLimitData[1] = DEFAULT_COMPUTE_LIMIT & 0xff;
+    computeLimitData[2] = (DEFAULT_COMPUTE_LIMIT >> 8) & 0xff;
+    computeLimitData[3] = (DEFAULT_COMPUTE_LIMIT >> 16) & 0xff;
+    computeLimitData[4] = (DEFAULT_COMPUTE_LIMIT >> 24) & 0xff;
+    
+    // Check if ComputeBudget program is already in accounts
+    let computeBudgetIndex = computeBudgetProgramIndex;
+    if (computeBudgetIndex === -1) {
+      // Add ComputeBudget program to account keys
+      finalStaticAccounts.push(address(COMPUTE_BUDGET_PROGRAM));
+      computeBudgetIndex = finalStaticAccounts.length - 1;
+      console.log(`🔧 Added ComputeBudget program to accounts at index ${computeBudgetIndex}`);
+    }
+    
+    // Prepend SetComputeUnitLimit instruction
+    const computeLimitInstruction = {
+      programIdIndex: computeBudgetIndex,
+      accountIndexes: new Uint8Array([]), // No accounts needed
+      data: computeLimitData,
+    };
+    
+    finalInstructions = [computeLimitInstruction, ...finalInstructions];
+    console.log(`🔧 Added SetComputeUnitLimit instruction with ${DEFAULT_COMPUTE_LIMIT} CUs`);
   }
 
   const transactionMessage = {
     numSigners: numSignerAccounts,
     numWritableSigners: Math.max(0, numSignerAccounts - numReadonlySignerAccounts),
-    numWritableNonSigners: Math.max(0, (staticAccountsLen - numSignerAccounts) - numReadonlyNonSignerAccounts),
-    accountKeys: safeStaticAccounts,
-    instructions: modifiedInstructions,
+    numWritableNonSigners: Math.max(0, (finalStaticAccounts.length - numSignerAccounts) - numReadonlyNonSignerAccounts),
+    accountKeys: finalStaticAccounts,
+    instructions: finalInstructions,
     addressTableLookups: (addressTableLookups || []).map(lookup => ({
       accountKey: lookup.accountKey,
       writableIndexes: new Uint8Array(lookup.writableIndexes ?? []),
