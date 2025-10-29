@@ -16,6 +16,7 @@ import {
   AccountRole,
 } from '@solana/kit';
 import { getTransactionDecoder } from '@solana/transactions';
+import { getSetComputeUnitLimitInstruction } from '@solana-program/compute-budget';
 import * as bs58 from 'bs58';
 
 type SolanaRpc = ReturnType<typeof createSolanaRpc>;
@@ -470,11 +471,83 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     // Build message with updated execute instruction
     // NOTE: We set fee payer and blockhash here for compilation, but caller should refresh before signing
     // IMPORTANT: We MUST compress with ALTs to keep under the 1232 byte limit
+    
+    // CRITICAL: Simulate transaction first to determine optimal CU limit (Helius best practice)
+    // Step 1: Create a test transaction with max CU limit to ensure simulation succeeds
+    const testCULimitIx = getSetComputeUnitLimitInstruction({ units: 1_400_000 });
+    const testMessage = pipe(
+      createTransactionMessage({ version: 0 }),
+      tx => setTransactionMessageFeePayerSigner(feePayerSigner, tx),
+      tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+      tx => appendTransactionMessageInstructions([testCULimitIx, executeIxWithAccounts], tx)
+    );
+    
+    // Compress test transaction if needed
+    let testMessageCompressed = testMessage;
+    if (execLookups.length > 0) {
+      const addressesByLookupTableAddress: Record<string, Address[]> = {};
+      for (const lookup of execLookups) {
+        const info = await rpc
+          .getAccountInfo(toAddress(lookup.accountKey), { encoding: 'base64', commitment: 'finalized' })
+          .send();
+        if (!info.value?.data) continue;
+        const b64 = Array.isArray(info.value.data) ? info.value.data[0] : (info.value.data as string);
+        const dataBuf = Buffer.from(b64, 'base64');
+        const data = new Uint8Array(dataBuf.buffer, dataBuf.byteOffset, dataBuf.byteLength);
+        const HEADER_SIZE = 56;
+        const PUBKEY_SIZE = 32;
+        const total = Math.floor((data.length - HEADER_SIZE) / PUBKEY_SIZE);
+        const addrs: Address[] = [];
+        for (let i = 0; i < total; i++) {
+          const off = HEADER_SIZE + i * PUBKEY_SIZE;
+          const keyBytes = data.subarray(off, off + PUBKEY_SIZE);
+          addrs.push(address(bs58.encode(keyBytes)));
+        }
+        addressesByLookupTableAddress[lookup.accountKey.toString()] = addrs;
+      }
+      testMessageCompressed = compressTransactionMessageUsingAddressLookupTables(
+        testMessage as any,
+        addressesByLookupTableAddress as any
+      ) as any;
+    }
+    
+    // Step 2: Simulate to get actual CU consumption
+    const compiledTest = compileTransaction(testMessageCompressed);
+    const testTx = new Uint8Array(compiledTest.messageBytes);
+    
+    let optimalCULimit = 1_200_000; // Fallback if simulation fails
+    try {
+      // Use simulateTransaction RPC method
+      const base64Tx = Buffer.from(testTx).toString('base64') as any; // Cast to any to work with branded type
+      const simulationResult = await rpc
+        .simulateTransaction(base64Tx, {
+          replaceRecentBlockhash: true,
+          sigVerify: false,
+          encoding: 'base64',
+        })
+        .send();
+      
+      if (simulationResult.value.unitsConsumed) {
+        // Convert bigint to number and add 30% margin for smart account overhead + safety buffer
+        // (Helius recommends 10%, we need more for smart accounts)
+        const consumedCU = Number(simulationResult.value.unitsConsumed);
+        optimalCULimit = Math.ceil(consumedCU * 1.3);
+        console.log(`🔧 Simulated CU consumption: ${consumedCU}, setting limit to ${optimalCULimit} (30% margin)`);
+      } else {
+        console.log('⚠️  Simulation did not return CU consumption, using default 1.2M CU');
+      }
+    } catch (error) {
+      console.log('⚠️  Transaction simulation failed, using default 1.2M CU:', error);
+    }
+    
+    // Step 3: Create execute transaction with optimal CU limit
+    const setCULimitIx = getSetComputeUnitLimitInstruction({ units: optimalCULimit });
+    
     let executeMsgLocal = pipe(
       createTransactionMessage({ version: 0 }),
       tx => setTransactionMessageFeePayerSigner(feePayerSigner, tx),
       tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
-      tx => appendTransactionMessageInstructions([executeIxWithAccounts], tx)
+      tx => appendTransactionMessageInstructions([setCULimitIx, executeIxWithAccounts], tx)
     );
     
     // Compress with ALTs if they exist
