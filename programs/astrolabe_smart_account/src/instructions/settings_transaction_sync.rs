@@ -1,4 +1,3 @@
-use account_events::{AddSpendingLimitEvent, RemoveSpendingLimitEvent};
 use anchor_lang::prelude::*;
 
 use crate::{errors::*, events::*, program::AstrolabeSmartAccount, state::*, utils::*};
@@ -117,47 +116,6 @@ impl<'info> SyncSettingsTransaction<'info> {
         };
         SmartAccountEvent::SynchronousSettingsTransactionEvent(event).log(&log_authority_info)?;
 
-        for action in args.actions.iter() {
-            match action {
-                SettingsAction::AddSpendingLimit { seed, .. } => {
-                    let spending_limit_pubkey = Pubkey::find_program_address(
-                        &[
-                            SEED_PREFIX,
-                            settings_key.as_ref(),
-                            SEED_SPENDING_LIMIT,
-                            seed.as_ref(),
-                        ],
-                        &ctx.accounts.program.key(),
-                    )
-                    .0;
-
-                    let spending_limit_data = ctx
-                        .remaining_accounts
-                        .iter()
-                        .find(|acc| acc.key == &spending_limit_pubkey)
-                        .ok_or(SmartAccountError::MissingAccount)?
-                        .try_borrow_data()?;
-
-
-                    let event = AddSpendingLimitEvent {
-                        settings_pubkey: settings_key,
-                        spending_limit_pubkey: spending_limit_pubkey,
-                        spending_limit: SpendingLimit::try_from_slice(&spending_limit_data[8..])?,
-                    };
-                    SmartAccountEvent::AddSpendingLimitEvent(event).log(&log_authority_info)?;
-                }
-                SettingsAction::RemoveSpendingLimit { spending_limit, .. } => {
-                    let event = RemoveSpendingLimitEvent {
-                        settings_pubkey: settings_key,
-                        spending_limit_pubkey: spending_limit.key(),
-                    };
-                    SmartAccountEvent::RemoveSpendingLimitEvent(event).log(&log_authority_info)?;
-                }
-                _ => {
-                    continue;
-                }
-            }
-        }
         Ok(())
     }
 }

@@ -10,12 +10,8 @@ import {
   combineCodec,
   getAddressDecoder,
   getAddressEncoder,
-  getArrayDecoder,
-  getArrayEncoder,
   getDiscriminatedUnionDecoder,
   getDiscriminatedUnionEncoder,
-  getI64Decoder,
-  getI64Encoder,
   getOptionDecoder,
   getOptionEncoder,
   getStructDecoder,
@@ -24,10 +20,6 @@ import {
   getU16Encoder,
   getU32Decoder,
   getU32Encoder,
-  getU64Decoder,
-  getU64Encoder,
-  getU8Decoder,
-  getU8Encoder,
   type Address,
   type Codec,
   type Decoder,
@@ -38,12 +30,8 @@ import {
   type OptionOrNullable,
 } from '@solana/kit';
 import {
-  getPeriodDecoder,
-  getPeriodEncoder,
   getSmartAccountSignerDecoder,
   getSmartAccountSignerEncoder,
-  type Period,
-  type PeriodArgs,
   type SmartAccountSigner,
   type SmartAccountSignerArgs,
 } from '.';
@@ -53,43 +41,6 @@ export type SettingsAction =
   | { __kind: 'RemoveSigner'; oldSigner: Address }
   | { __kind: 'ChangeThreshold'; newThreshold: number }
   | { __kind: 'SetTimeLock'; newTimeLock: number }
-  | {
-      __kind: 'AddSpendingLimit';
-      /** Key that is used to seed the SpendingLimit PDA. */
-      seed: Address;
-      /** The index of the account that the spending limit is for. */
-      accountIndex: number;
-      /** The token mint the spending limit is for. */
-      mint: Address;
-      /**
-       * The amount of tokens that can be spent in a period.
-       * This amount is in decimals of the mint,
-       * so 1 SOL would be `1_000_000_000` and 1 USDC would be `1_000_000`.
-       */
-      amount: bigint;
-      /**
-       * The reset period of the spending limit.
-       * When it passes, the remaining amount is reset, unless it's `Period::OneTime`.
-       */
-      period: Period;
-      /**
-       * Members of the settings that can use the spending limit.
-       * In case a member is removed from the settings, the spending limit will remain existent
-       * (until explicitly deleted), but the removed member will not be able to use it anymore.
-       */
-      signers: Array<Address>;
-      /**
-       * The destination addresses the spending limit is allowed to sent funds to.
-       * If empty, funds can be sent to any address.
-       */
-      destinations: Array<Address>;
-      /**
-       * The expiration timestamp of the spending limit.
-       * Non expiring spending limits are set to `i64::MAX`.
-       */
-      expiration: bigint;
-    }
-  | { __kind: 'RemoveSpendingLimit'; spendingLimit: Address }
   | { __kind: 'SetArchivalAuthority'; newArchivalAuthority: Option<Address> };
 
 export type SettingsActionArgs =
@@ -97,43 +48,6 @@ export type SettingsActionArgs =
   | { __kind: 'RemoveSigner'; oldSigner: Address }
   | { __kind: 'ChangeThreshold'; newThreshold: number }
   | { __kind: 'SetTimeLock'; newTimeLock: number }
-  | {
-      __kind: 'AddSpendingLimit';
-      /** Key that is used to seed the SpendingLimit PDA. */
-      seed: Address;
-      /** The index of the account that the spending limit is for. */
-      accountIndex: number;
-      /** The token mint the spending limit is for. */
-      mint: Address;
-      /**
-       * The amount of tokens that can be spent in a period.
-       * This amount is in decimals of the mint,
-       * so 1 SOL would be `1_000_000_000` and 1 USDC would be `1_000_000`.
-       */
-      amount: number | bigint;
-      /**
-       * The reset period of the spending limit.
-       * When it passes, the remaining amount is reset, unless it's `Period::OneTime`.
-       */
-      period: PeriodArgs;
-      /**
-       * Members of the settings that can use the spending limit.
-       * In case a member is removed from the settings, the spending limit will remain existent
-       * (until explicitly deleted), but the removed member will not be able to use it anymore.
-       */
-      signers: Array<Address>;
-      /**
-       * The destination addresses the spending limit is allowed to sent funds to.
-       * If empty, funds can be sent to any address.
-       */
-      destinations: Array<Address>;
-      /**
-       * The expiration timestamp of the spending limit.
-       * Non expiring spending limits are set to `i64::MAX`.
-       */
-      expiration: number | bigint;
-    }
-  | { __kind: 'RemoveSpendingLimit'; spendingLimit: Address }
   | {
       __kind: 'SetArchivalAuthority';
       newArchivalAuthority: OptionOrNullable<Address>;
@@ -148,23 +62,6 @@ export function getSettingsActionEncoder(): Encoder<SettingsActionArgs> {
     ['RemoveSigner', getStructEncoder([['oldSigner', getAddressEncoder()]])],
     ['ChangeThreshold', getStructEncoder([['newThreshold', getU16Encoder()]])],
     ['SetTimeLock', getStructEncoder([['newTimeLock', getU32Encoder()]])],
-    [
-      'AddSpendingLimit',
-      getStructEncoder([
-        ['seed', getAddressEncoder()],
-        ['accountIndex', getU8Encoder()],
-        ['mint', getAddressEncoder()],
-        ['amount', getU64Encoder()],
-        ['period', getPeriodEncoder()],
-        ['signers', getArrayEncoder(getAddressEncoder())],
-        ['destinations', getArrayEncoder(getAddressEncoder())],
-        ['expiration', getI64Encoder()],
-      ]),
-    ],
-    [
-      'RemoveSpendingLimit',
-      getStructEncoder([['spendingLimit', getAddressEncoder()]]),
-    ],
     [
       'SetArchivalAuthority',
       getStructEncoder([
@@ -183,23 +80,6 @@ export function getSettingsActionDecoder(): Decoder<SettingsAction> {
     ['RemoveSigner', getStructDecoder([['oldSigner', getAddressDecoder()]])],
     ['ChangeThreshold', getStructDecoder([['newThreshold', getU16Decoder()]])],
     ['SetTimeLock', getStructDecoder([['newTimeLock', getU32Decoder()]])],
-    [
-      'AddSpendingLimit',
-      getStructDecoder([
-        ['seed', getAddressDecoder()],
-        ['accountIndex', getU8Decoder()],
-        ['mint', getAddressDecoder()],
-        ['amount', getU64Decoder()],
-        ['period', getPeriodDecoder()],
-        ['signers', getArrayDecoder(getAddressDecoder())],
-        ['destinations', getArrayDecoder(getAddressDecoder())],
-        ['expiration', getI64Decoder()],
-      ]),
-    ],
-    [
-      'RemoveSpendingLimit',
-      getStructDecoder([['spendingLimit', getAddressDecoder()]]),
-    ],
     [
       'SetArchivalAuthority',
       getStructDecoder([
@@ -253,30 +133,6 @@ export function settingsAction(
     'SetTimeLock'
   >
 ): GetDiscriminatedUnionVariant<SettingsActionArgs, '__kind', 'SetTimeLock'>;
-export function settingsAction(
-  kind: 'AddSpendingLimit',
-  data: GetDiscriminatedUnionVariantContent<
-    SettingsActionArgs,
-    '__kind',
-    'AddSpendingLimit'
-  >
-): GetDiscriminatedUnionVariant<
-  SettingsActionArgs,
-  '__kind',
-  'AddSpendingLimit'
->;
-export function settingsAction(
-  kind: 'RemoveSpendingLimit',
-  data: GetDiscriminatedUnionVariantContent<
-    SettingsActionArgs,
-    '__kind',
-    'RemoveSpendingLimit'
-  >
-): GetDiscriminatedUnionVariant<
-  SettingsActionArgs,
-  '__kind',
-  'RemoveSpendingLimit'
->;
 export function settingsAction(
   kind: 'SetArchivalAuthority',
   data: GetDiscriminatedUnionVariantContent<

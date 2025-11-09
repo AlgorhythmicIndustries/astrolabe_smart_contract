@@ -7,7 +7,6 @@
 
 pub(crate) mod r#activate_proposal;
 pub(crate) mod r#add_signer_as_authority;
-pub(crate) mod r#add_spending_limit_as_authority;
 pub(crate) mod r#add_transaction_to_batch;
 pub(crate) mod r#approve_proposal;
 pub(crate) mod r#cancel_proposal;
@@ -34,18 +33,15 @@ pub(crate) mod r#initialize_program_config;
 pub(crate) mod r#log_event;
 pub(crate) mod r#reject_proposal;
 pub(crate) mod r#remove_signer_as_authority;
-pub(crate) mod r#remove_spending_limit_as_authority;
 pub(crate) mod r#set_archival_authority_as_authority;
 pub(crate) mod r#set_new_settings_authority_as_authority;
 pub(crate) mod r#set_program_config_authority;
 pub(crate) mod r#set_program_config_smart_account_creation_fee;
 pub(crate) mod r#set_program_config_treasury;
 pub(crate) mod r#set_time_lock_as_authority;
-pub(crate) mod r#use_spending_limit;
 
 pub use self::r#activate_proposal::*;
 pub use self::r#add_signer_as_authority::*;
-pub use self::r#add_spending_limit_as_authority::*;
 pub use self::r#add_transaction_to_batch::*;
 pub use self::r#approve_proposal::*;
 pub use self::r#cancel_proposal::*;
@@ -72,11 +68,9 @@ pub use self::r#initialize_program_config::*;
 pub use self::r#log_event::*;
 pub use self::r#reject_proposal::*;
 pub use self::r#remove_signer_as_authority::*;
-pub use self::r#remove_spending_limit_as_authority::*;
 pub use self::r#set_archival_authority_as_authority::*;
 pub use self::r#set_new_settings_authority_as_authority::*;
 pub use self::r#set_program_config_authority::*;
 pub use self::r#set_program_config_smart_account_creation_fee::*;
 pub use self::r#set_program_config_treasury::*;
 pub use self::r#set_time_lock_as_authority::*;
-pub use self::r#use_spending_limit::*;

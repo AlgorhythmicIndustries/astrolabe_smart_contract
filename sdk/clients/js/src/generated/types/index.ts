@@ -7,7 +7,6 @@
  */
 
 export * from './createTransactionArgs';
-export * from './period';
 export * from './permissions';
 export * from './proposalStatus';
 export * from './restrictedPermissions';

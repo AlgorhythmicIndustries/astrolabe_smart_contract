@@ -9,8 +9,7 @@ use crate::generated::types::SettingsAction;
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const CREATE_SETTINGS_TRANSACTION_DISCRIMINATOR: [u8; 8] =
-    [101, 168, 254, 203, 222, 102, 95, 192];
+pub const CREATE_SETTINGS_TRANSACTION_DISCRIMINATOR: [u8; 1] = [12];
 
 /// Accounts.
 #[derive(Debug)]
@@ -73,13 +72,13 @@ impl CreateSettingsTransaction {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateSettingsTransactionInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl CreateSettingsTransactionInstructionData {
     pub fn new() -> Self {
         Self {
-            discriminator: [101, 168, 254, 203, 222, 102, 95, 192],
+            discriminator: [12],
         }
     }
 

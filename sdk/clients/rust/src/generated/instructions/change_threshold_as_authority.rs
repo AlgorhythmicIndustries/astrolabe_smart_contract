@@ -8,8 +8,7 @@
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const CHANGE_THRESHOLD_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] =
-    [51, 141, 78, 133, 70, 47, 95, 124];
+pub const CHANGE_THRESHOLD_AS_AUTHORITY_DISCRIMINATOR: [u8; 1] = [9];
 
 /// Accounts.
 #[derive(Debug)]
@@ -88,14 +87,12 @@ impl ChangeThresholdAsAuthority {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ChangeThresholdAsAuthorityInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl ChangeThresholdAsAuthorityInstructionData {
     pub fn new() -> Self {
-        Self {
-            discriminator: [51, 141, 78, 133, 70, 47, 95, 124],
-        }
+        Self { discriminator: [9] }
     }
 
     pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {

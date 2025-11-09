@@ -41,7 +41,7 @@ import {
 } from '../types';
 
 export const CREATE_TRANSACTION_FROM_BUFFER_DISCRIMINATOR = new Uint8Array([
-  20,
+  18,
 ]);
 
 export function getCreateTransactionFromBufferDiscriminatorBytes() {

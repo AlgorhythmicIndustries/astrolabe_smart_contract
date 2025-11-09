@@ -39,7 +39,7 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const LOG_EVENT_DISCRIMINATOR = new Uint8Array([37]);
+export const LOG_EVENT_DISCRIMINATOR = new Uint8Array([34]);
 
 export function getLogEventDiscriminatorBytes() {
   return fixEncoderSize(getBytesEncoder(), 1).encode(LOG_EVENT_DISCRIMINATOR);

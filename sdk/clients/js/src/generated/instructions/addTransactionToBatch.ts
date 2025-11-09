@@ -40,7 +40,7 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const ADD_TRANSACTION_TO_BATCH_DISCRIMINATOR = new Uint8Array([23]);
+export const ADD_TRANSACTION_TO_BATCH_DISCRIMINATOR = new Uint8Array([21]);
 
 export function getAddTransactionToBatchDiscriminatorBytes() {
   return fixEncoderSize(getBytesEncoder(), 1).encode(

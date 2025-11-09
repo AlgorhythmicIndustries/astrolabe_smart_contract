@@ -33,7 +33,7 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const ACTIVATE_PROPOSAL_DISCRIMINATOR = new Uint8Array([26]);
+export const ACTIVATE_PROPOSAL_DISCRIMINATOR = new Uint8Array([24]);
 
 export function getActivateProposalDiscriminatorBytes() {
   return fixEncoderSize(getBytesEncoder(), 1).encode(

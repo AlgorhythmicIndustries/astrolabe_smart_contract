@@ -8,8 +8,7 @@
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const SET_PROGRAM_CONFIG_SMART_ACCOUNT_CREATION_FEE_DISCRIMINATOR: [u8; 8] =
-    [222, 30, 134, 176, 131, 113, 195, 202];
+pub const SET_PROGRAM_CONFIG_SMART_ACCOUNT_CREATION_FEE_DISCRIMINATOR: [u8; 1] = [3];
 
 /// Accounts.
 #[derive(Debug)]
@@ -60,14 +59,12 @@ impl SetProgramConfigSmartAccountCreationFee {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SetProgramConfigSmartAccountCreationFeeInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl SetProgramConfigSmartAccountCreationFeeInstructionData {
     pub fn new() -> Self {
-        Self {
-            discriminator: [222, 30, 134, 176, 131, 113, 195, 202],
-        }
+        Self { discriminator: [3] }
     }
 
     pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {

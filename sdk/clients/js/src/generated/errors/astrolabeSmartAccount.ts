@@ -68,60 +68,54 @@ export const ASTROLABE_SMART_ACCOUNT_ERROR__MISSING_ACCOUNT = 0x1788; // 6024
 export const ASTROLABE_SMART_ACCOUNT_ERROR__INVALID_MINT = 0x1789; // 6025
 /** InvalidDestination: Invalid destination */
 export const ASTROLABE_SMART_ACCOUNT_ERROR__INVALID_DESTINATION = 0x178a; // 6026
-/** SpendingLimitExceeded: Spending limit exceeded */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__SPENDING_LIMIT_EXCEEDED = 0x178b; // 6027
 /** DecimalsMismatch: Decimals don't match the mint */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__DECIMALS_MISMATCH = 0x178c; // 6028
-/** SpendingLimitExpired: Spending limit is expired */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__SPENDING_LIMIT_EXPIRED = 0x178d; // 6029
+export const ASTROLABE_SMART_ACCOUNT_ERROR__DECIMALS_MISMATCH = 0x178b; // 6027
 /** UnknownPermission: Signer has unknown permission */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__UNKNOWN_PERMISSION = 0x178e; // 6030
+export const ASTROLABE_SMART_ACCOUNT_ERROR__UNKNOWN_PERMISSION = 0x178c; // 6028
 /** ProtectedAccount: Account is protected, it cannot be passed into a CPI as writable */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__PROTECTED_ACCOUNT = 0x178f; // 6031
+export const ASTROLABE_SMART_ACCOUNT_ERROR__PROTECTED_ACCOUNT = 0x178d; // 6029
 /** TimeLockExceedsMaxAllowed: Time lock exceeds the maximum allowed (90 days) */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__TIME_LOCK_EXCEEDS_MAX_ALLOWED = 0x1790; // 6032
+export const ASTROLABE_SMART_ACCOUNT_ERROR__TIME_LOCK_EXCEEDS_MAX_ALLOWED = 0x178e; // 6030
 /** IllegalAccountOwner: Account is not owned by Smart Account program */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__ILLEGAL_ACCOUNT_OWNER = 0x1791; // 6033
+export const ASTROLABE_SMART_ACCOUNT_ERROR__ILLEGAL_ACCOUNT_OWNER = 0x178f; // 6031
 /** RentReclamationDisabled: Rent reclamation is disabled for this smart account */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__RENT_RECLAMATION_DISABLED = 0x1792; // 6034
+export const ASTROLABE_SMART_ACCOUNT_ERROR__RENT_RECLAMATION_DISABLED = 0x1790; // 6032
 /** InvalidRentCollector: Invalid rent collector address */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__INVALID_RENT_COLLECTOR = 0x1793; // 6035
+export const ASTROLABE_SMART_ACCOUNT_ERROR__INVALID_RENT_COLLECTOR = 0x1791; // 6033
 /** ProposalForAnotherSmartAccount: Proposal is for another smart account */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__PROPOSAL_FOR_ANOTHER_SMART_ACCOUNT = 0x1794; // 6036
+export const ASTROLABE_SMART_ACCOUNT_ERROR__PROPOSAL_FOR_ANOTHER_SMART_ACCOUNT = 0x1792; // 6034
 /** TransactionForAnotherSmartAccount: Transaction is for another smart account */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__TRANSACTION_FOR_ANOTHER_SMART_ACCOUNT = 0x1795; // 6037
+export const ASTROLABE_SMART_ACCOUNT_ERROR__TRANSACTION_FOR_ANOTHER_SMART_ACCOUNT = 0x1793; // 6035
 /** TransactionNotMatchingProposal: Transaction doesn't match proposal */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__TRANSACTION_NOT_MATCHING_PROPOSAL = 0x1796; // 6038
+export const ASTROLABE_SMART_ACCOUNT_ERROR__TRANSACTION_NOT_MATCHING_PROPOSAL = 0x1794; // 6036
 /** TransactionNotLastInBatch: Transaction is not last in batch */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__TRANSACTION_NOT_LAST_IN_BATCH = 0x1797; // 6039
+export const ASTROLABE_SMART_ACCOUNT_ERROR__TRANSACTION_NOT_LAST_IN_BATCH = 0x1795; // 6037
 /** BatchNotEmpty: Batch is not empty */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__BATCH_NOT_EMPTY = 0x1798; // 6040
-/** SpendingLimitInvalidAmount: Invalid SpendingLimit amount */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__SPENDING_LIMIT_INVALID_AMOUNT = 0x1799; // 6041
+export const ASTROLABE_SMART_ACCOUNT_ERROR__BATCH_NOT_EMPTY = 0x1796; // 6038
 /** InvalidInstructionArgs: Invalid Instruction Arguments */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__INVALID_INSTRUCTION_ARGS = 0x179a; // 6042
+export const ASTROLABE_SMART_ACCOUNT_ERROR__INVALID_INSTRUCTION_ARGS = 0x1797; // 6039
 /** FinalBufferHashMismatch: Final message buffer hash doesnt match the expected hash */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__FINAL_BUFFER_HASH_MISMATCH = 0x179b; // 6043
+export const ASTROLABE_SMART_ACCOUNT_ERROR__FINAL_BUFFER_HASH_MISMATCH = 0x1798; // 6040
 /** FinalBufferSizeExceeded: Final buffer size cannot exceed 4000 bytes */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__FINAL_BUFFER_SIZE_EXCEEDED = 0x179c; // 6044
+export const ASTROLABE_SMART_ACCOUNT_ERROR__FINAL_BUFFER_SIZE_EXCEEDED = 0x1799; // 6041
 /** FinalBufferSizeMismatch: Final buffer size mismatch */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__FINAL_BUFFER_SIZE_MISMATCH = 0x179d; // 6045
+export const ASTROLABE_SMART_ACCOUNT_ERROR__FINAL_BUFFER_SIZE_MISMATCH = 0x179a; // 6042
 /** SmartAccountCreateDeprecated: smart_account_create has been deprecated. Use smart_account_create_v2 instead. */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__SMART_ACCOUNT_CREATE_DEPRECATED = 0x179e; // 6046
+export const ASTROLABE_SMART_ACCOUNT_ERROR__SMART_ACCOUNT_CREATE_DEPRECATED = 0x179b; // 6043
 /** ThresholdNotReached: Signers do not reach consensus threshold */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__THRESHOLD_NOT_REACHED = 0x179f; // 6047
+export const ASTROLABE_SMART_ACCOUNT_ERROR__THRESHOLD_NOT_REACHED = 0x179c; // 6044
 /** InvalidSignerCount: Invalid number of signer accounts. Must be greater or equal to the threshold */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__INVALID_SIGNER_COUNT = 0x17a0; // 6048
+export const ASTROLABE_SMART_ACCOUNT_ERROR__INVALID_SIGNER_COUNT = 0x179d; // 6045
 /** MissingSignature: Missing signature */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__MISSING_SIGNATURE = 0x17a1; // 6049
+export const ASTROLABE_SMART_ACCOUNT_ERROR__MISSING_SIGNATURE = 0x179e; // 6046
 /** InsufficientAggregatePermissions: Insufficient aggregate permissions across signing members */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__INSUFFICIENT_AGGREGATE_PERMISSIONS = 0x17a2; // 6050
+export const ASTROLABE_SMART_ACCOUNT_ERROR__INSUFFICIENT_AGGREGATE_PERMISSIONS = 0x179f; // 6047
 /** InsufficientVotePermissions: Insufficient vote permissions across signing members */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__INSUFFICIENT_VOTE_PERMISSIONS = 0x17a3; // 6051
+export const ASTROLABE_SMART_ACCOUNT_ERROR__INSUFFICIENT_VOTE_PERMISSIONS = 0x17a0; // 6048
 /** TimeLockNotZero: Smart account must not be time locked */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__TIME_LOCK_NOT_ZERO = 0x17a4; // 6052
+export const ASTROLABE_SMART_ACCOUNT_ERROR__TIME_LOCK_NOT_ZERO = 0x17a1; // 6049
 /** NotImplemented: Feature not implemented */
-export const ASTROLABE_SMART_ACCOUNT_ERROR__NOT_IMPLEMENTED = 0x17a5; // 6053
+export const ASTROLABE_SMART_ACCOUNT_ERROR__NOT_IMPLEMENTED = 0x17a2; // 6050
 
 export type AstrolabeSmartAccountError =
   | typeof ASTROLABE_SMART_ACCOUNT_ERROR__ACCOUNT_NOT_EMPTY
@@ -164,9 +158,6 @@ export type AstrolabeSmartAccountError =
   | typeof ASTROLABE_SMART_ACCOUNT_ERROR__REMOVE_LAST_SIGNER
   | typeof ASTROLABE_SMART_ACCOUNT_ERROR__RENT_RECLAMATION_DISABLED
   | typeof ASTROLABE_SMART_ACCOUNT_ERROR__SMART_ACCOUNT_CREATE_DEPRECATED
-  | typeof ASTROLABE_SMART_ACCOUNT_ERROR__SPENDING_LIMIT_EXCEEDED
-  | typeof ASTROLABE_SMART_ACCOUNT_ERROR__SPENDING_LIMIT_EXPIRED
-  | typeof ASTROLABE_SMART_ACCOUNT_ERROR__SPENDING_LIMIT_INVALID_AMOUNT
   | typeof ASTROLABE_SMART_ACCOUNT_ERROR__STALE_PROPOSAL
   | typeof ASTROLABE_SMART_ACCOUNT_ERROR__THRESHOLD_NOT_REACHED
   | typeof ASTROLABE_SMART_ACCOUNT_ERROR__TIME_LOCK_EXCEEDS_MAX_ALLOWED
@@ -224,9 +215,6 @@ if (process.env.NODE_ENV !== 'production') {
     [ASTROLABE_SMART_ACCOUNT_ERROR__REMOVE_LAST_SIGNER]: `Cannot remove last signer`,
     [ASTROLABE_SMART_ACCOUNT_ERROR__RENT_RECLAMATION_DISABLED]: `Rent reclamation is disabled for this smart account`,
     [ASTROLABE_SMART_ACCOUNT_ERROR__SMART_ACCOUNT_CREATE_DEPRECATED]: `smart_account_create has been deprecated. Use smart_account_create_v2 instead.`,
-    [ASTROLABE_SMART_ACCOUNT_ERROR__SPENDING_LIMIT_EXCEEDED]: `Spending limit exceeded`,
-    [ASTROLABE_SMART_ACCOUNT_ERROR__SPENDING_LIMIT_EXPIRED]: `Spending limit is expired`,
-    [ASTROLABE_SMART_ACCOUNT_ERROR__SPENDING_LIMIT_INVALID_AMOUNT]: `Invalid SpendingLimit amount`,
     [ASTROLABE_SMART_ACCOUNT_ERROR__STALE_PROPOSAL]: `Proposal is stale`,
     [ASTROLABE_SMART_ACCOUNT_ERROR__THRESHOLD_NOT_REACHED]: `Signers do not reach consensus threshold`,
     [ASTROLABE_SMART_ACCOUNT_ERROR__TIME_LOCK_EXCEEDS_MAX_ALLOWED]: `Time lock exceeds the maximum allowed (90 days)`,

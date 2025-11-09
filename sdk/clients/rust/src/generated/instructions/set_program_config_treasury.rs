@@ -9,8 +9,7 @@ use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 use solana_pubkey::Pubkey;
 
-pub const SET_PROGRAM_CONFIG_TREASURY_DISCRIMINATOR: [u8; 8] =
-    [244, 119, 192, 190, 182, 101, 227, 189];
+pub const SET_PROGRAM_CONFIG_TREASURY_DISCRIMINATOR: [u8; 1] = [4];
 
 /// Accounts.
 #[derive(Debug)]
@@ -61,14 +60,12 @@ impl SetProgramConfigTreasury {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SetProgramConfigTreasuryInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl SetProgramConfigTreasuryInstructionData {
     pub fn new() -> Self {
-        Self {
-            discriminator: [244, 119, 192, 190, 182, 101, 227, 189],
-        }
+        Self { discriminator: [4] }
     }
 
     pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{state::SettingsAction, Settings, SmartAccountCompiledInstruction, SmartAccountSigner, SpendingLimit};
+use crate::{state::SettingsAction, Settings, SmartAccountCompiledInstruction, SmartAccountSigner};
 
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
@@ -25,34 +25,6 @@ pub struct SynchronousSettingsTransactionEvent {
     pub signers: Vec<Pubkey>,
     pub settings: Settings,
     pub changes: Vec<SettingsAction>
-}
-
-#[derive(AnchorSerialize, AnchorDeserialize)]
-pub struct AddSpendingLimitEvent {
-    pub settings_pubkey: Pubkey,
-    pub spending_limit_pubkey: Pubkey,
-    pub spending_limit: SpendingLimit,
-}
-
-#[derive(AnchorSerialize, AnchorDeserialize)]
-pub struct RemoveSpendingLimitEvent {
-    pub settings_pubkey: Pubkey,
-    pub spending_limit_pubkey: Pubkey,
-}
-
-#[derive(AnchorSerialize, AnchorDeserialize)]
-pub struct UseSpendingLimitEvent {
-    pub settings_pubkey: Pubkey,
-    pub spending_limit_pubkey: Pubkey,
-    pub smart_account: Pubkey,
-    pub smart_account_token_account: Pubkey,
-    pub destination: Pubkey,
-    pub destination_token_account: Pubkey,
-    pub signer: Pubkey,
-    pub mint: Pubkey,
-    pub mint_decimals: u8,
-    pub amount: u64,
-    pub spending_limit: SpendingLimit,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize)]

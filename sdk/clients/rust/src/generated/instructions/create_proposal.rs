@@ -8,7 +8,7 @@
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const CREATE_PROPOSAL_DISCRIMINATOR: [u8; 8] = [132, 116, 68, 174, 216, 160, 198, 22];
+pub const CREATE_PROPOSAL_DISCRIMINATOR: [u8; 1] = [23];
 
 /// Accounts.
 #[derive(Debug)]
@@ -69,13 +69,13 @@ impl CreateProposal {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateProposalInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl CreateProposalInstructionData {
     pub fn new() -> Self {
         Self {
-            discriminator: [132, 116, 68, 174, 216, 160, 198, 22],
+            discriminator: [23],
         }
     }
 

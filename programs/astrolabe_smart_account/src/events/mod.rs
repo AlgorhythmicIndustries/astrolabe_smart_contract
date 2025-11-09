@@ -12,9 +12,6 @@ pub enum SmartAccountEvent {
     CreateSmartAccountEvent(CreateSmartAccountEvent),
     SynchronousTransactionEvent(SynchronousTransactionEvent),
     SynchronousSettingsTransactionEvent(SynchronousSettingsTransactionEvent),
-    AddSpendingLimitEvent(AddSpendingLimitEvent),
-    RemoveSpendingLimitEvent(RemoveSpendingLimitEvent),
-    UseSpendingLimitEvent(UseSpendingLimitEvent),
     AuthoritySettingsEvent(AuthoritySettingsEvent),
     AuthorityChangeEvent(AuthorityChangeEvent)
 }
