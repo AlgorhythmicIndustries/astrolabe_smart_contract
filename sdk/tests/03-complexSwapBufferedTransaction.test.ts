@@ -13,14 +13,12 @@ import {
   setTransactionMessageFeePayerSigner,
   setTransactionMessageLifetimeUsingBlockhash,
   getTransactionDecoder,
-  prependTransactionMessageInstruction,
   createTransactionMessage,
   appendTransactionMessageInstruction,
   AccountRole,
   pipe,
   getBase64EncodedWireTransaction,
 } from '@solana/kit';
-import { getSetComputeUnitLimitInstruction } from '@solana-program/compute-budget';
 import { 
   findAssociatedTokenPda as findToken2022Ata, 
   TOKEN_2022_PROGRAM_ADDRESS, 
@@ -80,11 +78,45 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
     let versionedTransactionBytes: Uint8Array;
     
     try {
-      // USDC to zBTC swap parameters (using your exact parameters)
-      const FROM_TOKEN_MINT = 'zBTCug3er3tLyffELcvDNrKkCymbPWysGcWihESYfLg'; // USDC mint
-      const TO_TOKEN_MINT = 'susdabGDNbhrnCa6ncrYo81u4s9GM8ecK2UwMyZiq4X'; // Real zBTC mint
-      const swapAmount = 75001; // 1000 USDC (6 decimals) - your exact amount
+      // USDC to sUSD swap parameters (using your exact parameters)
+      const FROM_TOKEN_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'; // USDC mint
+      const TO_TOKEN_MINT = 'susdabGDNbhrnCa6ncrYo81u4s9GM8ecK2UwMyZiq4X'; // Real sUSD mint
+      const swapAmount = 1_000_000_000; // 1000 USDC (6 decimals) - your exact amount
       const slippage = 10; // 1% slippage - your exact slippage
+      
+      // Fund the smart account PDA with USDC using surfpool's surfnet_setTokenAccount RPC
+      console.log('💰 Funding smart account PDA with USDC via surfpool...');
+      console.log('   Owner:', smartAccountInfo.smartAccountPda);
+      console.log('   Mint:', FROM_TOKEN_MINT);
+      console.log('   Amount:', swapAmount, 'micro-USDC (1000 USDC)');
+      
+      try {
+        const fundingResponse = await fetch('http://localhost:8899', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'surfnet_setTokenAccount',
+            params: [
+              smartAccountInfo.smartAccountPda,  // owner
+              FROM_TOKEN_MINT,                    // mint
+              { amount: swapAmount * 10 },             // amount object
+              TOKEN_PROGRAM_ADDRESS               // token program (USDC is regular SPL token)
+            ]
+          })
+        });
+        
+        const fundingResult = await fundingResponse.json();
+        if (fundingResult.error) {
+          console.error('❌ Failed to fund USDC account:', fundingResult.error);
+          throw new Error('Failed to fund USDC account: ' + JSON.stringify(fundingResult.error));
+        }
+        console.log('✅ USDC account funded successfully via surfpool');
+      } catch (fundError) {
+        console.error('❌ Error funding USDC account:', fundError);
+        throw fundError;
+      }
       
       // Check if susda token account exists for smart account PDA, create if needed
       console.log('🔍 Checking susda (Token-2022) token account for smart account PDA...');
@@ -146,7 +178,7 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
         console.log('✅ susda token account already exists:', toTokenAccount.toString());
       }
       
-      console.log('🔄 Getting Jupiter quote: 1000 USDC → zBTC (1% slippage)...');
+      console.log('🔄 Getting Jupiter quote: 1000 USDC → sUSD (1% slippage)...');
       
       const quote = await getSwapQuote(
         FROM_TOKEN_MINT,
@@ -156,7 +188,7 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
         undefined // No platform fee - matching your params
       );
       
-      console.log('✅ Quote received:', quote.outAmount, 'zBTC');
+      console.log('✅ Quote received:', quote.outAmount, 'sUSD');
       console.log('🔄 Getting swap transaction...');
       const swapResponse = await getSwapTransaction(
         quote,
@@ -272,7 +304,8 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
           bufferSignatures.push(signature);
           console.log(`  ✅ Buffer creation ${i + 1} confirmed:`, signature);
         } catch (signingError) {
-          console.error(`  ❌ Failed to sign/send buffer transaction ${i + 1}:`, signingError.message);
+          const errorMsg = signingError instanceof Error ? signingError.message : String(signingError);
+          console.error(`  ❌ Failed to sign/send buffer transaction ${i + 1}:`, errorMsg);
           throw signingError;
         }
       }
@@ -330,14 +363,10 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
           { lastValidBlockHeight: latestBlockhash4.lastValidBlockHeight }
         );
         
-        // Add compute budget instruction to ensure execution doesn't run out of compute units
-        // The inner Jupiter swap needs 400K (set in SDK), plus overhead for the smart account CPI
-        const decodedWithComputeBudget = prependTransactionMessageInstruction(
-          getSetComputeUnitLimitInstruction({ units: 600_000 }),
-          decoded as any
-        );
+        // Note: SDK already added compute budget instruction in createComplexBufferedTransaction
+        // No need to add another one here (would cause DuplicateInstruction error)
         
-        const msgWithSigner = setTransactionMessageFeePayerSigner(creatorSigner, decodedWithComputeBudget as any);
+        const msgWithSigner = setTransactionMessageFeePayerSigner(creatorSigner, decoded as any);
         const msgWithBh = setTransactionMessageLifetimeUsingBlockhash(latestBlockhash4, msgWithSigner as any);
         const signed = await signTransactionMessageWithSigners(msgWithBh as any);
         assertIsTransactionWithinSizeLimit(signed);

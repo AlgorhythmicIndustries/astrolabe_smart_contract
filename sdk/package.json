@@ -19,9 +19,10 @@
         "test": "npx tsx tests/run-tests.ts",
         "test:setup": "npx tsx tests/00-setup.test.ts",
         "test:create": "npx tsx tests/01-createSmartAccount.test.ts",
-        "test:simple": "npx tsx tests/02-simpleTransaction.test.ts",
-        "test:buffered": "npx tsx tests/03-complexBufferedTransaction.test.ts",
-        "test:simple-buffer": "npx tsx tests/04-simpleBufferedTransaction.test.ts",
+        "test:simple": "npx tsx tests/02-solXferTransaction.test.ts",
+        "test:buffered": "npx tsx tests/03-complexSwapBufferedTransaction.test.ts",
+        "test:noSDKbuffered": "npx tsx tests/04-noSDKBufferedTransaction.test.ts",
+        "test:addSigner": "npx tsx tests/05-addSignerTransaction.test.ts",
         "clean-buffers": "npx tsx scripts/clean-buffers.ts"
     },
     "license": "MIT",
