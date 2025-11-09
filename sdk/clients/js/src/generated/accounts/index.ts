@@ -12,6 +12,5 @@ export * from './programConfig';
 export * from './proposal';
 export * from './settings';
 export * from './settingsTransaction';
-export * from './spendingLimit';
 export * from './transaction';
 export * from './transactionBuffer';

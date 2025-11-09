@@ -39,7 +39,7 @@ import {
   type VoteOnProposalArgsArgs,
 } from '../types';
 
-export const REJECT_PROPOSAL_DISCRIMINATOR = new Uint8Array([28]);
+export const REJECT_PROPOSAL_DISCRIMINATOR = new Uint8Array([26]);
 
 export function getRejectProposalDiscriminatorBytes() {
   return fixEncoderSize(getBytesEncoder(), 1).encode(

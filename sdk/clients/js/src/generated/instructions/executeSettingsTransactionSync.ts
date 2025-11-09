@@ -54,7 +54,7 @@ import {
 } from '../types';
 
 export const EXECUTE_SETTINGS_TRANSACTION_SYNC_DISCRIMINATOR = new Uint8Array([
-  36,
+  33,
 ]);
 
 export function getExecuteSettingsTransactionSyncDiscriminatorBytes() {

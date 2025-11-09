@@ -80,15 +80,6 @@ pub fn validate_settings_actions(actions: &Vec<SettingsAction>) -> Result<()> {
                 SmartAccountError::TimeLockExceedsMaxAllowed
             );
         }
-        // Expiration must be greater than the current timestamp.
-        if let SettingsAction::AddSpendingLimit { expiration, .. } = action {
-            if *expiration != i64::MAX {
-                require!(
-                    *expiration > current_timestamp,
-                    SmartAccountError::SpendingLimitExpired
-                );
-            }
-        }
     }
 
     Ok(())

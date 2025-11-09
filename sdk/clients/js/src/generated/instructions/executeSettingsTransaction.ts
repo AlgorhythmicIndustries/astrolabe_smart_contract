@@ -34,7 +34,7 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const EXECUTE_SETTINGS_TRANSACTION_DISCRIMINATOR = new Uint8Array([15]);
+export const EXECUTE_SETTINGS_TRANSACTION_DISCRIMINATOR = new Uint8Array([13]);
 
 export function getExecuteSettingsTransactionDiscriminatorBytes() {
   return fixEncoderSize(getBytesEncoder(), 1).encode(
@@ -130,8 +130,7 @@ export type ExecuteSettingsTransactionInput<
   /** The transaction to execute. */
   transaction: Address<TAccountTransaction>;
   /**
-   * The account that will be charged/credited in case the settings transaction causes space reallocation,
-   * for example when adding a new signer, adding or removing a spending limit.
+   * The account that will be charged/credited in case the settings transaction causes space reallocation
    * This is usually the same as `signer`, but can be a different account if needed.
    */
   rentPayer?: TransactionSigner<TAccountRentPayer>;
@@ -229,8 +228,7 @@ export type ParsedExecuteSettingsTransactionInstruction<
     /** The transaction to execute. */
     transaction: TAccountMetas[3];
     /**
-     * The account that will be charged/credited in case the settings transaction causes space reallocation,
-     * for example when adding a new signer, adding or removing a spending limit.
+     * The account that will be charged/credited in case the settings transaction causes space reallocation
      * This is usually the same as `signer`, but can be a different account if needed.
      */
     rentPayer?: TAccountMetas[4] | undefined;

@@ -8,7 +8,7 @@
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const EXECUTE_BATCH_TRANSACTION_DISCRIMINATOR: [u8; 8] = [237, 67, 201, 173, 33, 130, 88, 134];
+pub const EXECUTE_BATCH_TRANSACTION_DISCRIMINATOR: [u8; 1] = [22];
 
 /// Accounts.
 #[derive(Debug)]
@@ -67,13 +67,13 @@ impl ExecuteBatchTransaction {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ExecuteBatchTransactionInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl ExecuteBatchTransactionInstructionData {
     pub fn new() -> Self {
         Self {
-            discriminator: [237, 67, 201, 173, 33, 130, 88, 134],
+            discriminator: [22],
         }
     }
 

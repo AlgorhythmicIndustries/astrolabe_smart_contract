@@ -56,12 +56,8 @@ pub enum SmartAccountError {
     InvalidMint,
     #[msg("Invalid destination")]
     InvalidDestination,
-    #[msg("Spending limit exceeded")]
-    SpendingLimitExceeded,
     #[msg("Decimals don't match the mint")]
     DecimalsMismatch,
-    #[msg("Spending limit is expired")]
-    SpendingLimitExpired,
     #[msg("Signer has unknown permission")]
     UnknownPermission,
     #[msg("Account is protected, it cannot be passed into a CPI as writable")]
@@ -84,8 +80,6 @@ pub enum SmartAccountError {
     TransactionNotLastInBatch,
     #[msg("Batch is not empty")]
     BatchNotEmpty,
-    #[msg("Invalid SpendingLimit amount")]
-    SpendingLimitInvalidAmount,
     #[msg("Invalid Instruction Arguments")]
     InvalidInstructionArgs,
     #[msg("Final message buffer hash doesnt match the expected hash")]

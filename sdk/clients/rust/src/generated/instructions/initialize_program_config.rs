@@ -9,7 +9,7 @@ use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 use solana_pubkey::Pubkey;
 
-pub const INITIALIZE_PROGRAM_CONFIG_DISCRIMINATOR: [u8; 8] = [6, 131, 61, 237, 40, 110, 83, 124];
+pub const INITIALIZE_PROGRAM_CONFIG_DISCRIMINATOR: [u8; 1] = [1];
 
 /// Accounts.
 #[derive(Debug)]
@@ -63,14 +63,12 @@ impl InitializeProgramConfig {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct InitializeProgramConfigInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl InitializeProgramConfigInstructionData {
     pub fn new() -> Self {
-        Self {
-            discriminator: [6, 131, 61, 237, 40, 110, 83, 124],
-        }
+        Self { discriminator: [1] }
     }
 
     pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
