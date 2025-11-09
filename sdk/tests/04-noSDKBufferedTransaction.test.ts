@@ -26,7 +26,6 @@ import {
   getCreateProposalInstruction,
   getApproveProposalInstruction,
   getExecuteTransactionInstruction,
-  getCloseTransactionBufferInstruction,
 } from '../clients/js/src/generated/instructions';
 import { fetchSettings } from '../clients/js/src/generated/accounts/settings';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../clients/js/src/generated/programs';
@@ -223,9 +222,9 @@ async function testCorrectBufferedTransaction() {
       systemProgram: address('11111111111111111111111111111111'),
       bufferIndex: bufferIndex,
       accountIndex: 0,
-      finalBufferHash: Array.from(bufferHash),
+      finalBufferHash: new Uint8Array(bufferHash) as any,
       finalBufferSize: bufferData.length,
-      buffer: Array.from(bufferData), // TransactionMessage bytes - what smart contract expects!
+      buffer: new Uint8Array(bufferData) as any, // TransactionMessage bytes - what smart contract expects!
     });
 
     const createBufferMsg = pipe(
@@ -243,20 +242,20 @@ async function testCorrectBufferedTransaction() {
       console.log('🔧 Attempting to create buffer...');
       await sendAndConfirm(signedCreateBuffer, { commitment: 'confirmed' });
       console.log('✅ Buffer created successfully')
-    } catch (bufferError) {
+    } catch (bufferError: any) {
       console.error('❌ Buffer creation failed!');
       console.error('Error details:', bufferError);
       
       // Check if it's a transaction simulation error
-      if (bufferError.context && bufferError.context.logs) {
+      if (bufferError?.context?.logs) {
         console.error('📋 Transaction logs:');
-        bufferError.context.logs.forEach((log, i) => {
+        bufferError.context.logs.forEach((log: string, i: number) => {
           console.error(`  ${i}: ${log}`);
         });
       }
       
       // Check if it's a constraint violation
-      if (bufferError.message) {
+      if (bufferError?.message) {
         console.error('📋 Error message:', bufferError.message);
       }
       
@@ -292,7 +291,7 @@ async function testCorrectBufferedTransaction() {
         // Provide the actual TransactionMessage bytes so Anchor can compute
         // the correct init space during account validation
         transactionMessage: zeroBytes,
-        memo: undefined,
+        memo: null,
       },
     });
 
@@ -338,7 +337,7 @@ async function testCorrectBufferedTransaction() {
       signer: creatorSigner,
       proposal: proposalPda,
       systemProgram: address('11111111111111111111111111111111'),
-      args: { memo: undefined },
+      args: { memo: null },
     });
 
     const approveMsg = pipe(
@@ -392,10 +391,11 @@ async function testCorrectBufferedTransaction() {
     console.log('  5. ✅ Created and approved proposal');
     console.log('  6. ✅ Executed SOL transfer through smart account');
 
-  } catch (error) {
+
+  } catch (error: any) {
     console.error('❌ Correct buffered transaction failed:', error);
     
-    if (error.context?.logs) {
+    if (error?.context?.logs) {
       console.log('📋 Contract logs:');
       error.context.logs.forEach((log: string) => console.log('  ', log));
     }

@@ -22,6 +22,7 @@ pub mod state;
 mod utils;
 pub mod events;
 
+/* 
 use pinocchio::{
     default_allocator,
     default_panic_handler,
@@ -29,38 +30,12 @@ use pinocchio::{
     lazy_program_entrypoint,
     ProgramResult
   };
-  
+*/  
+
 // lazy_program_entrypoint!(process_instruction);
-default_allocator!();
+//default_allocator!();
 //default_panic_handler!();
 
-// pub fn process_instruction(
-// mut context: InstructionContext
-// ) -> ProgramResult {
-//     msg!("Hello from my lazy program!");
-//     Ok(())
-// }
-/// Main program entry point.
-///
-/// This function is called by the Solana runtime to process instructions sent
-/// to the Swig wallet program. It sets up the execution context and delegates
-/// to the `execute` function for actual instruction processing.
-///
-/// # Arguments
-/// * `ctx` - The instruction context containing accounts and instruction data
-///
-/// # Returns
-/// * `ProgramResult` - The result of processing the instruction
-// pub fn process_instruction(mut ctx: InstructionContext) -> ProgramResult {
-//     const AI: MaybeUninit<AccountInfo> = MaybeUninit::<AccountInfo>::uninit();
-//     const AC: MaybeUninit<AccountClassification> = MaybeUninit::<AccountClassification>::uninit();
-//     let mut accounts = [AI; 100];
-//     let mut classifiers = [AC; 100];
-//     unsafe {
-//         execute(&mut ctx, &mut accounts, &mut classifiers)?;
-//     }
-//     Ok(())
-// }
 
 #[cfg(not(feature = "no-entrypoint"))]
 security_txt! {
