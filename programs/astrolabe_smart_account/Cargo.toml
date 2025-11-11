@@ -10,7 +10,7 @@ crate-type = ["cdylib", "lib"]
 name = "astrolabe_smart_account"
 
 [features]
-default = ["custom-heap"]
+default = []
 custom-heap = []
 no-entrypoint = []
 no-idl = []
