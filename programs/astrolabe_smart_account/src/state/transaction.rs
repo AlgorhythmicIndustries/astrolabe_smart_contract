@@ -42,7 +42,7 @@ impl Transaction {
     pub fn size(ephemeral_signers_length: u8, transaction_message: &[u8]) -> Result<usize> {
         let transaction_message: SmartAccountTransactionMessage =
             TransactionMessage::deserialize(&mut &transaction_message[..])?.try_into()?;
-        let message_size = transaction_message.try_to_vec()?.len();
+        let message_size = transaction_message.borsh_size();
 
         Ok(
             8 +   // anchor account discriminator
@@ -91,6 +91,36 @@ pub struct SmartAccountTransactionMessage {
 }
 
 impl SmartAccountTransactionMessage {
+    /// Calculate the Borsh-serialized size without heap allocation.
+    /// Manual implementation for Anchor 0.31.1 (Borsh 0.10.4) to avoid deprecated get_instance_packed_len.
+    pub fn borsh_size(&self) -> usize {
+        // Calculate size of account_keys: Vec<Pubkey>
+        let account_keys_size = 4 + (self.account_keys.len() * 32); // u32 length + 32 bytes per Pubkey
+        
+        // Calculate size of instructions: Vec<SmartAccountCompiledInstruction>
+        let instructions_size: usize = 4 + // u32 Vec length prefix
+            self.instructions.iter().map(|ix| {
+                1 +                              // program_id_index (u8)
+                4 + ix.account_indexes.len() +   // Vec<u8> length prefix + data
+                4 + ix.data.len()                // Vec<u8> length prefix + data
+            }).sum::<usize>();
+        
+        // Calculate size of address_table_lookups: Vec<SmartAccountMessageAddressTableLookup>
+        let lookups_size: usize = 4 + // u32 Vec length prefix
+            self.address_table_lookups.iter().map(|lookup| {
+                32 +                                    // account_key (Pubkey)
+                4 + lookup.writable_indexes.len() +     // Vec<u8> length prefix + data
+                4 + lookup.readonly_indexes.len()       // Vec<u8> length prefix + data
+            }).sum::<usize>();
+        
+        1 +                    // num_signers (u8)
+        1 +                    // num_writable_signers (u8)
+        1 +                    // num_writable_non_signers (u8)
+        account_keys_size +
+        instructions_size +
+        lookups_size
+    }
+
     /// Returns the number of all the account keys (static + dynamic) in the message.
     pub fn num_all_account_keys(&self) -> usize {
         let num_account_keys_from_lookups = self

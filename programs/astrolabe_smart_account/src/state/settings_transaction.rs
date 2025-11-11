@@ -25,7 +25,7 @@ impl SettingsTransaction {
     pub fn size(actions: &[SettingsAction]) -> usize {
         let actions_size: usize = actions
             .iter()
-            .map(|action| action.try_to_vec().map(|v| v.len()).unwrap_or(0))
+            .map(|action| action.borsh_size())
             .sum();
 
         8 +   // anchor account discriminator
@@ -52,4 +52,25 @@ pub enum SettingsAction {
     SetTimeLock { new_time_lock: u32 },
     /// Set the `archival_authority` config parameter of the settings.
     SetArchivalAuthority { new_archival_authority: Option<Pubkey> },
+}
+
+impl SettingsAction {
+    /// Calculate the Borsh-serialized size without heap allocation.
+    /// Manual implementation for Anchor 0.31.1 (Borsh 0.10.4) to avoid deprecated get_instance_packed_len.
+    pub const fn borsh_size(&self) -> usize {
+        1 + // enum discriminator
+        match self {
+            SettingsAction::AddSigner { .. } => {
+                32 + // SmartAccountSigner.key (Pubkey)
+                1    // SmartAccountSigner.permissions.mask (u8)
+            }
+            SettingsAction::RemoveSigner { .. } => 32, // Pubkey
+            SettingsAction::ChangeThreshold { .. } => 2, // u16
+            SettingsAction::SetTimeLock { .. } => 4, // u32
+            SettingsAction::SetArchivalAuthority { new_archival_authority } => {
+                1 + // Option discriminator
+                if new_archival_authority.is_some() { 32 } else { 0 }
+            }
+        }
+    }
 }

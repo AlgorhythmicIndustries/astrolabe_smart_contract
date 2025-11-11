@@ -30,7 +30,7 @@ security_txt! {
     contacts: "email:security@astrolabefinance.com",
     policy: "",
     preferred_languages: "en",
-    source_code: "https://github.com/greefum/squads_SA_fork",
+    source_code: "https://github.com/AlgorhythmicIndustries/astrolabe_smart_contract",
     auditors: ""
 }
 
