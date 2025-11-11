@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{state::SettingsAction, Settings, SmartAccountCompiledInstruction, SmartAccountSigner};
+use crate::{state::SettingsAction, Settings, SmartAccountCompiledInstruction};
 
 
 #[derive(AnchorSerialize, AnchorDeserialize)]

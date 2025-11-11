@@ -1,7 +1,3 @@
-use anchor_lang::prelude::*;
-
-use super::Settings;
-
 pub const SEED_PREFIX: &[u8] = b"smart_account";
 pub const SEED_PROGRAM_CONFIG: &[u8] = b"program_config";
 pub const SEED_SETTINGS: &[u8] = b"settings";
