@@ -101,8 +101,6 @@ impl CloseSettingsTransaction<'_> {
                 ProposalStatus::Executed { .. } => true,
                 // Cancelled proposals can be closed.
                 ProposalStatus::Cancelled { .. } => true,
-                // Should never really be in this state.
-                ProposalStatus::Executing => false,
             }
         } else {
             // If no Proposal account exists then the ConfigTransaction can only be closed if stale
@@ -209,8 +207,6 @@ impl CloseTransaction<'_> {
                 ProposalStatus::Executed { .. } => true,
                 // Cancelled proposals can be closed.
                 ProposalStatus::Cancelled { .. } => true,
-                // Should never really be in this state.
-                ProposalStatus::Executing => false,
             }
         } else {
             // If no Proposal account exists then the VaultTransaction can only be closed if stale
@@ -328,8 +324,6 @@ impl CloseBatchTransaction<'_> {
             ProposalStatus::Executed { .. } => true,
             // Transactions of Cancelled proposals can be closed.
             ProposalStatus::Cancelled { .. } => true,
-            // Should never really be in this state.
-            ProposalStatus::Executing => false,
         };
 
         require!(can_close, SmartAccountError::InvalidProposalStatus);
@@ -445,8 +439,6 @@ impl CloseBatch<'_> {
                 ProposalStatus::Executed { .. } => true,
                 // Cancelled proposals can be closed.
                 ProposalStatus::Cancelled { .. } => true,
-                // Should never really be in this state.
-                ProposalStatus::Executing => false,
             }
         } else {
             // If no Proposal account exists then the Batch can only be closed if stale
