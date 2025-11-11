@@ -9,7 +9,7 @@ use crate::generated::types::VoteOnProposalArgs;
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const CANCEL_PROPOSAL_DISCRIMINATOR: [u8; 8] = [106, 74, 128, 146, 19, 65, 39, 23];
+pub const CANCEL_PROPOSAL_DISCRIMINATOR: [u8; 1] = [27];
 
 /// Accounts.
 #[derive(Debug)]
@@ -71,13 +71,13 @@ impl CancelProposal {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CancelProposalInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl CancelProposalInstructionData {
     pub fn new() -> Self {
         Self {
-            discriminator: [106, 74, 128, 146, 19, 65, 39, 23],
+            discriminator: [27],
         }
     }
 

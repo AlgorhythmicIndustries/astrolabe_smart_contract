@@ -91,87 +91,78 @@ pub enum AstrolabeSmartAccountError {
     /// 6026 - Invalid destination
     #[error("Invalid destination")]
     InvalidDestination = 0x178A,
-    /// 6027 - Spending limit exceeded
-    #[error("Spending limit exceeded")]
-    SpendingLimitExceeded = 0x178B,
-    /// 6028 - Decimals don't match the mint
+    /// 6027 - Decimals don't match the mint
     #[error("Decimals don't match the mint")]
-    DecimalsMismatch = 0x178C,
-    /// 6029 - Spending limit is expired
-    #[error("Spending limit is expired")]
-    SpendingLimitExpired = 0x178D,
-    /// 6030 - Signer has unknown permission
+    DecimalsMismatch = 0x178B,
+    /// 6028 - Signer has unknown permission
     #[error("Signer has unknown permission")]
-    UnknownPermission = 0x178E,
-    /// 6031 - Account is protected, it cannot be passed into a CPI as writable
+    UnknownPermission = 0x178C,
+    /// 6029 - Account is protected, it cannot be passed into a CPI as writable
     #[error("Account is protected, it cannot be passed into a CPI as writable")]
-    ProtectedAccount = 0x178F,
-    /// 6032 - Time lock exceeds the maximum allowed (90 days)
+    ProtectedAccount = 0x178D,
+    /// 6030 - Time lock exceeds the maximum allowed (90 days)
     #[error("Time lock exceeds the maximum allowed (90 days)")]
-    TimeLockExceedsMaxAllowed = 0x1790,
-    /// 6033 - Account is not owned by Smart Account program
+    TimeLockExceedsMaxAllowed = 0x178E,
+    /// 6031 - Account is not owned by Smart Account program
     #[error("Account is not owned by Smart Account program")]
-    IllegalAccountOwner = 0x1791,
-    /// 6034 - Rent reclamation is disabled for this smart account
+    IllegalAccountOwner = 0x178F,
+    /// 6032 - Rent reclamation is disabled for this smart account
     #[error("Rent reclamation is disabled for this smart account")]
-    RentReclamationDisabled = 0x1792,
-    /// 6035 - Invalid rent collector address
+    RentReclamationDisabled = 0x1790,
+    /// 6033 - Invalid rent collector address
     #[error("Invalid rent collector address")]
-    InvalidRentCollector = 0x1793,
-    /// 6036 - Proposal is for another smart account
+    InvalidRentCollector = 0x1791,
+    /// 6034 - Proposal is for another smart account
     #[error("Proposal is for another smart account")]
-    ProposalForAnotherSmartAccount = 0x1794,
-    /// 6037 - Transaction is for another smart account
+    ProposalForAnotherSmartAccount = 0x1792,
+    /// 6035 - Transaction is for another smart account
     #[error("Transaction is for another smart account")]
-    TransactionForAnotherSmartAccount = 0x1795,
-    /// 6038 - Transaction doesn't match proposal
+    TransactionForAnotherSmartAccount = 0x1793,
+    /// 6036 - Transaction doesn't match proposal
     #[error("Transaction doesn't match proposal")]
-    TransactionNotMatchingProposal = 0x1796,
-    /// 6039 - Transaction is not last in batch
+    TransactionNotMatchingProposal = 0x1794,
+    /// 6037 - Transaction is not last in batch
     #[error("Transaction is not last in batch")]
-    TransactionNotLastInBatch = 0x1797,
-    /// 6040 - Batch is not empty
+    TransactionNotLastInBatch = 0x1795,
+    /// 6038 - Batch is not empty
     #[error("Batch is not empty")]
-    BatchNotEmpty = 0x1798,
-    /// 6041 - Invalid SpendingLimit amount
-    #[error("Invalid SpendingLimit amount")]
-    SpendingLimitInvalidAmount = 0x1799,
-    /// 6042 - Invalid Instruction Arguments
+    BatchNotEmpty = 0x1796,
+    /// 6039 - Invalid Instruction Arguments
     #[error("Invalid Instruction Arguments")]
-    InvalidInstructionArgs = 0x179A,
-    /// 6043 - Final message buffer hash doesnt match the expected hash
+    InvalidInstructionArgs = 0x1797,
+    /// 6040 - Final message buffer hash doesnt match the expected hash
     #[error("Final message buffer hash doesnt match the expected hash")]
-    FinalBufferHashMismatch = 0x179B,
-    /// 6044 - Final buffer size cannot exceed 4000 bytes
+    FinalBufferHashMismatch = 0x1798,
+    /// 6041 - Final buffer size cannot exceed 4000 bytes
     #[error("Final buffer size cannot exceed 4000 bytes")]
-    FinalBufferSizeExceeded = 0x179C,
-    /// 6045 - Final buffer size mismatch
+    FinalBufferSizeExceeded = 0x1799,
+    /// 6042 - Final buffer size mismatch
     #[error("Final buffer size mismatch")]
-    FinalBufferSizeMismatch = 0x179D,
-    /// 6046 - smart_account_create has been deprecated. Use smart_account_create_v2 instead.
+    FinalBufferSizeMismatch = 0x179A,
+    /// 6043 - smart_account_create has been deprecated. Use smart_account_create_v2 instead.
     #[error("smart_account_create has been deprecated. Use smart_account_create_v2 instead.")]
-    SmartAccountCreateDeprecated = 0x179E,
-    /// 6047 - Signers do not reach consensus threshold
+    SmartAccountCreateDeprecated = 0x179B,
+    /// 6044 - Signers do not reach consensus threshold
     #[error("Signers do not reach consensus threshold")]
-    ThresholdNotReached = 0x179F,
-    /// 6048 - Invalid number of signer accounts. Must be greater or equal to the threshold
+    ThresholdNotReached = 0x179C,
+    /// 6045 - Invalid number of signer accounts. Must be greater or equal to the threshold
     #[error("Invalid number of signer accounts. Must be greater or equal to the threshold")]
-    InvalidSignerCount = 0x17A0,
-    /// 6049 - Missing signature
+    InvalidSignerCount = 0x179D,
+    /// 6046 - Missing signature
     #[error("Missing signature")]
-    MissingSignature = 0x17A1,
-    /// 6050 - Insufficient aggregate permissions across signing members
+    MissingSignature = 0x179E,
+    /// 6047 - Insufficient aggregate permissions across signing members
     #[error("Insufficient aggregate permissions across signing members")]
-    InsufficientAggregatePermissions = 0x17A2,
-    /// 6051 - Insufficient vote permissions across signing members
+    InsufficientAggregatePermissions = 0x179F,
+    /// 6048 - Insufficient vote permissions across signing members
     #[error("Insufficient vote permissions across signing members")]
-    InsufficientVotePermissions = 0x17A3,
-    /// 6052 - Smart account must not be time locked
+    InsufficientVotePermissions = 0x17A0,
+    /// 6049 - Smart account must not be time locked
     #[error("Smart account must not be time locked")]
-    TimeLockNotZero = 0x17A4,
-    /// 6053 - Feature not implemented
+    TimeLockNotZero = 0x17A1,
+    /// 6050 - Feature not implemented
     #[error("Feature not implemented")]
-    NotImplemented = 0x17A5,
+    NotImplemented = 0x17A2,
 }
 
 impl From<AstrolabeSmartAccountError> for solana_program_error::ProgramError {

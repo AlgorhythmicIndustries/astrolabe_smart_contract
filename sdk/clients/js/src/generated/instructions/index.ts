@@ -8,7 +8,6 @@
 
 export * from './activateProposal';
 export * from './addSignerAsAuthority';
-export * from './addSpendingLimitAsAuthority';
 export * from './addTransactionToBatch';
 export * from './approveProposal';
 export * from './cancelProposal';
@@ -35,11 +34,9 @@ export * from './initializeProgramConfig';
 export * from './logEvent';
 export * from './rejectProposal';
 export * from './removeSignerAsAuthority';
-export * from './removeSpendingLimitAsAuthority';
 export * from './setArchivalAuthorityAsAuthority';
 export * from './setNewSettingsAuthorityAsAuthority';
 export * from './setProgramConfigAuthority';
 export * from './setProgramConfigSmartAccountCreationFee';
 export * from './setProgramConfigTreasury';
 export * from './setTimeLockAsAuthority';
-export * from './useSpendingLimit';

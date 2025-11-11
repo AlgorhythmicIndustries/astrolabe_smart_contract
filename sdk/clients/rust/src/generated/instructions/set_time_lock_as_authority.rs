@@ -8,7 +8,7 @@
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [2, 234, 93, 93, 40, 92, 31, 234];
+pub const SET_TIME_LOCK_AS_AUTHORITY_DISCRIMINATOR: [u8; 1] = [8];
 
 /// Accounts.
 #[derive(Debug)]
@@ -87,14 +87,12 @@ impl SetTimeLockAsAuthority {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SetTimeLockAsAuthorityInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl SetTimeLockAsAuthorityInstructionData {
     pub fn new() -> Self {
-        Self {
-            discriminator: [2, 234, 93, 93, 40, 92, 31, 234],
-        }
+        Self { discriminator: [8] }
     }
 
     pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {

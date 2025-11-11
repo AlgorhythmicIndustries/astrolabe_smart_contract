@@ -8,7 +8,7 @@
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const CLOSE_TRANSACTION_DISCRIMINATOR: [u8; 8] = [97, 46, 152, 170, 42, 215, 192, 218];
+pub const CLOSE_TRANSACTION_DISCRIMINATOR: [u8; 1] = [29];
 
 /// Accounts.
 #[derive(Debug)]
@@ -72,13 +72,13 @@ impl CloseTransaction {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CloseTransactionInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl CloseTransactionInstructionData {
     pub fn new() -> Self {
         Self {
-            discriminator: [97, 46, 152, 170, 42, 215, 192, 218],
+            discriminator: [29],
         }
     }
 

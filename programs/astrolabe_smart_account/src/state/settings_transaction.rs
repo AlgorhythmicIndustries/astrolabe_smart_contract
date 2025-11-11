@@ -51,34 +51,6 @@ pub enum SettingsAction {
     ChangeThreshold { new_threshold: u16 },
     /// Change the `time_lock` of the settings.
     SetTimeLock { new_time_lock: u32 },
-    /// Change the `time_lock` of the settings.
-    AddSpendingLimit {
-        /// Key that is used to seed the SpendingLimit PDA.
-        seed: Pubkey,
-        /// The index of the account that the spending limit is for.
-        account_index: u8,
-        /// The token mint the spending limit is for.
-        mint: Pubkey,
-        /// The amount of tokens that can be spent in a period.
-        /// This amount is in decimals of the mint,
-        /// so 1 SOL would be `1_000_000_000` and 1 USDC would be `1_000_000`.
-        amount: u64,
-        /// The reset period of the spending limit.
-        /// When it passes, the remaining amount is reset, unless it's `Period::OneTime`.
-        period: Period,
-        /// Members of the settings that can use the spending limit.
-        /// In case a member is removed from the settings, the spending limit will remain existent
-        /// (until explicitly deleted), but the removed member will not be able to use it anymore.
-        signers: Vec<Pubkey>,
-        /// The destination addresses the spending limit is allowed to sent funds to.
-        /// If empty, funds can be sent to any address.
-        destinations: Vec<Pubkey>,
-        /// The expiration timestamp of the spending limit.
-        /// Non expiring spending limits are set to `i64::MAX`.
-        expiration: i64,
-    },
-    /// Remove a spending limit from the settings.
-    RemoveSpendingLimit { spending_limit: Pubkey },
     /// Set the `archival_authority` config parameter of the settings.
     SetArchivalAuthority { new_archival_authority: Option<Pubkey> },
 }

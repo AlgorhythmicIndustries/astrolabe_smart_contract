@@ -9,7 +9,7 @@ use crate::generated::types::SmartAccountSigner;
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const ADD_SIGNER_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [80, 198, 228, 154, 7, 234, 99, 56];
+pub const ADD_SIGNER_AS_AUTHORITY_DISCRIMINATOR: [u8; 1] = [6];
 
 /// Accounts.
 #[derive(Debug)]
@@ -88,14 +88,12 @@ impl AddSignerAsAuthority {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AddSignerAsAuthorityInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl AddSignerAsAuthorityInstructionData {
     pub fn new() -> Self {
-        Self {
-            discriminator: [80, 198, 228, 154, 7, 234, 99, 56],
-        }
+        Self { discriminator: [6] }
     }
 
     pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {

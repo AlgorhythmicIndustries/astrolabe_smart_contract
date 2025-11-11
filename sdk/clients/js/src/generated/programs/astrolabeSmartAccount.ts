@@ -16,7 +16,6 @@ import {
 import {
   type ParsedActivateProposalInstruction,
   type ParsedAddSignerAsAuthorityInstruction,
-  type ParsedAddSpendingLimitAsAuthorityInstruction,
   type ParsedAddTransactionToBatchInstruction,
   type ParsedApproveProposalInstruction,
   type ParsedCancelProposalInstruction,
@@ -43,14 +42,12 @@ import {
   type ParsedLogEventInstruction,
   type ParsedRejectProposalInstruction,
   type ParsedRemoveSignerAsAuthorityInstruction,
-  type ParsedRemoveSpendingLimitAsAuthorityInstruction,
   type ParsedSetArchivalAuthorityAsAuthorityInstruction,
   type ParsedSetNewSettingsAuthorityAsAuthorityInstruction,
   type ParsedSetProgramConfigAuthorityInstruction,
   type ParsedSetProgramConfigSmartAccountCreationFeeInstruction,
   type ParsedSetProgramConfigTreasuryInstruction,
   type ParsedSetTimeLockAsAuthorityInstruction,
-  type ParsedUseSpendingLimitInstruction,
 } from '../instructions';
 
 export const ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS =
@@ -63,7 +60,6 @@ export enum AstrolabeSmartAccountAccount {
   Proposal,
   Settings,
   SettingsTransaction,
-  SpendingLimit,
   Transaction,
   TransactionBuffer,
 }
@@ -142,17 +138,6 @@ export function identifyAstrolabeSmartAccountAccount(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([10, 201, 27, 160, 218, 195, 222, 152])
-      ),
-      0
-    )
-  ) {
-    return AstrolabeSmartAccountAccount.SpendingLimit;
-  }
-  if (
-    containsBytes(
-      data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
         new Uint8Array([11, 24, 174, 129, 203, 117, 242, 23])
       ),
       0
@@ -179,7 +164,6 @@ export function identifyAstrolabeSmartAccountAccount(
 export enum AstrolabeSmartAccountInstruction {
   ActivateProposal,
   AddSignerAsAuthority,
-  AddSpendingLimitAsAuthority,
   AddTransactionToBatch,
   ApproveProposal,
   CancelProposal,
@@ -206,14 +190,12 @@ export enum AstrolabeSmartAccountInstruction {
   LogEvent,
   RejectProposal,
   RemoveSignerAsAuthority,
-  RemoveSpendingLimitAsAuthority,
   SetArchivalAuthorityAsAuthority,
   SetNewSettingsAuthorityAsAuthority,
   SetProgramConfigAuthority,
   SetProgramConfigSmartAccountCreationFee,
   SetProgramConfigTreasury,
   SetTimeLockAsAuthority,
-  UseSpendingLimit,
 }
 
 export function identifyAstrolabeSmartAccountInstruction(
@@ -223,7 +205,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([26])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([24])),
       0
     )
   ) {
@@ -241,16 +223,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([12])),
-      0
-    )
-  ) {
-    return AstrolabeSmartAccountInstruction.AddSpendingLimitAsAuthority;
-  }
-  if (
-    containsBytes(
-      data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([23])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([21])),
       0
     )
   ) {
@@ -259,7 +232,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([27])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([25])),
       0
     )
   ) {
@@ -268,7 +241,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([29])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([27])),
       0
     )
   ) {
@@ -286,7 +259,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([34])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([31])),
       0
     )
   ) {
@@ -295,7 +268,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([33])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([30])),
       0
     )
   ) {
@@ -304,7 +277,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([31])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([28])),
       0
     )
   ) {
@@ -313,7 +286,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([32])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([29])),
       0
     )
   ) {
@@ -322,7 +295,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([18])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([16])),
       0
     )
   ) {
@@ -331,7 +304,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([22])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([20])),
       0
     )
   ) {
@@ -340,7 +313,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([25])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([23])),
       0
     )
   ) {
@@ -349,7 +322,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([14])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([12])),
       0
     )
   ) {
@@ -367,7 +340,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([16])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([14])),
       0
     )
   ) {
@@ -376,7 +349,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([17])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([15])),
       0
     )
   ) {
@@ -385,7 +358,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([20])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([18])),
       0
     )
   ) {
@@ -394,7 +367,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([24])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([22])),
       0
     )
   ) {
@@ -403,7 +376,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([15])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([13])),
       0
     )
   ) {
@@ -412,7 +385,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([36])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([33])),
       0
     )
   ) {
@@ -421,7 +394,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([21])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([19])),
       0
     )
   ) {
@@ -430,7 +403,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([35])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([32])),
       0
     )
   ) {
@@ -439,7 +412,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([19])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([17])),
       0
     )
   ) {
@@ -457,7 +430,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([37])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([34])),
       0
     )
   ) {
@@ -466,7 +439,7 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([28])),
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([26])),
       0
     )
   ) {
@@ -480,15 +453,6 @@ export function identifyAstrolabeSmartAccountInstruction(
     )
   ) {
     return AstrolabeSmartAccountInstruction.RemoveSignerAsAuthority;
-  }
-  if (
-    containsBytes(
-      data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([13])),
-      0
-    )
-  ) {
-    return AstrolabeSmartAccountInstruction.RemoveSpendingLimitAsAuthority;
   }
   if (
     containsBytes(
@@ -544,15 +508,6 @@ export function identifyAstrolabeSmartAccountInstruction(
   ) {
     return AstrolabeSmartAccountInstruction.SetTimeLockAsAuthority;
   }
-  if (
-    containsBytes(
-      data,
-      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([30])),
-      0
-    )
-  ) {
-    return AstrolabeSmartAccountInstruction.UseSpendingLimit;
-  }
   throw new Error(
     'The provided instruction could not be identified as a astrolabeSmartAccount instruction.'
   );
@@ -567,9 +522,6 @@ export type ParsedAstrolabeSmartAccountInstruction<
   | ({
       instructionType: AstrolabeSmartAccountInstruction.AddSignerAsAuthority;
     } & ParsedAddSignerAsAuthorityInstruction<TProgram>)
-  | ({
-      instructionType: AstrolabeSmartAccountInstruction.AddSpendingLimitAsAuthority;
-    } & ParsedAddSpendingLimitAsAuthorityInstruction<TProgram>)
   | ({
       instructionType: AstrolabeSmartAccountInstruction.AddTransactionToBatch;
     } & ParsedAddTransactionToBatchInstruction<TProgram>)
@@ -649,9 +601,6 @@ export type ParsedAstrolabeSmartAccountInstruction<
       instructionType: AstrolabeSmartAccountInstruction.RemoveSignerAsAuthority;
     } & ParsedRemoveSignerAsAuthorityInstruction<TProgram>)
   | ({
-      instructionType: AstrolabeSmartAccountInstruction.RemoveSpendingLimitAsAuthority;
-    } & ParsedRemoveSpendingLimitAsAuthorityInstruction<TProgram>)
-  | ({
       instructionType: AstrolabeSmartAccountInstruction.SetArchivalAuthorityAsAuthority;
     } & ParsedSetArchivalAuthorityAsAuthorityInstruction<TProgram>)
   | ({
@@ -668,7 +617,4 @@ export type ParsedAstrolabeSmartAccountInstruction<
     } & ParsedSetProgramConfigTreasuryInstruction<TProgram>)
   | ({
       instructionType: AstrolabeSmartAccountInstruction.SetTimeLockAsAuthority;
-    } & ParsedSetTimeLockAsAuthorityInstruction<TProgram>)
-  | ({
-      instructionType: AstrolabeSmartAccountInstruction.UseSpendingLimit;
-    } & ParsedUseSpendingLimitInstruction<TProgram>);
+    } & ParsedSetTimeLockAsAuthorityInstruction<TProgram>);

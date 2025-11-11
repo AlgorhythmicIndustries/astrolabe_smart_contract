@@ -9,7 +9,7 @@ use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 use solana_pubkey::Pubkey;
 
-pub const REMOVE_SIGNER_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] = [58, 19, 149, 16, 181, 16, 125, 148];
+pub const REMOVE_SIGNER_AS_AUTHORITY_DISCRIMINATOR: [u8; 1] = [7];
 
 /// Accounts.
 #[derive(Debug)]
@@ -88,14 +88,12 @@ impl RemoveSignerAsAuthority {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RemoveSignerAsAuthorityInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl RemoveSignerAsAuthorityInstructionData {
     pub fn new() -> Self {
-        Self {
-            discriminator: [58, 19, 149, 16, 181, 16, 125, 148],
-        }
+        Self { discriminator: [7] }
     }
 
     pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {

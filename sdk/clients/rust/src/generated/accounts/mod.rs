@@ -11,7 +11,6 @@ pub(crate) mod r#program_config;
 pub(crate) mod r#proposal;
 pub(crate) mod r#settings;
 pub(crate) mod r#settings_transaction;
-pub(crate) mod r#spending_limit;
 pub(crate) mod r#transaction;
 pub(crate) mod r#transaction_buffer;
 
@@ -21,6 +20,5 @@ pub use self::r#program_config::*;
 pub use self::r#proposal::*;
 pub use self::r#settings::*;
 pub use self::r#settings_transaction::*;
-pub use self::r#spending_limit::*;
 pub use self::r#transaction::*;
 pub use self::r#transaction_buffer::*;
