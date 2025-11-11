@@ -3,7 +3,7 @@ name: Push SDK Subtree
 
 on:
   push:
-    branches: [ removeSpendingLimits ]
+    branches: [ main ]
     paths: 
       - 'sdk/**'  # Only trigger when files in sdk/ directory change
   workflow_dispatch:  # Allow manual triggering
@@ -37,10 +37,10 @@ jobs:
     - name: Push subtree to SDK repository
       run: |
         # Try to push, if it fails, try to add the subtree first
-        git subtree push --prefix=sdk astrolabe-sdk-remote removeSpendingLimits || {
+        git subtree push --prefix=sdk astrolabe-sdk-remote main || {
           echo "Subtree push failed, trying to add subtree first..."
-          git subtree add --prefix=sdk astrolabe-sdk-remote removeSpendingLimits --squash
-          git subtree push --prefix=sdk astrolabe-sdk-remote removeSpendingLimits
+          git subtree add --prefix=sdk astrolabe-sdk-remote main --squash
+          git subtree push --prefix=sdk astrolabe-sdk-remote main
         }
     
     - name: Clean up remote
