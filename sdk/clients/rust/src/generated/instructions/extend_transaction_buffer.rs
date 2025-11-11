@@ -8,7 +8,7 @@
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR: [u8; 8] = [190, 86, 246, 95, 231, 154, 229, 91];
+pub const EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR: [u8; 1] = [17];
 
 /// Accounts.
 #[derive(Debug)]
@@ -65,13 +65,13 @@ impl ExtendTransactionBuffer {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ExtendTransactionBufferInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl ExtendTransactionBufferInstructionData {
     pub fn new() -> Self {
         Self {
-            discriminator: [190, 86, 246, 95, 231, 154, 229, 91],
+            discriminator: [17],
         }
     }
 

@@ -9,8 +9,7 @@ use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 use solana_pubkey::Pubkey;
 
-pub const SET_NEW_SETTINGS_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR: [u8; 8] =
-    [221, 112, 133, 229, 146, 58, 90, 56];
+pub const SET_NEW_SETTINGS_AUTHORITY_AS_AUTHORITY_DISCRIMINATOR: [u8; 1] = [10];
 
 /// Accounts.
 #[derive(Debug)]
@@ -89,13 +88,13 @@ impl SetNewSettingsAuthorityAsAuthority {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SetNewSettingsAuthorityAsAuthorityInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl SetNewSettingsAuthorityAsAuthorityInstructionData {
     pub fn new() -> Self {
         Self {
-            discriminator: [221, 112, 133, 229, 146, 58, 90, 56],
+            discriminator: [10],
         }
     }
 

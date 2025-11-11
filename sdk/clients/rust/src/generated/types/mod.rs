@@ -6,7 +6,6 @@
 //!
 
 pub(crate) mod r#create_transaction_args;
-pub(crate) mod r#period;
 pub(crate) mod r#permissions;
 pub(crate) mod r#proposal_status;
 pub(crate) mod r#restricted_permissions;
@@ -19,7 +18,6 @@ pub(crate) mod r#smart_account_transaction_message;
 pub(crate) mod r#vote_on_proposal_args;
 
 pub use self::r#create_transaction_args::*;
-pub use self::r#period::*;
 pub use self::r#permissions::*;
 pub use self::r#proposal_status::*;
 pub use self::r#restricted_permissions::*;

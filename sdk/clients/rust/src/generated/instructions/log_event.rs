@@ -8,7 +8,7 @@
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const LOG_EVENT_DISCRIMINATOR: [u8; 8] = [5, 9, 90, 141, 223, 134, 57, 217];
+pub const LOG_EVENT_DISCRIMINATOR: [u8; 1] = [34];
 
 /// Accounts.
 #[derive(Debug)]
@@ -48,13 +48,13 @@ impl LogEvent {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct LogEventInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl LogEventInstructionData {
     pub fn new() -> Self {
         Self {
-            discriminator: [5, 9, 90, 141, 223, 134, 57, 217],
+            discriminator: [34],
         }
     }
 

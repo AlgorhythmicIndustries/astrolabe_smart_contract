@@ -9,7 +9,7 @@ use crate::generated::types::VoteOnProposalArgs;
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const REJECT_PROPOSAL_DISCRIMINATOR: [u8; 8] = [114, 162, 164, 82, 191, 11, 102, 25];
+pub const REJECT_PROPOSAL_DISCRIMINATOR: [u8; 1] = [26];
 
 /// Accounts.
 #[derive(Debug)]
@@ -71,13 +71,13 @@ impl RejectProposal {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RejectProposalInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl RejectProposalInstructionData {
     pub fn new() -> Self {
         Self {
-            discriminator: [114, 162, 164, 82, 191, 11, 102, 25],
+            discriminator: [26],
         }
     }
 

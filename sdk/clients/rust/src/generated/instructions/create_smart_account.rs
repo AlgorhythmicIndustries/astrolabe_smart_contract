@@ -11,7 +11,7 @@ use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 use solana_pubkey::Pubkey;
 
-pub const CREATE_SMART_ACCOUNT_DISCRIMINATOR: [u8; 8] = [197, 102, 253, 231, 77, 84, 50, 17];
+pub const CREATE_SMART_ACCOUNT_DISCRIMINATOR: [u8; 1] = [5];
 
 /// Accounts.
 #[derive(Debug)]
@@ -78,14 +78,12 @@ impl CreateSmartAccount {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateSmartAccountInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl CreateSmartAccountInstructionData {
     pub fn new() -> Self {
-        Self {
-            discriminator: [197, 102, 253, 231, 77, 84, 50, 17],
-        }
+        Self { discriminator: [5] }
     }
 
     pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {

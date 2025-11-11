@@ -40,7 +40,7 @@ import {
   type CreateTransactionArgsArgs,
 } from '../types';
 
-export const CREATE_TRANSACTION_DISCRIMINATOR = new Uint8Array([16]);
+export const CREATE_TRANSACTION_DISCRIMINATOR = new Uint8Array([14]);
 
 export function getCreateTransactionDiscriminatorBytes() {
   return fixEncoderSize(getBytesEncoder(), 1).encode(

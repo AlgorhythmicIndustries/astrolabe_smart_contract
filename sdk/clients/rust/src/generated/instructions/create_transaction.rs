@@ -9,7 +9,7 @@ use crate::generated::types::CreateTransactionArgs;
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const CREATE_TRANSACTION_DISCRIMINATOR: [u8; 8] = [227, 193, 53, 239, 55, 126, 112, 105];
+pub const CREATE_TRANSACTION_DISCRIMINATOR: [u8; 1] = [14];
 
 /// Accounts.
 #[derive(Debug)]
@@ -72,13 +72,13 @@ impl CreateTransaction {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateTransactionInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl CreateTransactionInstructionData {
     pub fn new() -> Self {
         Self {
-            discriminator: [227, 193, 53, 239, 55, 126, 112, 105],
+            discriminator: [14],
         }
     }
 

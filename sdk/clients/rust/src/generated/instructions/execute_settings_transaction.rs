@@ -8,8 +8,7 @@
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const EXECUTE_SETTINGS_TRANSACTION_DISCRIMINATOR: [u8; 8] =
-    [131, 210, 27, 88, 27, 204, 143, 189];
+pub const EXECUTE_SETTINGS_TRANSACTION_DISCRIMINATOR: [u8; 1] = [13];
 
 /// Accounts.
 #[derive(Debug)]
@@ -22,8 +21,7 @@ pub struct ExecuteSettingsTransaction {
     pub proposal: solana_pubkey::Pubkey,
     /// The transaction to execute.
     pub transaction: solana_pubkey::Pubkey,
-    /// The account that will be charged/credited in case the settings transaction causes space reallocation,
-    /// for example when adding a new signer, adding or removing a spending limit.
+    /// The account that will be charged/credited in case the settings transaction causes space reallocation
     /// This is usually the same as `signer`, but can be a different account if needed.
     pub rent_payer: Option<solana_pubkey::Pubkey>,
     /// We might need it in case reallocation is needed.
@@ -86,13 +84,13 @@ impl ExecuteSettingsTransaction {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ExecuteSettingsTransactionInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl ExecuteSettingsTransactionInstructionData {
     pub fn new() -> Self {
         Self {
-            discriminator: [131, 210, 27, 88, 27, 204, 143, 189],
+            discriminator: [13],
         }
     }
 
@@ -157,8 +155,7 @@ impl ExecuteSettingsTransactionBuilder {
         self
     }
     /// `[optional account]`
-    /// The account that will be charged/credited in case the settings transaction causes space reallocation,
-    /// for example when adding a new signer, adding or removing a spending limit.
+    /// The account that will be charged/credited in case the settings transaction causes space reallocation
     /// This is usually the same as `signer`, but can be a different account if needed.
     #[inline(always)]
     pub fn rent_payer(&mut self, rent_payer: Option<solana_pubkey::Pubkey>) -> &mut Self {
@@ -212,8 +209,7 @@ pub struct ExecuteSettingsTransactionCpiAccounts<'a, 'b> {
     pub proposal: &'b solana_account_info::AccountInfo<'a>,
     /// The transaction to execute.
     pub transaction: &'b solana_account_info::AccountInfo<'a>,
-    /// The account that will be charged/credited in case the settings transaction causes space reallocation,
-    /// for example when adding a new signer, adding or removing a spending limit.
+    /// The account that will be charged/credited in case the settings transaction causes space reallocation
     /// This is usually the same as `signer`, but can be a different account if needed.
     pub rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     /// We might need it in case reallocation is needed.
@@ -232,8 +228,7 @@ pub struct ExecuteSettingsTransactionCpi<'a, 'b> {
     pub proposal: &'b solana_account_info::AccountInfo<'a>,
     /// The transaction to execute.
     pub transaction: &'b solana_account_info::AccountInfo<'a>,
-    /// The account that will be charged/credited in case the settings transaction causes space reallocation,
-    /// for example when adding a new signer, adding or removing a spending limit.
+    /// The account that will be charged/credited in case the settings transaction causes space reallocation
     /// This is usually the same as `signer`, but can be a different account if needed.
     pub rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     /// We might need it in case reallocation is needed.
@@ -411,8 +406,7 @@ impl<'a, 'b> ExecuteSettingsTransactionCpiBuilder<'a, 'b> {
         self
     }
     /// `[optional account]`
-    /// The account that will be charged/credited in case the settings transaction causes space reallocation,
-    /// for example when adding a new signer, adding or removing a spending limit.
+    /// The account that will be charged/credited in case the settings transaction causes space reallocation
     /// This is usually the same as `signer`, but can be a different account if needed.
     #[inline(always)]
     pub fn rent_payer(

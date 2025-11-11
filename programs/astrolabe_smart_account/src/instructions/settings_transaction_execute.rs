@@ -42,17 +42,13 @@ pub struct ExecuteSettingsTransaction<'info> {
     )]
     pub transaction: Account<'info, SettingsTransaction>,
 
-    /// The account that will be charged/credited in case the settings transaction causes space reallocation,
-    /// for example when adding a new signer, adding or removing a spending limit.
+    /// The account that will be charged/credited in case the settings transaction causes space reallocation
     /// This is usually the same as `signer`, but can be a different account if needed.
     #[account(mut)]
     pub rent_payer: Option<Signer<'info>>,
 
     /// We might need it in case reallocation is needed.
     pub system_program: Option<Program<'info, System>>,
-    // In case the transaction contains Add(Remove)SpendingLimit actions,
-    // `remaining_accounts` must contain the SpendingLimit accounts to be initialized/closed.
-    // remaining_accounts
 }
 
 impl<'info> ExecuteSettingsTransaction<'info> {
@@ -92,17 +88,6 @@ impl<'info> ExecuteSettingsTransaction<'info> {
 
         // `transaction` is validated by its seeds.
 
-        // Spending limit expiration must be greater than the current timestamp.
-        let current_timestamp = Clock::get()?.unix_timestamp;
-
-        for action in self.transaction.actions.iter() {
-            if let SettingsAction::AddSpendingLimit { expiration, .. } = action {
-                require!(
-                    *expiration > current_timestamp,
-                    SmartAccountError::SpendingLimitExpired
-                );
-            }
-        }
         Ok(())
     }
 

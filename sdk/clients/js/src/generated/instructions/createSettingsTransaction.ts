@@ -52,7 +52,7 @@ import {
   type SettingsActionArgs,
 } from '../types';
 
-export const CREATE_SETTINGS_TRANSACTION_DISCRIMINATOR = new Uint8Array([14]);
+export const CREATE_SETTINGS_TRANSACTION_DISCRIMINATOR = new Uint8Array([12]);
 
 export function getCreateSettingsTransactionDiscriminatorBytes() {
   return fixEncoderSize(getBytesEncoder(), 1).encode(

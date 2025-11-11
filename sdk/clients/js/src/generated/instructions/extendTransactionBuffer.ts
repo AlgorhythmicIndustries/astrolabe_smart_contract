@@ -37,7 +37,7 @@ import {
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
-export const EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR = new Uint8Array([19]);
+export const EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR = new Uint8Array([17]);
 
 export function getExtendTransactionBufferDiscriminatorBytes() {
   return fixEncoderSize(getBytesEncoder(), 1).encode(

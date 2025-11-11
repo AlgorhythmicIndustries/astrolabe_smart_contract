@@ -5,7 +5,6 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
-use crate::generated::types::Period;
 use crate::generated::types::SmartAccountSigner;
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
@@ -29,54 +28,6 @@ pub enum SettingsAction {
     },
     SetTimeLock {
         new_time_lock: u32,
-    },
-    AddSpendingLimit {
-        /// Key that is used to seed the SpendingLimit PDA.
-        #[cfg_attr(
-            feature = "serde",
-            serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
-        )]
-        seed: Pubkey,
-        /// The index of the account that the spending limit is for.
-        account_index: u8,
-        /// The token mint the spending limit is for.
-        #[cfg_attr(
-            feature = "serde",
-            serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
-        )]
-        mint: Pubkey,
-        /// The amount of tokens that can be spent in a period.
-        /// This amount is in decimals of the mint,
-        /// so 1 SOL would be `1_000_000_000` and 1 USDC would be `1_000_000`.
-        amount: u64,
-        /// The reset period of the spending limit.
-        /// When it passes, the remaining amount is reset, unless it's `Period::OneTime`.
-        period: Period,
-        /// Members of the settings that can use the spending limit.
-        /// In case a member is removed from the settings, the spending limit will remain existent
-        /// (until explicitly deleted), but the removed member will not be able to use it anymore.
-        #[cfg_attr(
-            feature = "serde",
-            serde(with = "serde_with::As::<Vec<serde_with::DisplayFromStr>>")
-        )]
-        signers: Vec<Pubkey>,
-        /// The destination addresses the spending limit is allowed to sent funds to.
-        /// If empty, funds can be sent to any address.
-        #[cfg_attr(
-            feature = "serde",
-            serde(with = "serde_with::As::<Vec<serde_with::DisplayFromStr>>")
-        )]
-        destinations: Vec<Pubkey>,
-        /// The expiration timestamp of the spending limit.
-        /// Non expiring spending limits are set to `i64::MAX`.
-        expiration: i64,
-    },
-    RemoveSpendingLimit {
-        #[cfg_attr(
-            feature = "serde",
-            serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
-        )]
-        spending_limit: Pubkey,
     },
     SetArchivalAuthority {
         new_archival_authority: Option<Pubkey>,

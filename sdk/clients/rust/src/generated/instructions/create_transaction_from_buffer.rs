@@ -9,8 +9,7 @@ use crate::generated::types::CreateTransactionArgs;
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const CREATE_TRANSACTION_FROM_BUFFER_DISCRIMINATOR: [u8; 8] =
-    [53, 192, 39, 239, 124, 84, 43, 249];
+pub const CREATE_TRANSACTION_FROM_BUFFER_DISCRIMINATOR: [u8; 1] = [18];
 
 /// Accounts.
 #[derive(Debug)]
@@ -85,13 +84,13 @@ impl CreateTransactionFromBuffer {
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateTransactionFromBufferInstructionData {
-    discriminator: [u8; 8],
+    discriminator: [u8; 1],
 }
 
 impl CreateTransactionFromBufferInstructionData {
     pub fn new() -> Self {
         Self {
-            discriminator: [53, 192, 39, 239, 124, 84, 43, 249],
+            discriminator: [18],
         }
     }
 
