@@ -64,7 +64,7 @@ impl BatchTransaction {
         let transaction_message: SmartAccountTransactionMessage =
             TransactionMessage::deserialize(&mut &transaction_message[..])?.try_into()?;
 
-            let message_size = transaction_message.try_to_vec()?.len();
+        let message_size = transaction_message.borsh_size();
 
         Ok(
             8 +   // anchor account discriminator
