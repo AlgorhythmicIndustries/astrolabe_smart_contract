@@ -14,11 +14,9 @@ import {
   getI64Encoder,
   getStructDecoder,
   getStructEncoder,
-  getUnitDecoder,
-  getUnitEncoder,
-  type Codec,
-  type Decoder,
-  type Encoder,
+  type FixedSizeCodec,
+  type FixedSizeDecoder,
+  type FixedSizeEncoder,
   type GetDiscriminatedUnionVariant,
   type GetDiscriminatedUnionVariantContent,
 } from '@solana/kit';
@@ -32,7 +30,6 @@ export type ProposalStatus =
   | { __kind: 'Active'; timestamp: bigint }
   | { __kind: 'Rejected'; timestamp: bigint }
   | { __kind: 'Approved'; timestamp: bigint }
-  | { __kind: 'Executing' }
   | { __kind: 'Executed'; timestamp: bigint }
   | { __kind: 'Cancelled'; timestamp: bigint };
 
@@ -41,35 +38,32 @@ export type ProposalStatusArgs =
   | { __kind: 'Active'; timestamp: number | bigint }
   | { __kind: 'Rejected'; timestamp: number | bigint }
   | { __kind: 'Approved'; timestamp: number | bigint }
-  | { __kind: 'Executing' }
   | { __kind: 'Executed'; timestamp: number | bigint }
   | { __kind: 'Cancelled'; timestamp: number | bigint };
 
-export function getProposalStatusEncoder(): Encoder<ProposalStatusArgs> {
+export function getProposalStatusEncoder(): FixedSizeEncoder<ProposalStatusArgs> {
   return getDiscriminatedUnionEncoder([
     ['Draft', getStructEncoder([['timestamp', getI64Encoder()]])],
     ['Active', getStructEncoder([['timestamp', getI64Encoder()]])],
     ['Rejected', getStructEncoder([['timestamp', getI64Encoder()]])],
     ['Approved', getStructEncoder([['timestamp', getI64Encoder()]])],
-    ['Executing', getUnitEncoder()],
     ['Executed', getStructEncoder([['timestamp', getI64Encoder()]])],
     ['Cancelled', getStructEncoder([['timestamp', getI64Encoder()]])],
-  ]);
+  ]) as FixedSizeEncoder<ProposalStatusArgs>;
 }
 
-export function getProposalStatusDecoder(): Decoder<ProposalStatus> {
+export function getProposalStatusDecoder(): FixedSizeDecoder<ProposalStatus> {
   return getDiscriminatedUnionDecoder([
     ['Draft', getStructDecoder([['timestamp', getI64Decoder()]])],
     ['Active', getStructDecoder([['timestamp', getI64Decoder()]])],
     ['Rejected', getStructDecoder([['timestamp', getI64Decoder()]])],
     ['Approved', getStructDecoder([['timestamp', getI64Decoder()]])],
-    ['Executing', getUnitDecoder()],
     ['Executed', getStructDecoder([['timestamp', getI64Decoder()]])],
     ['Cancelled', getStructDecoder([['timestamp', getI64Decoder()]])],
-  ]);
+  ]) as FixedSizeDecoder<ProposalStatus>;
 }
 
-export function getProposalStatusCodec(): Codec<
+export function getProposalStatusCodec(): FixedSizeCodec<
   ProposalStatusArgs,
   ProposalStatus
 > {
@@ -109,9 +103,6 @@ export function proposalStatus(
     'Approved'
   >
 ): GetDiscriminatedUnionVariant<ProposalStatusArgs, '__kind', 'Approved'>;
-export function proposalStatus(
-  kind: 'Executing'
-): GetDiscriminatedUnionVariant<ProposalStatusArgs, '__kind', 'Executing'>;
 export function proposalStatus(
   kind: 'Executed',
   data: GetDiscriminatedUnionVariantContent<
