@@ -35,7 +35,7 @@ security_txt! {
 }
 
 #[cfg(not(feature = "testing"))]
-declare_id!("ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q");
+declare_id!("aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh");
 
 #[cfg(feature = "testing")]
 declare_id!("ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q");

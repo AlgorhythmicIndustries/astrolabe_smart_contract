@@ -7,7 +7,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-astrolabe_smart_account = "ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q"
+astrolabe_smart_account = "aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh"
 
 [registry]
 url = "https://api.apr.dev"
