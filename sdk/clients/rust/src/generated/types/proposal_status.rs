@@ -17,7 +17,6 @@ pub enum ProposalStatus {
     Active { timestamp: i64 },
     Rejected { timestamp: i64 },
     Approved { timestamp: i64 },
-    Executing,
     Executed { timestamp: i64 },
     Cancelled { timestamp: i64 },
 }
