@@ -9,4 +9,4 @@ use solana_pubkey::{pubkey, Pubkey};
 
 /// `astrolabe_smart_account` program ID.
 pub const ASTROLABE_SMART_ACCOUNT_ID: Pubkey =
-    pubkey!("aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh");
+    pubkey!("ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q");
