@@ -7,10 +7,10 @@ use crate::state::*;
 /// This is a key controlled by the Astrolabe team and is intended to use for the single
 /// transaction that initializes the global program config. It is not used for anything else.
 #[cfg(not(feature = "testing"))]
-const INITIALIZER: Pubkey = pubkey!("BrQAbGdWQ9YUHmWWgKFdFe4miTURH71jkYFPXfaosqDv");
+const INITIALIZER: Pubkey = pubkey!("DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf");
 
 #[cfg(feature = "testing")]
-const INITIALIZER: Pubkey = pubkey!("BrQAbGdWQ9YUHmWWgKFdFe4miTURH71jkYFPXfaosqDv");
+const INITIALIZER: Pubkey = pubkey!("DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf");
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct InitProgramConfigArgs {
@@ -26,7 +26,7 @@ pub struct InitProgramConfigArgs {
 pub struct InitProgramConfig<'info> {
     #[account(
         init,
-        payer = initializer,
+        payer = rent_payer,
         space = 8 + ProgramConfig::INIT_SPACE,
         seeds = [SEED_PREFIX, SEED_PROGRAM_CONFIG],
         bump
@@ -40,6 +40,9 @@ pub struct InitProgramConfig<'info> {
     )]
     pub initializer: Signer<'info>,
 
+    #[account(mut)]
+    pub rent_payer: Signer<'info>,
+    
     pub system_program: Program<'info, System>,
 }
 
