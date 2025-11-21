@@ -124,7 +124,7 @@ impl CreateSmartAccountInstructionArgs {
 ///   2. `[writable]` treasury
 ///   3. `[writable, signer]` creator
 ///   4. `[optional]` system_program (default to `11111111111111111111111111111111`)
-///   5. `[optional]` program (default to `aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh`)
+///   5. `[optional]` program (default to `ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q`)
 #[derive(Clone, Debug, Default)]
 pub struct CreateSmartAccountBuilder {
     program_config: Option<solana_pubkey::Pubkey>,
@@ -177,7 +177,7 @@ impl CreateSmartAccountBuilder {
         self.system_program = Some(system_program);
         self
     }
-    /// `[optional account, default to 'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh']`
+    /// `[optional account, default to 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q']`
     #[inline(always)]
     pub fn program(&mut self, program: solana_pubkey::Pubkey) -> &mut Self {
         self.program = Some(program);
@@ -250,7 +250,7 @@ impl CreateSmartAccountBuilder {
                 .system_program
                 .unwrap_or(solana_pubkey::pubkey!("11111111111111111111111111111111")),
             program: self.program.unwrap_or(solana_pubkey::pubkey!(
-                "aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh"
+                "ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q"
             )),
         };
         let args = CreateSmartAccountInstructionArgs {

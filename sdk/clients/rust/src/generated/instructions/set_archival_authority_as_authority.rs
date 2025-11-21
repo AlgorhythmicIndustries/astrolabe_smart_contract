@@ -130,7 +130,7 @@ impl SetArchivalAuthorityAsAuthorityInstructionArgs {
 ///   1. `[signer]` settings_authority
 ///   2. `[writable, signer, optional]` rent_payer
 ///   3. `[optional]` system_program (default to `11111111111111111111111111111111`)
-///   4. `[optional]` program (default to `aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh`)
+///   4. `[optional]` program (default to `ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q`)
 #[derive(Clone, Debug, Default)]
 pub struct SetArchivalAuthorityAsAuthorityBuilder {
     settings: Option<solana_pubkey::Pubkey>,
@@ -174,7 +174,7 @@ impl SetArchivalAuthorityAsAuthorityBuilder {
         self.system_program = system_program;
         self
     }
-    /// `[optional account, default to 'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh']`
+    /// `[optional account, default to 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q']`
     #[inline(always)]
     pub fn program(&mut self, program: solana_pubkey::Pubkey) -> &mut Self {
         self.program = Some(program);
@@ -217,7 +217,7 @@ impl SetArchivalAuthorityAsAuthorityBuilder {
             rent_payer: self.rent_payer,
             system_program: self.system_program,
             program: self.program.unwrap_or(solana_pubkey::pubkey!(
-                "aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh"
+                "ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q"
             )),
         };
         let args = SetArchivalAuthorityAsAuthorityInstructionArgs {
