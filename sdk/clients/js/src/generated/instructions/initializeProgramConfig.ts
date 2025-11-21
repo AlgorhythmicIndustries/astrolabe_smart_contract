@@ -51,7 +51,8 @@ export type InitializeProgramConfigInstruction<
   TAccountProgramConfig extends string | AccountMeta<string> = string,
   TAccountInitializer extends
     | string
-    | AccountMeta<string> = 'BrQAbGdWQ9YUHmWWgKFdFe4miTURH71jkYFPXfaosqDv',
+    | AccountMeta<string> = 'DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf',
+  TAccountRentPayer extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
     | AccountMeta<string> = '11111111111111111111111111111111',
@@ -67,6 +68,10 @@ export type InitializeProgramConfigInstruction<
         ? WritableSignerAccount<TAccountInitializer> &
             AccountSignerMeta<TAccountInitializer>
         : TAccountInitializer,
+      TAccountRentPayer extends string
+        ? WritableSignerAccount<TAccountRentPayer> &
+            AccountSignerMeta<TAccountRentPayer>
+        : TAccountRentPayer,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -130,11 +135,13 @@ export function getInitializeProgramConfigInstructionDataCodec(): FixedSizeCodec
 export type InitializeProgramConfigAsyncInput<
   TAccountProgramConfig extends string = string,
   TAccountInitializer extends string = string,
+  TAccountRentPayer extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
   programConfig?: Address<TAccountProgramConfig>;
   /** The hard-coded account that is used to initialize the program config once. */
   initializer?: TransactionSigner<TAccountInitializer>;
+  rentPayer: TransactionSigner<TAccountRentPayer>;
   systemProgram?: Address<TAccountSystemProgram>;
   authority: InitializeProgramConfigInstructionDataArgs['authority'];
   smartAccountCreationFee: InitializeProgramConfigInstructionDataArgs['smartAccountCreationFee'];
@@ -144,6 +151,7 @@ export type InitializeProgramConfigAsyncInput<
 export async function getInitializeProgramConfigInstructionAsync<
   TAccountProgramConfig extends string,
   TAccountInitializer extends string,
+  TAccountRentPayer extends string,
   TAccountSystemProgram extends string,
   TProgramAddress extends
     Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
@@ -151,6 +159,7 @@ export async function getInitializeProgramConfigInstructionAsync<
   input: InitializeProgramConfigAsyncInput<
     TAccountProgramConfig,
     TAccountInitializer,
+    TAccountRentPayer,
     TAccountSystemProgram
   >,
   config?: { programAddress?: TProgramAddress }
@@ -159,6 +168,7 @@ export async function getInitializeProgramConfigInstructionAsync<
     TProgramAddress,
     TAccountProgramConfig,
     TAccountInitializer,
+    TAccountRentPayer,
     TAccountSystemProgram
   >
 > {
@@ -170,6 +180,7 @@ export async function getInitializeProgramConfigInstructionAsync<
   const originalAccounts = {
     programConfig: { value: input.programConfig ?? null, isWritable: true },
     initializer: { value: input.initializer ?? null, isWritable: true },
+    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
   };
   const accounts = originalAccounts as Record<
@@ -200,7 +211,7 @@ export async function getInitializeProgramConfigInstructionAsync<
   }
   if (!accounts.initializer.value) {
     accounts.initializer.value =
-      'BrQAbGdWQ9YUHmWWgKFdFe4miTURH71jkYFPXfaosqDv' as Address<'BrQAbGdWQ9YUHmWWgKFdFe4miTURH71jkYFPXfaosqDv'>;
+      'DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf' as Address<'DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf'>;
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
@@ -212,6 +223,7 @@ export async function getInitializeProgramConfigInstructionAsync<
     accounts: [
       getAccountMeta(accounts.programConfig),
       getAccountMeta(accounts.initializer),
+      getAccountMeta(accounts.rentPayer),
       getAccountMeta(accounts.systemProgram),
     ],
     data: getInitializeProgramConfigInstructionDataEncoder().encode(
@@ -222,6 +234,7 @@ export async function getInitializeProgramConfigInstructionAsync<
     TProgramAddress,
     TAccountProgramConfig,
     TAccountInitializer,
+    TAccountRentPayer,
     TAccountSystemProgram
   >);
 }
@@ -229,11 +242,13 @@ export async function getInitializeProgramConfigInstructionAsync<
 export type InitializeProgramConfigInput<
   TAccountProgramConfig extends string = string,
   TAccountInitializer extends string = string,
+  TAccountRentPayer extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
   programConfig: Address<TAccountProgramConfig>;
   /** The hard-coded account that is used to initialize the program config once. */
   initializer?: TransactionSigner<TAccountInitializer>;
+  rentPayer: TransactionSigner<TAccountRentPayer>;
   systemProgram?: Address<TAccountSystemProgram>;
   authority: InitializeProgramConfigInstructionDataArgs['authority'];
   smartAccountCreationFee: InitializeProgramConfigInstructionDataArgs['smartAccountCreationFee'];
@@ -243,6 +258,7 @@ export type InitializeProgramConfigInput<
 export function getInitializeProgramConfigInstruction<
   TAccountProgramConfig extends string,
   TAccountInitializer extends string,
+  TAccountRentPayer extends string,
   TAccountSystemProgram extends string,
   TProgramAddress extends
     Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
@@ -250,6 +266,7 @@ export function getInitializeProgramConfigInstruction<
   input: InitializeProgramConfigInput<
     TAccountProgramConfig,
     TAccountInitializer,
+    TAccountRentPayer,
     TAccountSystemProgram
   >,
   config?: { programAddress?: TProgramAddress }
@@ -257,6 +274,7 @@ export function getInitializeProgramConfigInstruction<
   TProgramAddress,
   TAccountProgramConfig,
   TAccountInitializer,
+  TAccountRentPayer,
   TAccountSystemProgram
 > {
   // Program address.
@@ -267,6 +285,7 @@ export function getInitializeProgramConfigInstruction<
   const originalAccounts = {
     programConfig: { value: input.programConfig ?? null, isWritable: true },
     initializer: { value: input.initializer ?? null, isWritable: true },
+    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
   };
   const accounts = originalAccounts as Record<
@@ -280,7 +299,7 @@ export function getInitializeProgramConfigInstruction<
   // Resolve default values.
   if (!accounts.initializer.value) {
     accounts.initializer.value =
-      'BrQAbGdWQ9YUHmWWgKFdFe4miTURH71jkYFPXfaosqDv' as Address<'BrQAbGdWQ9YUHmWWgKFdFe4miTURH71jkYFPXfaosqDv'>;
+      'DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf' as Address<'DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf'>;
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
@@ -292,6 +311,7 @@ export function getInitializeProgramConfigInstruction<
     accounts: [
       getAccountMeta(accounts.programConfig),
       getAccountMeta(accounts.initializer),
+      getAccountMeta(accounts.rentPayer),
       getAccountMeta(accounts.systemProgram),
     ],
     data: getInitializeProgramConfigInstructionDataEncoder().encode(
@@ -302,6 +322,7 @@ export function getInitializeProgramConfigInstruction<
     TProgramAddress,
     TAccountProgramConfig,
     TAccountInitializer,
+    TAccountRentPayer,
     TAccountSystemProgram
   >);
 }
@@ -315,7 +336,8 @@ export type ParsedInitializeProgramConfigInstruction<
     programConfig: TAccountMetas[0];
     /** The hard-coded account that is used to initialize the program config once. */
     initializer: TAccountMetas[1];
-    systemProgram: TAccountMetas[2];
+    rentPayer: TAccountMetas[2];
+    systemProgram: TAccountMetas[3];
   };
   data: InitializeProgramConfigInstructionData;
 };
@@ -328,7 +350,7 @@ export function parseInitializeProgramConfigInstruction<
     InstructionWithAccounts<TAccountMetas> &
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedInitializeProgramConfigInstruction<TProgram, TAccountMetas> {
-  if (instruction.accounts.length < 3) {
+  if (instruction.accounts.length < 4) {
     // TODO: Coded error.
     throw new Error('Not enough accounts');
   }
@@ -343,6 +365,7 @@ export function parseInitializeProgramConfigInstruction<
     accounts: {
       programConfig: getNextAccount(),
       initializer: getNextAccount(),
+      rentPayer: getNextAccount(),
       systemProgram: getNextAccount(),
     },
     data: getInitializeProgramConfigInstructionDataDecoder().decode(
