@@ -18,6 +18,8 @@ pub struct InitializeProgramConfig {
     /// The hard-coded account that is used to initialize the program config once.
     pub initializer: solana_pubkey::Pubkey,
 
+    pub rent_payer: solana_pubkey::Pubkey,
+
     pub system_program: solana_pubkey::Pubkey,
 }
 
@@ -35,12 +37,13 @@ impl InitializeProgramConfig {
         args: InitializeProgramConfigInstructionArgs,
         remaining_accounts: &[solana_instruction::AccountMeta],
     ) -> solana_instruction::Instruction {
-        let mut accounts = Vec::with_capacity(3 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
         accounts.push(solana_instruction::AccountMeta::new(
             self.program_config,
             false,
         ));
         accounts.push(solana_instruction::AccountMeta::new(self.initializer, true));
+        accounts.push(solana_instruction::AccountMeta::new(self.rent_payer, true));
         accounts.push(solana_instruction::AccountMeta::new_readonly(
             self.system_program,
             false,
@@ -101,12 +104,14 @@ impl InitializeProgramConfigInstructionArgs {
 /// ### Accounts:
 ///
 ///   0. `[writable]` program_config
-///   1. `[writable, signer, optional]` initializer (default to `BrQAbGdWQ9YUHmWWgKFdFe4miTURH71jkYFPXfaosqDv`)
-///   2. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   1. `[writable, signer, optional]` initializer (default to `DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf`)
+///   2. `[writable, signer]` rent_payer
+///   3. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Clone, Debug, Default)]
 pub struct InitializeProgramConfigBuilder {
     program_config: Option<solana_pubkey::Pubkey>,
     initializer: Option<solana_pubkey::Pubkey>,
+    rent_payer: Option<solana_pubkey::Pubkey>,
     system_program: Option<solana_pubkey::Pubkey>,
     authority: Option<Pubkey>,
     smart_account_creation_fee: Option<u64>,
@@ -123,11 +128,16 @@ impl InitializeProgramConfigBuilder {
         self.program_config = Some(program_config);
         self
     }
-    /// `[optional account, default to 'BrQAbGdWQ9YUHmWWgKFdFe4miTURH71jkYFPXfaosqDv']`
+    /// `[optional account, default to 'DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf']`
     /// The hard-coded account that is used to initialize the program config once.
     #[inline(always)]
     pub fn initializer(&mut self, initializer: solana_pubkey::Pubkey) -> &mut Self {
         self.initializer = Some(initializer);
+        self
+    }
+    #[inline(always)]
+    pub fn rent_payer(&mut self, rent_payer: solana_pubkey::Pubkey) -> &mut Self {
+        self.rent_payer = Some(rent_payer);
         self
     }
     /// `[optional account, default to '11111111111111111111111111111111']`
@@ -171,8 +181,9 @@ impl InitializeProgramConfigBuilder {
         let accounts = InitializeProgramConfig {
             program_config: self.program_config.expect("program_config is not set"),
             initializer: self.initializer.unwrap_or(solana_pubkey::pubkey!(
-                "BrQAbGdWQ9YUHmWWgKFdFe4miTURH71jkYFPXfaosqDv"
+                "DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf"
             )),
+            rent_payer: self.rent_payer.expect("rent_payer is not set"),
             system_program: self
                 .system_program
                 .unwrap_or(solana_pubkey::pubkey!("11111111111111111111111111111111")),
@@ -196,6 +207,8 @@ pub struct InitializeProgramConfigCpiAccounts<'a, 'b> {
     /// The hard-coded account that is used to initialize the program config once.
     pub initializer: &'b solana_account_info::AccountInfo<'a>,
 
+    pub rent_payer: &'b solana_account_info::AccountInfo<'a>,
+
     pub system_program: &'b solana_account_info::AccountInfo<'a>,
 }
 
@@ -207,6 +220,8 @@ pub struct InitializeProgramConfigCpi<'a, 'b> {
     pub program_config: &'b solana_account_info::AccountInfo<'a>,
     /// The hard-coded account that is used to initialize the program config once.
     pub initializer: &'b solana_account_info::AccountInfo<'a>,
+
+    pub rent_payer: &'b solana_account_info::AccountInfo<'a>,
 
     pub system_program: &'b solana_account_info::AccountInfo<'a>,
     /// The arguments for the instruction.
@@ -223,6 +238,7 @@ impl<'a, 'b> InitializeProgramConfigCpi<'a, 'b> {
             __program: program,
             program_config: accounts.program_config,
             initializer: accounts.initializer,
+            rent_payer: accounts.rent_payer,
             system_program: accounts.system_program,
             __args: args,
         }
@@ -250,13 +266,17 @@ impl<'a, 'b> InitializeProgramConfigCpi<'a, 'b> {
         signers_seeds: &[&[&[u8]]],
         remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)],
     ) -> solana_program_error::ProgramResult {
-        let mut accounts = Vec::with_capacity(3 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
         accounts.push(solana_instruction::AccountMeta::new(
             *self.program_config.key,
             false,
         ));
         accounts.push(solana_instruction::AccountMeta::new(
             *self.initializer.key,
+            true,
+        ));
+        accounts.push(solana_instruction::AccountMeta::new(
+            *self.rent_payer.key,
             true,
         ));
         accounts.push(solana_instruction::AccountMeta::new_readonly(
@@ -281,10 +301,11 @@ impl<'a, 'b> InitializeProgramConfigCpi<'a, 'b> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(4 + remaining_accounts.len());
+        let mut account_infos = Vec::with_capacity(5 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.program_config.clone());
         account_infos.push(self.initializer.clone());
+        account_infos.push(self.rent_payer.clone());
         account_infos.push(self.system_program.clone());
         remaining_accounts
             .iter()
@@ -304,7 +325,8 @@ impl<'a, 'b> InitializeProgramConfigCpi<'a, 'b> {
 ///
 ///   0. `[writable]` program_config
 ///   1. `[writable, signer]` initializer
-///   2. `[]` system_program
+///   2. `[writable, signer]` rent_payer
+///   3. `[]` system_program
 #[derive(Clone, Debug)]
 pub struct InitializeProgramConfigCpiBuilder<'a, 'b> {
     instruction: Box<InitializeProgramConfigCpiBuilderInstruction<'a, 'b>>,
@@ -316,6 +338,7 @@ impl<'a, 'b> InitializeProgramConfigCpiBuilder<'a, 'b> {
             __program: program,
             program_config: None,
             initializer: None,
+            rent_payer: None,
             system_program: None,
             authority: None,
             smart_account_creation_fee: None,
@@ -339,6 +362,14 @@ impl<'a, 'b> InitializeProgramConfigCpiBuilder<'a, 'b> {
         initializer: &'b solana_account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.initializer = Some(initializer);
+        self
+    }
+    #[inline(always)]
+    pub fn rent_payer(
+        &mut self,
+        rent_payer: &'b solana_account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.rent_payer = Some(rent_payer);
         self
     }
     #[inline(always)]
@@ -428,6 +459,8 @@ impl<'a, 'b> InitializeProgramConfigCpiBuilder<'a, 'b> {
                 .initializer
                 .expect("initializer is not set"),
 
+            rent_payer: self.instruction.rent_payer.expect("rent_payer is not set"),
+
             system_program: self
                 .instruction
                 .system_program
@@ -446,6 +479,7 @@ struct InitializeProgramConfigCpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_account_info::AccountInfo<'a>,
     program_config: Option<&'b solana_account_info::AccountInfo<'a>>,
     initializer: Option<&'b solana_account_info::AccountInfo<'a>>,
+    rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
     authority: Option<Pubkey>,
     smart_account_creation_fee: Option<u64>,

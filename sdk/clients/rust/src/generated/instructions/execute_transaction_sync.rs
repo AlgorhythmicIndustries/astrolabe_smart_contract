@@ -99,7 +99,7 @@ impl ExecuteTransactionSyncInstructionArgs {
 /// ### Accounts:
 ///
 ///   0. `[]` settings
-///   1. `[optional]` program (default to `ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q`)
+///   1. `[optional]` program (default to `aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh`)
 #[derive(Clone, Debug, Default)]
 pub struct ExecuteTransactionSyncBuilder {
     settings: Option<solana_pubkey::Pubkey>,
@@ -119,7 +119,7 @@ impl ExecuteTransactionSyncBuilder {
         self.settings = Some(settings);
         self
     }
-    /// `[optional account, default to 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q']`
+    /// `[optional account, default to 'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh']`
     #[inline(always)]
     pub fn program(&mut self, program: solana_pubkey::Pubkey) -> &mut Self {
         self.program = Some(program);
@@ -160,7 +160,7 @@ impl ExecuteTransactionSyncBuilder {
         let accounts = ExecuteTransactionSync {
             settings: self.settings.expect("settings is not set"),
             program: self.program.unwrap_or(solana_pubkey::pubkey!(
-                "ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q"
+                "aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh"
             )),
         };
         let args = ExecuteTransactionSyncInstructionArgs {
