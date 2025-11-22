@@ -47,9 +47,11 @@ async function main() {
   const authoritySigner = await createSignerFromKeyPair(authorityKeypair);
   const initializerKeypair = await createKeyPairFromBytes(initializerKeypairBytes);
   const initializerSigner = await createSignerFromKeyPair(initializerKeypair);
+  const rentPayerSigner = authoritySigner;
 
   console.log('Authority:', authoritySigner.address);
   console.log('Initializer:', initializerSigner.address);
+  console.log('Rent payer:', rentPayerSigner.address);
 
   // Airdrop SOL to authority and initializer
   const airdrop = airdropFactory({rpc: rpc, rpcSubscriptions: rpcSubscriptions});
@@ -99,6 +101,7 @@ async function main() {
   const instruction = await getInitializeProgramConfigInstruction({
     programConfig: programConfigPda,
     initializer: initializerSigner,
+    rentPayer: rentPayerSigner,
     systemProgram: address('11111111111111111111111111111111'),
     authority: authoritySigner.address,
     smartAccountCreationFee: lamports(10000000n),
@@ -111,7 +114,7 @@ async function main() {
   // Build and send transaction
   const transactionMessage = pipe(
     createTransactionMessage({ version: 0 }),
-    (tx) => setTransactionMessageFeePayerSigner(initializerSigner, tx),
+    (tx) => setTransactionMessageFeePayerSigner(rentPayerSigner, tx),
     (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
     (tx) => appendTransactionMessageInstructions([
       getSetComputeUnitLimitInstruction({ units: 200_000 }),
