@@ -36,6 +36,7 @@ async function setupProgramConfig() {
   const initializerKeypairBytes = new Uint8Array(JSON.parse(initializerKeypairFile.toString()));
   const initializerKeypair = await createKeyPairFromBytes(initializerKeypairBytes);
   const initializerSigner = await createSignerFromKeyPair(initializerKeypair);
+  const rentPayerSigner = initializerSigner;
 
   console.log('Program config initializer:', initializerSigner.address);
 
@@ -86,6 +87,7 @@ async function setupProgramConfig() {
       programConfig: programConfigPda,
       treasury: treasuryPda,
       initializer: initializerSigner,
+      rentPayer: rentPayerSigner,
       systemProgram: address('11111111111111111111111111111111'),
       authority: initializerSigner.address,
       smartAccountCreationFee: BigInt(0),
@@ -94,7 +96,7 @@ async function setupProgramConfig() {
     // Build the transaction message
     const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
     const transactionMessage = createTransactionMessage({ version: 0 });
-    const messageWithFeePayer = setTransactionMessageFeePayerSigner(initializerSigner, transactionMessage);
+    const messageWithFeePayer = setTransactionMessageFeePayerSigner(rentPayerSigner, transactionMessage);
     const messageWithLifetime = setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, messageWithFeePayer);
     const finalMessage = appendTransactionMessageInstructions([initInstruction], messageWithLifetime);
 

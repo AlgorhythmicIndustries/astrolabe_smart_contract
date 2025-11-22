@@ -45,11 +45,13 @@ import {
     // Create authority and initializer signers
     const authorityKeypair = await createKeyPairFromBytes(keypairBytes);
     const authoritySigner = await createSignerFromKeyPair(authorityKeypair);
-    const initializerKeypair = await createKeyPairFromBytes(initializerKeypairBytes);
-    const initializerSigner = await createSignerFromKeyPair(initializerKeypair);
+  const initializerKeypair = await createKeyPairFromBytes(initializerKeypairBytes);
+  const initializerSigner = await createSignerFromKeyPair(initializerKeypair);
+  const rentPayerSigner = authoritySigner;
   
     console.log('Authority:', authoritySigner.address);
     console.log('Initializer:', initializerSigner.address);
+  console.log('Rent payer:', rentPayerSigner.address);
   
     // --- Start Balance Check ---
     const { value: balance } = await rpc.getBalance(initializerSigner.address).send();
@@ -86,6 +88,7 @@ import {
     const instruction = await getInitializeProgramConfigInstruction({
       programConfig: programConfigPda,
       initializer: initializerSigner,
+      rentPayer: rentPayerSigner,
       systemProgram: address('11111111111111111111111111111111'),
       authority: authoritySigner.address,
       smartAccountCreationFee: lamports(10000000n),
@@ -98,7 +101,7 @@ import {
     // Build and send transaction
     const transactionMessage = pipe(
       createTransactionMessage({ version: 0 }),
-      (tx) => setTransactionMessageFeePayerSigner(initializerSigner, tx),
+      (tx) => setTransactionMessageFeePayerSigner(rentPayerSigner, tx),
       (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
       (tx) => appendTransactionMessageInstructions([
         getSetComputeUnitLimitInstruction({ units: 200_000 }),
