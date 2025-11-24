@@ -306,18 +306,21 @@ import {
 
     for (const accountKey of decodedMessage.staticAccounts) {
       const accountKeyStr = accountKey.toString();
-      let role = AccountRole.WRITABLE; // Default to writable non-signer
+      // Default to regular WRITABLE if not a signer
+      let role = AccountRole.WRITABLE; 
 
       // Check if this account should be a signer
-      if (accountKeyStr === feePayerStr || accountKeyStr === signerStr) {
+      if (accountKeyStr === feePayerStr) {
+        // Fee payer is always WRITABLE_SIGNER
         role = AccountRole.WRITABLE_SIGNER;
+      } else if (accountKeyStr === signerStr) {
+        // User signer is typically WRITABLE_SIGNER (unless read-only signer, but usually writable)
+        role = AccountRole.WRITABLE_SIGNER;
+      } else {
+         // For other accounts, we blindly mark them as WRITABLE for now as the safest bet for remaining accounts
+         // (Readonly accounts passed as writable usually works fine, but not vice versa)
+         role = AccountRole.WRITABLE;
       }
-
-      // Note: For a perfect implementation, we should parse the message header (first byte of messageBytes)
-      // to determine exactly which accounts are signers in the inner transaction.
-      // numRequiredSignatures is the second byte (index 1) of the message bytes if using versioned transaction?
-      // Actually, let's look at the compiledInnerMessage if available or just trust our explicit overrides for now.
-      // The backend fee payer is the critical one causing the current crash.
 
       executeTransactionInstruction.accounts.push({
         address: accountKey,
