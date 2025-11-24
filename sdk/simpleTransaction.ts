@@ -311,6 +311,10 @@ import {
     const feePayerStr = feePayer.toString();
     const signerStr = signer.address.toString();
 
+    console.log('🔍 Debugging remaining accounts signer logic:');
+    console.log('  Fee Payer (Backend):', feePayerStr);
+    console.log('  Signer (User):', signerStr);
+
     for (const accountKey of decodedMessage.staticAccounts) {
       const accountKeyStr = accountKey.toString();
       // Default to regular WRITABLE if not a signer
@@ -318,14 +322,15 @@ import {
 
       // Check if this account should be a signer
       if (accountKeyStr === feePayerStr) {
+        console.log('  ✅ MATCHED FEE PAYER:', accountKeyStr, '-> Setting WRITABLE_SIGNER');
         // Fee payer is always WRITABLE_SIGNER
         role = AccountRole.WRITABLE_SIGNER;
       } else if (accountKeyStr === signerStr) {
+        console.log('  ✅ MATCHED USER SIGNER:', accountKeyStr, '-> Setting WRITABLE_SIGNER');
         // User signer is typically WRITABLE_SIGNER (unless read-only signer, but usually writable)
         role = AccountRole.WRITABLE_SIGNER;
       } else {
          // For other accounts, we blindly mark them as WRITABLE for now as the safest bet for remaining accounts
-         // (Readonly accounts passed as writable usually works fine, but not vice versa)
          role = AccountRole.WRITABLE;
       }
 
