@@ -15,6 +15,7 @@ import {
     AccountRole,
     assertIsTransactionWithinSizeLimit,
     type AccountMeta,
+    type AccountSignerMeta,
   } from '@solana/kit';
   import { Buffer } from 'buffer';
   import { fetchSettings } from './clients/js/src/generated/accounts/settings';
@@ -317,38 +318,40 @@ import {
     console.log('🔍 Debugging remaining accounts signer logic:');
     console.log('  Fee Payer (Backend):', feePayerStr);
     console.log('  Signer (User):', signerStr);
-    console.log('  AccountRole.WRITABLE_SIGNER value:', AccountRole.WRITABLE_SIGNER);
 
     for (const accountKey of decodedMessage.staticAccounts) {
       const accountKeyStr = accountKey.toString().trim();
-      // Default to regular WRITABLE (1) if not a signer
-      let role = AccountRole.WRITABLE; 
-
+      
       // Check if this account should be a signer
       if (accountKeyStr === feePayerStr) {
-        console.log('  ✅ MATCHED FEE PAYER:', accountKeyStr, '-> Setting WRITABLE_SIGNER (3)');
-        // Fee payer is always WRITABLE_SIGNER
-        role = 3 as AccountRole; // Explicitly force value 3
+        console.log('  ✅ MATCHED FEE PAYER:', accountKeyStr, '-> Setting WRITABLE_SIGNER');
+        // Attach the signer explicitly!
+        executeTransactionInstruction.accounts.push({
+          address: accountKey,
+          role: AccountRole.WRITABLE_SIGNER,
+          signer: createNoopSigner(accountKey),
+        } as AccountSignerMeta);
       } else if (accountKeyStr === signerStr) {
-        console.log('  ✅ MATCHED USER SIGNER:', accountKeyStr, '-> Setting WRITABLE_SIGNER (3)');
-        // User signer is typically WRITABLE_SIGNER
-        role = 3 as AccountRole; // Explicitly force value 3
+        console.log('  ✅ MATCHED USER SIGNER:', accountKeyStr, '-> Setting WRITABLE_SIGNER');
+        // Attach the signer explicitly!
+        executeTransactionInstruction.accounts.push({
+          address: accountKey,
+          role: AccountRole.WRITABLE_SIGNER,
+          signer: signer, // User signer is already a TransactionSigner
+        } as AccountSignerMeta);
       } else {
-         // For other accounts, we blindly mark them as WRITABLE for now as the safest bet for remaining accounts
-         role = AccountRole.WRITABLE;
+         // For other accounts, mark as WRITABLE
+         executeTransactionInstruction.accounts.push({
+          address: accountKey,
+          role: AccountRole.WRITABLE,
+        });
       }
-
-      executeTransactionInstruction.accounts.push({
-        address: accountKey,
-        role: role, 
-      });
     }
     
     // 🔍 Verify the pushed accounts
-    console.log('🔍 Final ExecuteTransaction accounts (last 5):');
-    const last5 = executeTransactionInstruction.accounts.slice(-5);
-    last5.forEach((acc, i) => {
-        console.log(`  [${executeTransactionInstruction.accounts.length - 5 + i}] Address: ${acc.address.toString()}, Role: ${acc.role}`);
+    console.log(`🔍 Final ExecuteTransaction accounts (total ${executeTransactionInstruction.accounts.length}):`);
+    executeTransactionInstruction.accounts.forEach((acc, i) => {
+        console.log(`  [${i}] Address: ${acc.address.toString()}, Role: ${acc.role}`);
     });
   
     // 9. Create close instruction to reclaim rent back to fee payer
