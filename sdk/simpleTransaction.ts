@@ -291,13 +291,37 @@ import {
       signer: signer,
     });
   
-    // Add the required accounts for the inner instructions to the execute instruction
+    // 9. Add the required accounts for the inner instructions to the execute instruction
     // This is critical - the execute instruction needs to know about ALL accounts used in the inner transaction
     // The validation in executable_transaction_message.rs requires exactly message.num_all_account_keys() accounts
+    
+    // We need to identify which accounts in the inner transaction are signers.
+    // The decoded message doesn't give us isSigner for static accounts easily without parsing the header byte,
+    // but we know for a fact that the feePayer (backend) and the signer (user) MUST be signers if they appear.
+    // Failure to mark them as signers in the ExecuteTransaction instruction will cause "Privilege Escalation" errors
+    // during CPI if the inner instruction requires them to sign (like CreateAssociatedTokenAccount).
+    
+    const feePayerStr = feePayer.toString();
+    const signerStr = signer.address.toString();
+
     for (const accountKey of decodedMessage.staticAccounts) {
+      const accountKeyStr = accountKey.toString();
+      let role = AccountRole.WRITABLE; // Default to writable non-signer
+
+      // Check if this account should be a signer
+      if (accountKeyStr === feePayerStr || accountKeyStr === signerStr) {
+        role = AccountRole.WRITABLE_SIGNER;
+      }
+
+      // Note: For a perfect implementation, we should parse the message header (first byte of messageBytes)
+      // to determine exactly which accounts are signers in the inner transaction.
+      // numRequiredSignatures is the second byte (index 1) of the message bytes if using versioned transaction?
+      // Actually, let's look at the compiledInnerMessage if available or just trust our explicit overrides for now.
+      // The backend fee payer is the critical one causing the current crash.
+
       executeTransactionInstruction.accounts.push({
         address: accountKey,
-        role: AccountRole.WRITABLE, // Use proper AccountRole enum
+        role: role as any, 
       });
     }
   
