@@ -14,6 +14,7 @@ import {
     type TransactionSigner,
     AccountRole,
     assertIsTransactionWithinSizeLimit,
+    type AccountMeta,
   } from '@solana/kit';
   import { Buffer } from 'buffer';
   import { fetchSettings } from './clients/js/src/generated/accounts/settings';
@@ -293,9 +294,11 @@ import {
 
     // CLONE the instruction and its accounts array because the generated code returns a frozen object
     // and we need to push remaining accounts to it.
+    // We also cast to AccountMeta[] to allow pushing accounts with roles that might not be present 
+    // in the initial named accounts (like WRITABLE_SIGNER if not used by named accounts).
     const executeTransactionInstruction = {
       ...baseExecuteTransactionInstruction,
-      accounts: [...baseExecuteTransactionInstruction.accounts]
+      accounts: [...baseExecuteTransactionInstruction.accounts] as AccountMeta[]
     };
   
     // 9. Add the required accounts for the inner instructions to the execute instruction
@@ -308,27 +311,28 @@ import {
     // Failure to mark them as signers in the ExecuteTransaction instruction will cause "Privilege Escalation" errors
     // during CPI if the inner instruction requires them to sign (like CreateAssociatedTokenAccount).
     
-    const feePayerStr = feePayer.toString();
-    const signerStr = signer.address.toString();
+    const feePayerStr = feePayer.toString().trim();
+    const signerStr = signer.address.toString().trim();
 
     console.log('🔍 Debugging remaining accounts signer logic:');
     console.log('  Fee Payer (Backend):', feePayerStr);
     console.log('  Signer (User):', signerStr);
+    console.log('  AccountRole.WRITABLE_SIGNER value:', AccountRole.WRITABLE_SIGNER);
 
     for (const accountKey of decodedMessage.staticAccounts) {
-      const accountKeyStr = accountKey.toString();
-      // Default to regular WRITABLE if not a signer
+      const accountKeyStr = accountKey.toString().trim();
+      // Default to regular WRITABLE (1) if not a signer
       let role = AccountRole.WRITABLE; 
 
       // Check if this account should be a signer
       if (accountKeyStr === feePayerStr) {
-        console.log('  ✅ MATCHED FEE PAYER:', accountKeyStr, '-> Setting WRITABLE_SIGNER');
+        console.log('  ✅ MATCHED FEE PAYER:', accountKeyStr, '-> Setting WRITABLE_SIGNER (3)');
         // Fee payer is always WRITABLE_SIGNER
-        role = AccountRole.WRITABLE_SIGNER;
+        role = 3 as AccountRole; // Explicitly force value 3
       } else if (accountKeyStr === signerStr) {
-        console.log('  ✅ MATCHED USER SIGNER:', accountKeyStr, '-> Setting WRITABLE_SIGNER');
-        // User signer is typically WRITABLE_SIGNER (unless read-only signer, but usually writable)
-        role = AccountRole.WRITABLE_SIGNER;
+        console.log('  ✅ MATCHED USER SIGNER:', accountKeyStr, '-> Setting WRITABLE_SIGNER (3)');
+        // User signer is typically WRITABLE_SIGNER
+        role = 3 as AccountRole; // Explicitly force value 3
       } else {
          // For other accounts, we blindly mark them as WRITABLE for now as the safest bet for remaining accounts
          role = AccountRole.WRITABLE;
@@ -336,9 +340,16 @@ import {
 
       executeTransactionInstruction.accounts.push({
         address: accountKey,
-        role: role as any, 
+        role: role, 
       });
     }
+    
+    // 🔍 Verify the pushed accounts
+    console.log('🔍 Final ExecuteTransaction accounts (last 5):');
+    const last5 = executeTransactionInstruction.accounts.slice(-5);
+    last5.forEach((acc, i) => {
+        console.log(`  [${executeTransactionInstruction.accounts.length - 5 + i}] Address: ${acc.address.toString()}, Role: ${acc.role}`);
+    });
   
     // 9. Create close instruction to reclaim rent back to fee payer
     const closeTransactionInstruction = getCloseTransactionInstruction({
