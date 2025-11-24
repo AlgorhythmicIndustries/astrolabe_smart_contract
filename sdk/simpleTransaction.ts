@@ -178,6 +178,24 @@ import {
       const { value: latestBlockhashForInner } = await rpc.getLatestBlockhash().send();
       console.log('✅ Latest blockhash fetched for inner transaction:', latestBlockhashForInner.blockhash);
       
+      // Patch: Ensure feePayer in inner instructions is marked as signer
+      if (innerInstructions) {
+          const feePayerAddr = feePayer.toString().trim();
+          innerInstructions.forEach(ix => {
+              if (ix.accounts) {
+                  ix.accounts.forEach((acc: any) => {
+                      if (acc.address.toString() === feePayerAddr) {
+                          // If it's the fee payer (backend), it MUST be a signer in the inner transaction (as payer of ATA creation)
+                          // We overwrite the signer to ensure compatibility across potential package versions
+                          acc.role = AccountRole.WRITABLE_SIGNER; 
+                          acc.signer = createNoopSigner(feePayer);
+                          console.log('🔧 Patched inner instruction account to be signer:', feePayerAddr);
+                      }
+                  });
+              }
+          });
+      }
+
       const innerTransactionMessage = pipe(
         createTransactionMessage({ version: 0 }),
         (tx) => setTransactionMessageFeePayerSigner(createNoopSigner(smartAccountPda), tx), // Inner transaction uses smart account PDA
