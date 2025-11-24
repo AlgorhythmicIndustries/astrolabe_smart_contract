@@ -284,12 +284,19 @@ import {
     });
   
     // 8. Create the execute transaction instruction
-    const executeTransactionInstruction = getExecuteTransactionInstruction({
+    const baseExecuteTransactionInstruction = getExecuteTransactionInstruction({
       settings: smartAccountSettings,
       proposal: proposalPda,
       transaction: transactionPda,
       signer: signer,
     });
+
+    // CLONE the instruction and its accounts array because the generated code returns a frozen object
+    // and we need to push remaining accounts to it.
+    const executeTransactionInstruction = {
+      ...baseExecuteTransactionInstruction,
+      accounts: [...baseExecuteTransactionInstruction.accounts]
+    };
   
     // 9. Add the required accounts for the inner instructions to the execute instruction
     // This is critical - the execute instruction needs to know about ALL accounts used in the inner transaction
