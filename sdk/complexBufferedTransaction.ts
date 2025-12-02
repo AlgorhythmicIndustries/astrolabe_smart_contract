@@ -394,14 +394,15 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     proposal: proposalPda,
     transaction: transactionPda,
     signer,
+    rentPayer: feePayerSigner,
   });
   // Note: We don't need to close the buffer - CreateTransactionFromBuffer already does that
   // with `close = from_buffer_creator` in the Rust code
   
   // Build remaining accounts for execute instruction (match complexTransaction.ts)
   {
-    const explicitParamsCount = 4; // settings, proposal, transaction, signer
-    const explicitParams = executeIx.accounts.slice(0, explicitParamsCount);
+    // Use all generated accounts (settings, proposal, transaction, signer, rent_payer, system_program)
+    const explicitParams = executeIx.accounts;
     const resultAccounts: { address: Address; role: AccountRole }[] = [];
 
     // 1) ALT table accounts first (readonly), in the order of address_table_lookups

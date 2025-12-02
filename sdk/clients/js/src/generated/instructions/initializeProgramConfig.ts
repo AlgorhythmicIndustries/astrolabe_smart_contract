@@ -51,7 +51,7 @@ export type InitializeProgramConfigInstruction<
   TAccountProgramConfig extends string | AccountMeta<string> = string,
   TAccountInitializer extends
     | string
-    | AccountMeta<string> = 'DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf',
+    | AccountMeta<string> = '3mnk4KPtQ7Tthha79x4Rjjy9icVPmJ4GWMnbZBWE2ysb',
   TAccountRentPayer extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
@@ -211,7 +211,7 @@ export async function getInitializeProgramConfigInstructionAsync<
   }
   if (!accounts.initializer.value) {
     accounts.initializer.value =
-      'DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf' as Address<'DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf'>;
+      '3mnk4KPtQ7Tthha79x4Rjjy9icVPmJ4GWMnbZBWE2ysb' as Address<'3mnk4KPtQ7Tthha79x4Rjjy9icVPmJ4GWMnbZBWE2ysb'>;
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
@@ -299,7 +299,7 @@ export function getInitializeProgramConfigInstruction<
   // Resolve default values.
   if (!accounts.initializer.value) {
     accounts.initializer.value =
-      'DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf' as Address<'DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf'>;
+      '3mnk4KPtQ7Tthha79x4Rjjy9icVPmJ4GWMnbZBWE2ysb' as Address<'3mnk4KPtQ7Tthha79x4Rjjy9icVPmJ4GWMnbZBWE2ysb'>;
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
