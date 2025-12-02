@@ -18,6 +18,7 @@ import {
   getProgramDerivedAddress,
   lamports,
 } from '@solana/kit';
+import * as path from 'path';
 import * as bs58 from 'bs58';
 import { getTransferSolInstruction } from '@solana-program/system';
 import {
@@ -57,6 +58,17 @@ async function testCorrectBufferedTransaction() {
   const creatorKeypairBytes = new Uint8Array(JSON.parse(creatorKeypairFile.toString()));
   const creatorKeypair = await createKeyPairFromBytes(creatorKeypairBytes);
   const creatorSigner = await createSignerFromKeyPair(creatorKeypair);
+
+  // Load Backend Fee Payer
+  const backendFeePayerFile = fs.readFileSync(path.join(__dirname, 'backend-fee-payer-keypair.json'));
+  const backendFeePayerBytes = new Uint8Array(JSON.parse(backendFeePayerFile.toString()));
+  const backendFeePayerKeypair = await createKeyPairFromBytes(backendFeePayerBytes);
+  const backendFeePayerSigner = await createSignerFromKeyPair(backendFeePayerKeypair);
+  console.log('📝 Backend Fee Payer:', backendFeePayerSigner.address);
+
+  // Fund Backend Fee Payer (ensure it has SOL)
+  console.log('💰 Funding Backend Fee Payer...');
+  await rpc.requestAirdrop(backendFeePayerSigner.address, lamports(1_000_000_000n), { commitment: 'confirmed' }).send();
 
   // Derive smart account info to get the bump
   const smartAccountInfo = await deriveSmartAccountInfo(smartAccountSettings);
@@ -218,7 +230,7 @@ async function testCorrectBufferedTransaction() {
       settings: smartAccountSettings,
       transactionBuffer: transactionBufferPda,
       bufferCreator: creatorSigner,
-      rentPayer: creatorSigner,
+      rentPayer: backendFeePayerSigner, // Backend pays rent
       systemProgram: address('11111111111111111111111111111111'),
       bufferIndex: bufferIndex,
       accountIndex: 0,
@@ -229,11 +241,15 @@ async function testCorrectBufferedTransaction() {
 
     const createBufferMsg = pipe(
       createTransactionMessage({ version: 0 }),
-      tx => setTransactionMessageFeePayerSigner(creatorSigner, tx),
+      tx => setTransactionMessageFeePayerSigner(backendFeePayerSigner, tx), // Backend pays fee
       tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
       tx => appendTransactionMessageInstruction(createBufferIx, tx)
     );
 
+    // We need to sign with both backend fee payer (attached via setTransactionMessageFeePayerSigner) 
+    // AND creatorSigner (because bufferCreator is a signer in instruction)
+    // signTransactionMessageWithSigners looks for signers in the message.
+    // Since createBufferIx has creatorSigner attached (as signer object), it should work.
     const signedCreateBuffer = await signTransactionMessageWithSigners(createBufferMsg);
     assertIsSendableTransaction(signedCreateBuffer);
 
@@ -280,7 +296,7 @@ async function testCorrectBufferedTransaction() {
       settings: smartAccountSettings,
       transaction: createFromBufferTransactionPda,
       fromBufferCreator: creatorSigner,
-      rentPayer: creatorSigner,
+      rentPayer: backendFeePayerSigner, // Backend pays rent
       systemProgram: address('11111111111111111111111111111111'),
       transactionBuffer: transactionBufferPda,
       creator: creatorSigner,
@@ -297,7 +313,7 @@ async function testCorrectBufferedTransaction() {
 
     const createFromBufferMsg = pipe(
       createTransactionMessage({ version: 0 }),
-      tx => setTransactionMessageFeePayerSigner(creatorSigner, tx),
+      tx => setTransactionMessageFeePayerSigner(backendFeePayerSigner, tx), // Backend pays fee
       tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
       tx => appendTransactionMessageInstruction(createFromBufferIx, tx)
     );
@@ -315,7 +331,7 @@ async function testCorrectBufferedTransaction() {
       settings: smartAccountSettings,
       proposal: proposalPda,
       creator: creatorSigner,
-      rentPayer: creatorSigner,
+      rentPayer: backendFeePayerSigner, // Backend pays rent
       systemProgram: address('11111111111111111111111111111111'),
       transactionIndex: nextTxIndex,
       draft: false,
@@ -323,7 +339,7 @@ async function testCorrectBufferedTransaction() {
 
     const createProposalMsg = pipe(
       createTransactionMessage({ version: 0 }),
-      tx => setTransactionMessageFeePayerSigner(creatorSigner, tx),
+      tx => setTransactionMessageFeePayerSigner(backendFeePayerSigner, tx), // Backend pays fee
       tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
       tx => appendTransactionMessageInstruction(createProposalIx, tx)
     );
@@ -342,7 +358,7 @@ async function testCorrectBufferedTransaction() {
 
     const approveMsg = pipe(
       createTransactionMessage({ version: 0 }),
-      tx => setTransactionMessageFeePayerSigner(creatorSigner, tx),
+      tx => setTransactionMessageFeePayerSigner(backendFeePayerSigner, tx), // Backend pays fee
       tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
       tx => appendTransactionMessageInstruction(approveIx, tx)
     );
@@ -359,6 +375,7 @@ async function testCorrectBufferedTransaction() {
       proposal: proposalPda,
       transaction: createFromBufferTransactionPda,
       signer: creatorSigner,
+      rentPayer: backendFeePayerSigner, // Backend pays rent
     });
 
     // Add the required accounts for the inner transaction
@@ -371,11 +388,12 @@ async function testCorrectBufferedTransaction() {
 
     const executeMsg = pipe(
       createTransactionMessage({ version: 0 }),
-      tx => setTransactionMessageFeePayerSigner(creatorSigner, tx),
+      tx => setTransactionMessageFeePayerSigner(backendFeePayerSigner, tx), // Backend pays fee
       tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
       tx => appendTransactionMessageInstruction(executeIx, tx)
     );
 
+    // Sign with both backend fee payer and creator
     const signedExecute = await signTransactionMessageWithSigners(executeMsg);
     assertIsSendableTransaction(signedExecute);
     const executeSignature = await sendAndConfirm(signedExecute, { commitment: 'confirmed' });

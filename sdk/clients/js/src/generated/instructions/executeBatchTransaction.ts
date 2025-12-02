@@ -29,6 +29,7 @@ import {
   type ReadonlyUint8Array,
   type TransactionSigner,
   type WritableAccount,
+  type WritableSignerAccount,
 } from '@solana/kit';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
@@ -45,6 +46,10 @@ export type ExecuteBatchTransactionInstruction<
   TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | AccountMeta<string> = string,
   TAccountSigner extends string | AccountMeta<string> = string,
+  TAccountRentPayer extends string | AccountMeta<string> = string,
+  TAccountSystemProgram extends
+    | string
+    | AccountMeta<string> = '11111111111111111111111111111111',
   TAccountProposal extends string | AccountMeta<string> = string,
   TAccountBatch extends string | AccountMeta<string> = string,
   TAccountTransaction extends string | AccountMeta<string> = string,
@@ -60,6 +65,13 @@ export type ExecuteBatchTransactionInstruction<
         ? ReadonlySignerAccount<TAccountSigner> &
             AccountSignerMeta<TAccountSigner>
         : TAccountSigner,
+      TAccountRentPayer extends string
+        ? WritableSignerAccount<TAccountRentPayer> &
+            AccountSignerMeta<TAccountRentPayer>
+        : TAccountRentPayer,
+      TAccountSystemProgram extends string
+        ? ReadonlyAccount<TAccountSystemProgram>
+        : TAccountSystemProgram,
       TAccountProposal extends string
         ? WritableAccount<TAccountProposal>
         : TAccountProposal,
@@ -108,6 +120,8 @@ export function getExecuteBatchTransactionInstructionDataCodec(): FixedSizeCodec
 export type ExecuteBatchTransactionInput<
   TAccountSettings extends string = string,
   TAccountSigner extends string = string,
+  TAccountRentPayer extends string = string,
+  TAccountSystemProgram extends string = string,
   TAccountProposal extends string = string,
   TAccountBatch extends string = string,
   TAccountTransaction extends string = string,
@@ -116,6 +130,8 @@ export type ExecuteBatchTransactionInput<
   settings: Address<TAccountSettings>;
   /** Signer of the settings. */
   signer: TransactionSigner<TAccountSigner>;
+  rentPayer: TransactionSigner<TAccountRentPayer>;
+  systemProgram?: Address<TAccountSystemProgram>;
   /**
    * The proposal account associated with the batch.
    * If `transaction` is the last in the batch, the `proposal` status will be set to `Executed`.
@@ -129,6 +145,8 @@ export type ExecuteBatchTransactionInput<
 export function getExecuteBatchTransactionInstruction<
   TAccountSettings extends string,
   TAccountSigner extends string,
+  TAccountRentPayer extends string,
+  TAccountSystemProgram extends string,
   TAccountProposal extends string,
   TAccountBatch extends string,
   TAccountTransaction extends string,
@@ -138,6 +156,8 @@ export function getExecuteBatchTransactionInstruction<
   input: ExecuteBatchTransactionInput<
     TAccountSettings,
     TAccountSigner,
+    TAccountRentPayer,
+    TAccountSystemProgram,
     TAccountProposal,
     TAccountBatch,
     TAccountTransaction
@@ -147,6 +167,8 @@ export function getExecuteBatchTransactionInstruction<
   TProgramAddress,
   TAccountSettings,
   TAccountSigner,
+  TAccountRentPayer,
+  TAccountSystemProgram,
   TAccountProposal,
   TAccountBatch,
   TAccountTransaction
@@ -159,6 +181,8 @@ export function getExecuteBatchTransactionInstruction<
   const originalAccounts = {
     settings: { value: input.settings ?? null, isWritable: false },
     signer: { value: input.signer ?? null, isWritable: false },
+    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
+    systemProgram: { value: input.systemProgram ?? null, isWritable: false },
     proposal: { value: input.proposal ?? null, isWritable: true },
     batch: { value: input.batch ?? null, isWritable: true },
     transaction: { value: input.transaction ?? null, isWritable: false },
@@ -168,11 +192,19 @@ export function getExecuteBatchTransactionInstruction<
     ResolvedAccount
   >;
 
+  // Resolve default values.
+  if (!accounts.systemProgram.value) {
+    accounts.systemProgram.value =
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+  }
+
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
       getAccountMeta(accounts.settings),
       getAccountMeta(accounts.signer),
+      getAccountMeta(accounts.rentPayer),
+      getAccountMeta(accounts.systemProgram),
       getAccountMeta(accounts.proposal),
       getAccountMeta(accounts.batch),
       getAccountMeta(accounts.transaction),
@@ -183,6 +215,8 @@ export function getExecuteBatchTransactionInstruction<
     TProgramAddress,
     TAccountSettings,
     TAccountSigner,
+    TAccountRentPayer,
+    TAccountSystemProgram,
     TAccountProposal,
     TAccountBatch,
     TAccountTransaction
@@ -199,14 +233,16 @@ export type ParsedExecuteBatchTransactionInstruction<
     settings: TAccountMetas[0];
     /** Signer of the settings. */
     signer: TAccountMetas[1];
+    rentPayer: TAccountMetas[2];
+    systemProgram: TAccountMetas[3];
     /**
      * The proposal account associated with the batch.
      * If `transaction` is the last in the batch, the `proposal` status will be set to `Executed`.
      */
-    proposal: TAccountMetas[2];
-    batch: TAccountMetas[3];
+    proposal: TAccountMetas[4];
+    batch: TAccountMetas[5];
     /** Batch transaction to execute. */
-    transaction: TAccountMetas[4];
+    transaction: TAccountMetas[6];
   };
   data: ExecuteBatchTransactionInstructionData;
 };
@@ -219,7 +255,7 @@ export function parseExecuteBatchTransactionInstruction<
     InstructionWithAccounts<TAccountMetas> &
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedExecuteBatchTransactionInstruction<TProgram, TAccountMetas> {
-  if (instruction.accounts.length < 5) {
+  if (instruction.accounts.length < 7) {
     // TODO: Coded error.
     throw new Error('Not enough accounts');
   }
@@ -234,6 +270,8 @@ export function parseExecuteBatchTransactionInstruction<
     accounts: {
       settings: getNextAccount(),
       signer: getNextAccount(),
+      rentPayer: getNextAccount(),
+      systemProgram: getNextAccount(),
       proposal: getNextAccount(),
       batch: getNextAccount(),
       transaction: getNextAccount(),

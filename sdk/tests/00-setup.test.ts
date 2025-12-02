@@ -16,6 +16,7 @@ import {
   getProgramDerivedAddress,
 } from '@solana/kit';
 import * as fs from 'fs';
+import * as path from 'path';
 import { Buffer } from 'buffer';
 import {
   getInitializeProgramConfigInstructionAsync,
@@ -26,28 +27,42 @@ import {
 
 async function setupProgramConfig() {
   console.log('🔧 Setting up program configuration...');
-  
+
   // Set up connection
   const rpc = createSolanaRpc('http://localhost:8899');
   const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
 
   // Load the program config initializer keypair
-  const initializerKeypairFile = fs.readFileSync('../test-program-config-initializer-keypair.json');
+  const initializerKeypairFile = fs.readFileSync(path.join(__dirname, '../test-program-config-initializer-keypair.json'));
   const initializerKeypairBytes = new Uint8Array(JSON.parse(initializerKeypairFile.toString()));
   const initializerKeypair = await createKeyPairFromBytes(initializerKeypairBytes);
   const initializerSigner = await createSignerFromKeyPair(initializerKeypair);
-  const rentPayerSigner = initializerSigner;
 
   console.log('Program config initializer:', initializerSigner.address);
 
+  // Load Backend Fee Payer
+  const backendFeePayerFile = fs.readFileSync(path.join(__dirname, 'backend-fee-payer-keypair.json'));
+  const backendFeePayerBytes = new Uint8Array(JSON.parse(backendFeePayerFile.toString()));
+  const backendFeePayerKeypair = await createKeyPairFromBytes(backendFeePayerBytes);
+  const backendFeePayerSigner = await createSignerFromKeyPair(backendFeePayerKeypair);
+  console.log('📝 Backend Fee Payer:', backendFeePayerSigner.address);
+
   // Airdrop to the initializer
-  const airdrop = airdropFactory({rpc: rpc, rpcSubscriptions: rpcSubscriptions});
+  const airdrop = airdropFactory({ rpc: rpc, rpcSubscriptions: rpcSubscriptions });
   await airdrop({
     commitment: 'confirmed',
     lamports: lamports(BigInt(10_000_000_000)), // 10 SOL
     recipientAddress: initializerSigner.address,
   });
   console.log('✅ Airdropped 10 SOL to program config initializer');
+
+  // Airdrop to Backend Fee Payer for subsequent tests
+  await airdrop({
+    commitment: 'confirmed',
+    lamports: lamports(BigInt(10_000_000_000)), // 10 SOL
+    recipientAddress: backendFeePayerSigner.address,
+  });
+  console.log('✅ Airdropped 10 SOL to Backend Fee Payer');
 
   // Derive the program config PDA
   console.log('🔧 Deriving program config PDA...');
@@ -87,7 +102,7 @@ async function setupProgramConfig() {
       programConfig: programConfigPda,
       treasury: treasuryPda,
       initializer: initializerSigner,
-      rentPayer: rentPayerSigner,
+      rentPayer: backendFeePayerSigner, // Use Backend Fee Payer
       systemProgram: address('11111111111111111111111111111111'),
       authority: initializerSigner.address,
       smartAccountCreationFee: BigInt(0),
@@ -96,7 +111,7 @@ async function setupProgramConfig() {
     // Build the transaction message
     const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
     const transactionMessage = createTransactionMessage({ version: 0 });
-    const messageWithFeePayer = setTransactionMessageFeePayerSigner(rentPayerSigner, transactionMessage);
+    const messageWithFeePayer = setTransactionMessageFeePayerSigner(backendFeePayerSigner, transactionMessage); // Backend pays fee
     const messageWithLifetime = setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, messageWithFeePayer);
     const finalMessage = appendTransactionMessageInstructions([initInstruction], messageWithLifetime);
 
@@ -106,9 +121,9 @@ async function setupProgramConfig() {
 
     const sendAndConfirm = sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions });
     await sendAndConfirm(signedTransaction, { commitment: 'confirmed' });
-    
+
     console.log('✅ Program configuration initialized successfully!');
-    
+
   } catch (error: any) {
     if (error.message?.includes('already in use') || error.context?.logs?.some((log: string) => log.includes('already in use'))) {
       console.log('✅ Program configuration already initialized (expected on subsequent runs)');

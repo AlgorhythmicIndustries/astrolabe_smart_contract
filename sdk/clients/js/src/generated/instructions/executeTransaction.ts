@@ -29,6 +29,7 @@ import {
   type ReadonlyUint8Array,
   type TransactionSigner,
   type WritableAccount,
+  type WritableSignerAccount,
 } from '@solana/kit';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../programs';
 import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
@@ -47,6 +48,10 @@ export type ExecuteTransactionInstruction<
   TAccountProposal extends string | AccountMeta<string> = string,
   TAccountTransaction extends string | AccountMeta<string> = string,
   TAccountSigner extends string | AccountMeta<string> = string,
+  TAccountRentPayer extends string | AccountMeta<string> = string,
+  TAccountSystemProgram extends
+    | string
+    | AccountMeta<string> = '11111111111111111111111111111111',
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
@@ -65,6 +70,13 @@ export type ExecuteTransactionInstruction<
         ? ReadonlySignerAccount<TAccountSigner> &
             AccountSignerMeta<TAccountSigner>
         : TAccountSigner,
+      TAccountRentPayer extends string
+        ? WritableSignerAccount<TAccountRentPayer> &
+            AccountSignerMeta<TAccountRentPayer>
+        : TAccountRentPayer,
+      TAccountSystemProgram extends string
+        ? ReadonlyAccount<TAccountSystemProgram>
+        : TAccountSystemProgram,
       ...TRemainingAccounts,
     ]
   >;
@@ -103,6 +115,8 @@ export type ExecuteTransactionInput<
   TAccountProposal extends string = string,
   TAccountTransaction extends string = string,
   TAccountSigner extends string = string,
+  TAccountRentPayer extends string = string,
+  TAccountSystemProgram extends string = string,
 > = {
   settings: Address<TAccountSettings>;
   /** The proposal account associated with the transaction. */
@@ -110,6 +124,8 @@ export type ExecuteTransactionInput<
   /** The transaction to execute. */
   transaction: Address<TAccountTransaction>;
   signer: TransactionSigner<TAccountSigner>;
+  rentPayer: TransactionSigner<TAccountRentPayer>;
+  systemProgram?: Address<TAccountSystemProgram>;
 };
 
 export function getExecuteTransactionInstruction<
@@ -117,6 +133,8 @@ export function getExecuteTransactionInstruction<
   TAccountProposal extends string,
   TAccountTransaction extends string,
   TAccountSigner extends string,
+  TAccountRentPayer extends string,
+  TAccountSystemProgram extends string,
   TProgramAddress extends
     Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
 >(
@@ -124,7 +142,9 @@ export function getExecuteTransactionInstruction<
     TAccountSettings,
     TAccountProposal,
     TAccountTransaction,
-    TAccountSigner
+    TAccountSigner,
+    TAccountRentPayer,
+    TAccountSystemProgram
   >,
   config?: { programAddress?: TProgramAddress }
 ): ExecuteTransactionInstruction<
@@ -132,7 +152,9 @@ export function getExecuteTransactionInstruction<
   TAccountSettings,
   TAccountProposal,
   TAccountTransaction,
-  TAccountSigner
+  TAccountSigner,
+  TAccountRentPayer,
+  TAccountSystemProgram
 > {
   // Program address.
   const programAddress =
@@ -144,11 +166,19 @@ export function getExecuteTransactionInstruction<
     proposal: { value: input.proposal ?? null, isWritable: true },
     transaction: { value: input.transaction ?? null, isWritable: false },
     signer: { value: input.signer ?? null, isWritable: false },
+    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
+    systemProgram: { value: input.systemProgram ?? null, isWritable: false },
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
     ResolvedAccount
   >;
+
+  // Resolve default values.
+  if (!accounts.systemProgram.value) {
+    accounts.systemProgram.value =
+      '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
+  }
 
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
@@ -157,6 +187,8 @@ export function getExecuteTransactionInstruction<
       getAccountMeta(accounts.proposal),
       getAccountMeta(accounts.transaction),
       getAccountMeta(accounts.signer),
+      getAccountMeta(accounts.rentPayer),
+      getAccountMeta(accounts.systemProgram),
     ],
     data: getExecuteTransactionInstructionDataEncoder().encode({}),
     programAddress,
@@ -165,7 +197,9 @@ export function getExecuteTransactionInstruction<
     TAccountSettings,
     TAccountProposal,
     TAccountTransaction,
-    TAccountSigner
+    TAccountSigner,
+    TAccountRentPayer,
+    TAccountSystemProgram
   >);
 }
 
@@ -181,6 +215,8 @@ export type ParsedExecuteTransactionInstruction<
     /** The transaction to execute. */
     transaction: TAccountMetas[2];
     signer: TAccountMetas[3];
+    rentPayer: TAccountMetas[4];
+    systemProgram: TAccountMetas[5];
   };
   data: ExecuteTransactionInstructionData;
 };
@@ -193,7 +229,7 @@ export function parseExecuteTransactionInstruction<
     InstructionWithAccounts<TAccountMetas> &
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedExecuteTransactionInstruction<TProgram, TAccountMetas> {
-  if (instruction.accounts.length < 4) {
+  if (instruction.accounts.length < 6) {
     // TODO: Coded error.
     throw new Error('Not enough accounts');
   }
@@ -210,6 +246,8 @@ export function parseExecuteTransactionInstruction<
       proposal: getNextAccount(),
       transaction: getNextAccount(),
       signer: getNextAccount(),
+      rentPayer: getNextAccount(),
+      systemProgram: getNextAccount(),
     },
     data: getExecuteTransactionInstructionDataDecoder().decode(
       instruction.data

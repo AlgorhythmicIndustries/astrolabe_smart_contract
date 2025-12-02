@@ -104,7 +104,7 @@ impl InitializeProgramConfigInstructionArgs {
 /// ### Accounts:
 ///
 ///   0. `[writable]` program_config
-///   1. `[writable, signer, optional]` initializer (default to `DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf`)
+///   1. `[writable, signer, optional]` initializer (default to `3mnk4KPtQ7Tthha79x4Rjjy9icVPmJ4GWMnbZBWE2ysb`)
 ///   2. `[writable, signer]` rent_payer
 ///   3. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Clone, Debug, Default)]
@@ -128,7 +128,7 @@ impl InitializeProgramConfigBuilder {
         self.program_config = Some(program_config);
         self
     }
-    /// `[optional account, default to 'DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf']`
+    /// `[optional account, default to '3mnk4KPtQ7Tthha79x4Rjjy9icVPmJ4GWMnbZBWE2ysb']`
     /// The hard-coded account that is used to initialize the program config once.
     #[inline(always)]
     pub fn initializer(&mut self, initializer: solana_pubkey::Pubkey) -> &mut Self {
@@ -181,7 +181,7 @@ impl InitializeProgramConfigBuilder {
         let accounts = InitializeProgramConfig {
             program_config: self.program_config.expect("program_config is not set"),
             initializer: self.initializer.unwrap_or(solana_pubkey::pubkey!(
-                "DEpLcxgnnHj3Qg2ogpxWVsTRhuFbXu7KBFY1LvmJJgpf"
+                "3mnk4KPtQ7Tthha79x4Rjjy9icVPmJ4GWMnbZBWE2ysb"
             )),
             rent_payer: self.rent_payer.expect("rent_payer is not set"),
             system_program: self

@@ -14,8 +14,10 @@ import {
   generateKeyPair,
   getAddressFromPublicKey,
   pipe,
+  lamports,
 } from '@solana/kit';
 import * as fs from 'fs';
+import * as path from 'path';
 import { addPasskeyAuthorityTransaction } from '../addPasskeyAuthority';
 import { fetchSettings } from '../clients/js/src/generated/accounts/settings';
 
@@ -33,6 +35,17 @@ async function testAddSignerTransaction() {
   const creatorKeypairBytes = new Uint8Array(JSON.parse(creatorKeypairFile.toString()));
   const creatorKeypair = await createKeyPairFromBytes(creatorKeypairBytes);
   const creatorSigner = await createSignerFromKeyPair(creatorKeypair);
+  
+  // Load Backend Fee Payer
+  const backendFeePayerFile = fs.readFileSync(path.join(__dirname, 'backend-fee-payer-keypair.json'));
+  const backendFeePayerBytes = new Uint8Array(JSON.parse(backendFeePayerFile.toString()));
+  const backendFeePayerKeypair = await createKeyPairFromBytes(backendFeePayerBytes);
+  const backendFeePayerSigner = await createSignerFromKeyPair(backendFeePayerKeypair);
+  console.log('📝 Backend Fee Payer:', backendFeePayerSigner.address);
+
+  // Fund Backend Fee Payer
+  console.log('💰 Funding Backend Fee Payer...');
+  await rpc.requestAirdrop(backendFeePayerSigner.address, lamports(1_000_000_000n), { commitment: 'confirmed' }).send();
   
   console.log('📝 Creator/Fee Payer:', creatorSigner.address);
   
@@ -83,7 +96,7 @@ async function testAddSignerTransaction() {
     // IMPORTANT: Use the SAME creatorSigner instance everywhere to avoid "multiple signers" error
     const executeInstruction = getExecuteSettingsTransactionSyncInstruction({
       settings: smartAccountSettings,
-      rentPayer: creatorSigner, // Use the same signer instance, not a NoopSigner
+      rentPayer: backendFeePayerSigner, // Backend pays rent
       systemProgram: address('11111111111111111111111111111111'),
       program: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
       numSigners: 1,
@@ -127,12 +140,12 @@ async function testAddSignerTransaction() {
     // Build the transaction message with proper signers
     const transactionMessage = pipe(
       createTransactionMessage({ version: 0 }),
-      (tx) => setTransactionMessageFeePayerSigner(creatorSigner, tx),
+      (tx) => setTransactionMessageFeePayerSigner(backendFeePayerSigner, tx), // Backend pays fee
       (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
       (tx) => appendTransactionMessageInstructions([instructionWithCreator], tx)
     );
     
-    // Sign the transaction
+    // Sign the transaction (creatorSigner is in instruction, backendFeePayerSigner is fee payer)
     const signedTx = await signTransactionMessageWithSigners(transactionMessage as any);
     
     // Send and confirm

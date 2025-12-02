@@ -8,6 +8,7 @@ import {
 } from '@solana/kit';
 import { getTransferSolInstruction } from '@solana-program/system';
 import * as fs from 'fs';
+import * as path from 'path';
 import { createSimpleTransaction } from '../simpleTransaction';
 import { deriveSmartAccountInfo } from '../utils/index';
 
@@ -22,6 +23,13 @@ async function testSimpleTransaction() {
   const creatorKeypairBytes = new Uint8Array(JSON.parse(creatorKeypairFile.toString()));
   const creatorKeypair = await createKeyPairFromBytes(creatorKeypairBytes);
   const creatorSigner = await createSignerFromKeyPair(creatorKeypair);
+  
+  // Load Backend Fee Payer
+  const backendFeePayerFile = fs.readFileSync(path.join(__dirname, 'backend-fee-payer-keypair.json'));
+  const backendFeePayerBytes = new Uint8Array(JSON.parse(backendFeePayerFile.toString()));
+  const backendFeePayerKeypair = await createKeyPairFromBytes(backendFeePayerBytes);
+  const backendFeePayerSigner = await createSignerFromKeyPair(backendFeePayerKeypair);
+  console.log('📝 Backend Fee Payer:', backendFeePayerSigner.address);
   
   // Load the smart account settings from the previous test
   let smartAccountSettings;
@@ -56,7 +64,7 @@ async function testSimpleTransaction() {
       smartAccountPda: smartAccountInfo.smartAccountPda,
       smartAccountPdaBump: smartAccountInfo.smartAccountPdaBump,
       signer: creatorSigner,
-      feePayer: creatorSigner.address,
+      feePayer: backendFeePayerSigner.address, // Use backend fee payer
       innerInstructions: [transferInstruction],
       memo: 'Test transfer using simpleTransaction',
     });
