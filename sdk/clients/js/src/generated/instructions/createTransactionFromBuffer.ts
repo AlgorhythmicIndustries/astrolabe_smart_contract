@@ -55,7 +55,7 @@ export type CreateTransactionFromBufferInstruction<
   TAccountSettings extends string | AccountMeta<string> = string,
   TAccountTransaction extends string | AccountMeta<string> = string,
   TAccountCreator extends string | AccountMeta<string> = string,
-  TAccountRentPayer extends string | AccountMeta<string> = string,
+  TAccountFeePayer extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
     | AccountMeta<string> = '11111111111111111111111111111111',
@@ -76,10 +76,10 @@ export type CreateTransactionFromBufferInstruction<
         ? ReadonlySignerAccount<TAccountCreator> &
             AccountSignerMeta<TAccountCreator>
         : TAccountCreator,
-      TAccountRentPayer extends string
-        ? WritableSignerAccount<TAccountRentPayer> &
-            AccountSignerMeta<TAccountRentPayer>
-        : TAccountRentPayer,
+      TAccountFeePayer extends string
+        ? WritableSignerAccount<TAccountFeePayer> &
+            AccountSignerMeta<TAccountFeePayer>
+        : TAccountFeePayer,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -137,7 +137,7 @@ export type CreateTransactionFromBufferInput<
   TAccountSettings extends string = string,
   TAccountTransaction extends string = string,
   TAccountCreator extends string = string,
-  TAccountRentPayer extends string = string,
+  TAccountFeePayer extends string = string,
   TAccountSystemProgram extends string = string,
   TAccountTransactionBuffer extends string = string,
   TAccountFromBufferCreator extends string = string,
@@ -147,7 +147,7 @@ export type CreateTransactionFromBufferInput<
   /** The member of the multisig that is creating the transaction. */
   creator: TransactionSigner<TAccountCreator>;
   /** The payer for the transaction account rent. */
-  rentPayer: TransactionSigner<TAccountRentPayer>;
+  feePayer: TransactionSigner<TAccountFeePayer>;
   systemProgram?: Address<TAccountSystemProgram>;
   transactionBuffer: Address<TAccountTransactionBuffer>;
   fromBufferCreator: TransactionSigner<TAccountFromBufferCreator>;
@@ -158,7 +158,7 @@ export function getCreateTransactionFromBufferInstruction<
   TAccountSettings extends string,
   TAccountTransaction extends string,
   TAccountCreator extends string,
-  TAccountRentPayer extends string,
+  TAccountFeePayer extends string,
   TAccountSystemProgram extends string,
   TAccountTransactionBuffer extends string,
   TAccountFromBufferCreator extends string,
@@ -169,7 +169,7 @@ export function getCreateTransactionFromBufferInstruction<
     TAccountSettings,
     TAccountTransaction,
     TAccountCreator,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram,
     TAccountTransactionBuffer,
     TAccountFromBufferCreator
@@ -180,7 +180,7 @@ export function getCreateTransactionFromBufferInstruction<
   TAccountSettings,
   TAccountTransaction,
   TAccountCreator,
-  TAccountRentPayer,
+  TAccountFeePayer,
   TAccountSystemProgram,
   TAccountTransactionBuffer,
   TAccountFromBufferCreator
@@ -194,7 +194,7 @@ export function getCreateTransactionFromBufferInstruction<
     settings: { value: input.settings ?? null, isWritable: true },
     transaction: { value: input.transaction ?? null, isWritable: true },
     creator: { value: input.creator ?? null, isWritable: false },
-    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
+    feePayer: { value: input.feePayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
     transactionBuffer: {
       value: input.transactionBuffer ?? null,
@@ -225,7 +225,7 @@ export function getCreateTransactionFromBufferInstruction<
       getAccountMeta(accounts.settings),
       getAccountMeta(accounts.transaction),
       getAccountMeta(accounts.creator),
-      getAccountMeta(accounts.rentPayer),
+      getAccountMeta(accounts.feePayer),
       getAccountMeta(accounts.systemProgram),
       getAccountMeta(accounts.transactionBuffer),
       getAccountMeta(accounts.fromBufferCreator),
@@ -239,7 +239,7 @@ export function getCreateTransactionFromBufferInstruction<
     TAccountSettings,
     TAccountTransaction,
     TAccountCreator,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram,
     TAccountTransactionBuffer,
     TAccountFromBufferCreator
@@ -257,7 +257,7 @@ export type ParsedCreateTransactionFromBufferInstruction<
     /** The member of the multisig that is creating the transaction. */
     creator: TAccountMetas[2];
     /** The payer for the transaction account rent. */
-    rentPayer: TAccountMetas[3];
+    feePayer: TAccountMetas[3];
     systemProgram: TAccountMetas[4];
     transactionBuffer: TAccountMetas[5];
     fromBufferCreator: TAccountMetas[6];
@@ -289,7 +289,7 @@ export function parseCreateTransactionFromBufferInstruction<
       settings: getNextAccount(),
       transaction: getNextAccount(),
       creator: getNextAccount(),
-      rentPayer: getNextAccount(),
+      feePayer: getNextAccount(),
       systemProgram: getNextAccount(),
       transactionBuffer: getNextAccount(),
       fromBufferCreator: getNextAccount(),

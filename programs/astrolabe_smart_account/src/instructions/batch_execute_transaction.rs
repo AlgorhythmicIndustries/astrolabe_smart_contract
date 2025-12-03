@@ -16,6 +16,11 @@ pub struct ExecuteBatchTransaction<'info> {
     /// Signer of the settings.
     pub signer: Signer<'info>,
 
+    #[account(mut)]
+    pub fee_payer: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
+
     /// The proposal account associated with the batch.
     /// If `transaction` is the last in the batch, the `proposal` status will be set to `Executed`.
     #[account(
@@ -63,7 +68,7 @@ pub struct ExecuteBatchTransaction<'info> {
     // 3. Accounts in the order they appear in `message.address_table_lookups`.
 }
 
-impl ExecuteBatchTransaction<'_> {
+impl<'info> ExecuteBatchTransaction<'info> {
     fn validate(&self) -> Result<()> {
         let Self {
             settings,
@@ -104,7 +109,7 @@ impl ExecuteBatchTransaction<'_> {
 
     /// Execute a transaction from the batch.
     #[access_control(ctx.accounts.validate())]
-    pub fn execute_batch_transaction(ctx: Context<Self>) -> Result<()> {
+    pub fn execute_batch_transaction(ctx: Context<'_, '_, '_, 'info, Self>) -> Result<()> {
         let settings = &mut ctx.accounts.settings;
         let proposal = &mut ctx.accounts.proposal;
         let batch = &mut ctx.accounts.batch;
@@ -143,12 +148,15 @@ impl ExecuteBatchTransaction<'_> {
         let (ephemeral_signer_keys, ephemeral_signer_seeds) =
             derive_ephemeral_signers(batch_key, &transaction.ephemeral_signer_bumps);
 
+        let fee_payer_info = ctx.accounts.fee_payer.to_account_info();
+
         let executable_message = ExecutableTransactionMessage::new_validated(
             transaction_message,
             message_account_infos,
             address_lookup_table_account_infos,
             &smart_account_pubkey,
             &ephemeral_signer_keys,
+            Some(&fee_payer_info),
         )?;
 
         let protected_accounts = &[proposal.key(), batch_key];

@@ -63,7 +63,7 @@ pub struct ExecuteSettingsTransactionAsAuthority<'info> {
     /// for example when adding a new signer or a spending limit.
     /// This is usually the same as `settings_authority`, but can be a different account if needed.
     #[account(mut)]
-    pub rent_payer: Option<Signer<'info>>,
+    pub fee_payer: Option<Signer<'info>>,
 
     /// We might need it in case reallocation is needed.
     pub system_program: Option<Program<'info, System>>,
@@ -104,7 +104,7 @@ impl ExecuteSettingsTransactionAsAuthority<'_> {
             settings.to_account_info(),
             settings.signers.len(),
             ctx.accounts
-                .rent_payer
+                .fee_payer
                 .as_ref()
                 .map(ToAccountInfo::to_account_info),
             ctx.accounts
@@ -294,7 +294,7 @@ impl ExecuteSettingsTransactionAsAuthority<'_> {
         //     settings.to_account_info(),
         //     settings.signers.len(),
         //     ctx.accounts
-        //         .rent_payer
+        //         .fee_payer
         //         .as_ref()
         //         .map(ToAccountInfo::to_account_info),
         //     ctx.accounts

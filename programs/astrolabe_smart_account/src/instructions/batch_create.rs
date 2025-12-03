@@ -21,7 +21,7 @@ pub struct CreateBatch<'info> {
 
     #[account(
         init,
-        payer = rent_payer,
+        payer = fee_payer,
         space = 8 + Batch::INIT_SPACE,
         seeds = [
             SEED_PREFIX,
@@ -38,7 +38,7 @@ pub struct CreateBatch<'info> {
 
     /// The payer for the batch account rent.
     #[account(mut)]
-    pub rent_payer: Signer<'info>,
+    pub fee_payer: Signer<'info>,
 
     pub system_program: Program<'info, System>,
 }
@@ -68,7 +68,7 @@ impl CreateBatch<'_> {
         let settings = &mut ctx.accounts.settings;
         let creator = &mut ctx.accounts.creator;
         let batch = &mut ctx.accounts.batch;
-        let rent_payer = &mut ctx.accounts.rent_payer;
+        let fee_payer = &mut ctx.accounts.fee_payer;
         let settings_key = settings.key();
 
         // Increment the transaction index.
@@ -85,7 +85,7 @@ impl CreateBatch<'_> {
 
         batch.settings = settings_key;
         batch.creator = creator.key();
-        batch.rent_collector = rent_payer.key();
+        batch.rent_collector = fee_payer.key();
         batch.index = index;
         batch.bump = ctx.bumps.batch;
         batch.account_index = args.account_index;

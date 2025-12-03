@@ -18,7 +18,7 @@ pub struct InitializeProgramConfig {
     /// The hard-coded account that is used to initialize the program config once.
     pub initializer: solana_pubkey::Pubkey,
 
-    pub rent_payer: solana_pubkey::Pubkey,
+    pub fee_payer: solana_pubkey::Pubkey,
 
     pub system_program: solana_pubkey::Pubkey,
 }
@@ -43,7 +43,7 @@ impl InitializeProgramConfig {
             false,
         ));
         accounts.push(solana_instruction::AccountMeta::new(self.initializer, true));
-        accounts.push(solana_instruction::AccountMeta::new(self.rent_payer, true));
+        accounts.push(solana_instruction::AccountMeta::new(self.fee_payer, true));
         accounts.push(solana_instruction::AccountMeta::new_readonly(
             self.system_program,
             false,
@@ -105,13 +105,13 @@ impl InitializeProgramConfigInstructionArgs {
 ///
 ///   0. `[writable]` program_config
 ///   1. `[writable, signer, optional]` initializer (default to `3mnk4KPtQ7Tthha79x4Rjjy9icVPmJ4GWMnbZBWE2ysb`)
-///   2. `[writable, signer]` rent_payer
+///   2. `[writable, signer]` fee_payer
 ///   3. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Clone, Debug, Default)]
 pub struct InitializeProgramConfigBuilder {
     program_config: Option<solana_pubkey::Pubkey>,
     initializer: Option<solana_pubkey::Pubkey>,
-    rent_payer: Option<solana_pubkey::Pubkey>,
+    fee_payer: Option<solana_pubkey::Pubkey>,
     system_program: Option<solana_pubkey::Pubkey>,
     authority: Option<Pubkey>,
     smart_account_creation_fee: Option<u64>,
@@ -136,8 +136,8 @@ impl InitializeProgramConfigBuilder {
         self
     }
     #[inline(always)]
-    pub fn rent_payer(&mut self, rent_payer: solana_pubkey::Pubkey) -> &mut Self {
-        self.rent_payer = Some(rent_payer);
+    pub fn fee_payer(&mut self, fee_payer: solana_pubkey::Pubkey) -> &mut Self {
+        self.fee_payer = Some(fee_payer);
         self
     }
     /// `[optional account, default to '11111111111111111111111111111111']`
@@ -183,7 +183,7 @@ impl InitializeProgramConfigBuilder {
             initializer: self.initializer.unwrap_or(solana_pubkey::pubkey!(
                 "3mnk4KPtQ7Tthha79x4Rjjy9icVPmJ4GWMnbZBWE2ysb"
             )),
-            rent_payer: self.rent_payer.expect("rent_payer is not set"),
+            fee_payer: self.fee_payer.expect("fee_payer is not set"),
             system_program: self
                 .system_program
                 .unwrap_or(solana_pubkey::pubkey!("11111111111111111111111111111111")),
@@ -207,7 +207,7 @@ pub struct InitializeProgramConfigCpiAccounts<'a, 'b> {
     /// The hard-coded account that is used to initialize the program config once.
     pub initializer: &'b solana_account_info::AccountInfo<'a>,
 
-    pub rent_payer: &'b solana_account_info::AccountInfo<'a>,
+    pub fee_payer: &'b solana_account_info::AccountInfo<'a>,
 
     pub system_program: &'b solana_account_info::AccountInfo<'a>,
 }
@@ -221,7 +221,7 @@ pub struct InitializeProgramConfigCpi<'a, 'b> {
     /// The hard-coded account that is used to initialize the program config once.
     pub initializer: &'b solana_account_info::AccountInfo<'a>,
 
-    pub rent_payer: &'b solana_account_info::AccountInfo<'a>,
+    pub fee_payer: &'b solana_account_info::AccountInfo<'a>,
 
     pub system_program: &'b solana_account_info::AccountInfo<'a>,
     /// The arguments for the instruction.
@@ -238,7 +238,7 @@ impl<'a, 'b> InitializeProgramConfigCpi<'a, 'b> {
             __program: program,
             program_config: accounts.program_config,
             initializer: accounts.initializer,
-            rent_payer: accounts.rent_payer,
+            fee_payer: accounts.fee_payer,
             system_program: accounts.system_program,
             __args: args,
         }
@@ -276,7 +276,7 @@ impl<'a, 'b> InitializeProgramConfigCpi<'a, 'b> {
             true,
         ));
         accounts.push(solana_instruction::AccountMeta::new(
-            *self.rent_payer.key,
+            *self.fee_payer.key,
             true,
         ));
         accounts.push(solana_instruction::AccountMeta::new_readonly(
@@ -305,7 +305,7 @@ impl<'a, 'b> InitializeProgramConfigCpi<'a, 'b> {
         account_infos.push(self.__program.clone());
         account_infos.push(self.program_config.clone());
         account_infos.push(self.initializer.clone());
-        account_infos.push(self.rent_payer.clone());
+        account_infos.push(self.fee_payer.clone());
         account_infos.push(self.system_program.clone());
         remaining_accounts
             .iter()
@@ -325,7 +325,7 @@ impl<'a, 'b> InitializeProgramConfigCpi<'a, 'b> {
 ///
 ///   0. `[writable]` program_config
 ///   1. `[writable, signer]` initializer
-///   2. `[writable, signer]` rent_payer
+///   2. `[writable, signer]` fee_payer
 ///   3. `[]` system_program
 #[derive(Clone, Debug)]
 pub struct InitializeProgramConfigCpiBuilder<'a, 'b> {
@@ -338,7 +338,7 @@ impl<'a, 'b> InitializeProgramConfigCpiBuilder<'a, 'b> {
             __program: program,
             program_config: None,
             initializer: None,
-            rent_payer: None,
+            fee_payer: None,
             system_program: None,
             authority: None,
             smart_account_creation_fee: None,
@@ -365,11 +365,8 @@ impl<'a, 'b> InitializeProgramConfigCpiBuilder<'a, 'b> {
         self
     }
     #[inline(always)]
-    pub fn rent_payer(
-        &mut self,
-        rent_payer: &'b solana_account_info::AccountInfo<'a>,
-    ) -> &mut Self {
-        self.instruction.rent_payer = Some(rent_payer);
+    pub fn fee_payer(&mut self, fee_payer: &'b solana_account_info::AccountInfo<'a>) -> &mut Self {
+        self.instruction.fee_payer = Some(fee_payer);
         self
     }
     #[inline(always)]
@@ -459,7 +456,7 @@ impl<'a, 'b> InitializeProgramConfigCpiBuilder<'a, 'b> {
                 .initializer
                 .expect("initializer is not set"),
 
-            rent_payer: self.instruction.rent_payer.expect("rent_payer is not set"),
+            fee_payer: self.instruction.fee_payer.expect("fee_payer is not set"),
 
             system_program: self
                 .instruction
@@ -479,7 +476,7 @@ struct InitializeProgramConfigCpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_account_info::AccountInfo<'a>,
     program_config: Option<&'b solana_account_info::AccountInfo<'a>>,
     initializer: Option<&'b solana_account_info::AccountInfo<'a>>,
-    rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+    fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
     authority: Option<Pubkey>,
     smart_account_creation_fee: Option<u64>,

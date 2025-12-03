@@ -22,7 +22,7 @@ pub struct CreateProposal<'info> {
 
     #[account(
         init,
-        payer = rent_payer,
+        payer = fee_payer,
         space = Proposal::size(settings.signers.len()),
         seeds = [
             SEED_PREFIX,
@@ -40,7 +40,7 @@ pub struct CreateProposal<'info> {
 
     /// The payer for the proposal account rent.
     #[account(mut)]
-    pub rent_payer: Signer<'info>,
+    pub fee_payer: Signer<'info>,
 
     pub system_program: Program<'info, System>,
 }
@@ -90,11 +90,11 @@ impl CreateProposal<'_> {
     pub fn create_proposal(ctx: Context<Self>, args: CreateProposalArgs) -> Result<()> {
         let proposal = &mut ctx.accounts.proposal;
         let settings = &ctx.accounts.settings;
-        let rent_payer = &mut ctx.accounts.rent_payer;
+        let fee_payer = &mut ctx.accounts.fee_payer;
 
         proposal.settings = settings.key();
         proposal.transaction_index = args.transaction_index;
-        proposal.rent_collector = rent_payer.key();
+        proposal.rent_collector = fee_payer.key();
         proposal.status = if args.draft {
             ProposalStatus::Draft {
                 timestamp: Clock::get()?.unix_timestamp,

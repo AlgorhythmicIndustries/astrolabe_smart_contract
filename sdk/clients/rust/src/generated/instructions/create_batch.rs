@@ -19,7 +19,7 @@ pub struct CreateBatch {
     /// The signer of the settings that is creating the batch.
     pub creator: solana_pubkey::Pubkey,
     /// The payer for the batch account rent.
-    pub rent_payer: solana_pubkey::Pubkey,
+    pub fee_payer: solana_pubkey::Pubkey,
 
     pub system_program: solana_pubkey::Pubkey,
 }
@@ -42,7 +42,7 @@ impl CreateBatch {
             self.creator,
             true,
         ));
-        accounts.push(solana_instruction::AccountMeta::new(self.rent_payer, true));
+        accounts.push(solana_instruction::AccountMeta::new(self.fee_payer, true));
         accounts.push(solana_instruction::AccountMeta::new_readonly(
             self.system_program,
             false,
@@ -104,14 +104,14 @@ impl CreateBatchInstructionArgs {
 ///   0. `[writable]` settings
 ///   1. `[writable]` batch
 ///   2. `[signer]` creator
-///   3. `[writable, signer]` rent_payer
+///   3. `[writable, signer]` fee_payer
 ///   4. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Clone, Debug, Default)]
 pub struct CreateBatchBuilder {
     settings: Option<solana_pubkey::Pubkey>,
     batch: Option<solana_pubkey::Pubkey>,
     creator: Option<solana_pubkey::Pubkey>,
-    rent_payer: Option<solana_pubkey::Pubkey>,
+    fee_payer: Option<solana_pubkey::Pubkey>,
     system_program: Option<solana_pubkey::Pubkey>,
     account_index: Option<u8>,
     memo: Option<String>,
@@ -140,8 +140,8 @@ impl CreateBatchBuilder {
     }
     /// The payer for the batch account rent.
     #[inline(always)]
-    pub fn rent_payer(&mut self, rent_payer: solana_pubkey::Pubkey) -> &mut Self {
-        self.rent_payer = Some(rent_payer);
+    pub fn fee_payer(&mut self, fee_payer: solana_pubkey::Pubkey) -> &mut Self {
+        self.fee_payer = Some(fee_payer);
         self
     }
     /// `[optional account, default to '11111111111111111111111111111111']`
@@ -182,7 +182,7 @@ impl CreateBatchBuilder {
             settings: self.settings.expect("settings is not set"),
             batch: self.batch.expect("batch is not set"),
             creator: self.creator.expect("creator is not set"),
-            rent_payer: self.rent_payer.expect("rent_payer is not set"),
+            fee_payer: self.fee_payer.expect("fee_payer is not set"),
             system_program: self
                 .system_program
                 .unwrap_or(solana_pubkey::pubkey!("11111111111111111111111111111111")),
@@ -207,7 +207,7 @@ pub struct CreateBatchCpiAccounts<'a, 'b> {
     /// The signer of the settings that is creating the batch.
     pub creator: &'b solana_account_info::AccountInfo<'a>,
     /// The payer for the batch account rent.
-    pub rent_payer: &'b solana_account_info::AccountInfo<'a>,
+    pub fee_payer: &'b solana_account_info::AccountInfo<'a>,
 
     pub system_program: &'b solana_account_info::AccountInfo<'a>,
 }
@@ -223,7 +223,7 @@ pub struct CreateBatchCpi<'a, 'b> {
     /// The signer of the settings that is creating the batch.
     pub creator: &'b solana_account_info::AccountInfo<'a>,
     /// The payer for the batch account rent.
-    pub rent_payer: &'b solana_account_info::AccountInfo<'a>,
+    pub fee_payer: &'b solana_account_info::AccountInfo<'a>,
 
     pub system_program: &'b solana_account_info::AccountInfo<'a>,
     /// The arguments for the instruction.
@@ -241,7 +241,7 @@ impl<'a, 'b> CreateBatchCpi<'a, 'b> {
             settings: accounts.settings,
             batch: accounts.batch,
             creator: accounts.creator,
-            rent_payer: accounts.rent_payer,
+            fee_payer: accounts.fee_payer,
             system_program: accounts.system_program,
             __args: args,
         }
@@ -280,7 +280,7 @@ impl<'a, 'b> CreateBatchCpi<'a, 'b> {
             true,
         ));
         accounts.push(solana_instruction::AccountMeta::new(
-            *self.rent_payer.key,
+            *self.fee_payer.key,
             true,
         ));
         accounts.push(solana_instruction::AccountMeta::new_readonly(
@@ -308,7 +308,7 @@ impl<'a, 'b> CreateBatchCpi<'a, 'b> {
         account_infos.push(self.settings.clone());
         account_infos.push(self.batch.clone());
         account_infos.push(self.creator.clone());
-        account_infos.push(self.rent_payer.clone());
+        account_infos.push(self.fee_payer.clone());
         account_infos.push(self.system_program.clone());
         remaining_accounts
             .iter()
@@ -329,7 +329,7 @@ impl<'a, 'b> CreateBatchCpi<'a, 'b> {
 ///   0. `[writable]` settings
 ///   1. `[writable]` batch
 ///   2. `[signer]` creator
-///   3. `[writable, signer]` rent_payer
+///   3. `[writable, signer]` fee_payer
 ///   4. `[]` system_program
 #[derive(Clone, Debug)]
 pub struct CreateBatchCpiBuilder<'a, 'b> {
@@ -343,7 +343,7 @@ impl<'a, 'b> CreateBatchCpiBuilder<'a, 'b> {
             settings: None,
             batch: None,
             creator: None,
-            rent_payer: None,
+            fee_payer: None,
             system_program: None,
             account_index: None,
             memo: None,
@@ -369,11 +369,8 @@ impl<'a, 'b> CreateBatchCpiBuilder<'a, 'b> {
     }
     /// The payer for the batch account rent.
     #[inline(always)]
-    pub fn rent_payer(
-        &mut self,
-        rent_payer: &'b solana_account_info::AccountInfo<'a>,
-    ) -> &mut Self {
-        self.instruction.rent_payer = Some(rent_payer);
+    pub fn fee_payer(&mut self, fee_payer: &'b solana_account_info::AccountInfo<'a>) -> &mut Self {
+        self.instruction.fee_payer = Some(fee_payer);
         self
     }
     #[inline(always)]
@@ -446,7 +443,7 @@ impl<'a, 'b> CreateBatchCpiBuilder<'a, 'b> {
 
             creator: self.instruction.creator.expect("creator is not set"),
 
-            rent_payer: self.instruction.rent_payer.expect("rent_payer is not set"),
+            fee_payer: self.instruction.fee_payer.expect("fee_payer is not set"),
 
             system_program: self
                 .instruction
@@ -467,7 +464,7 @@ struct CreateBatchCpiBuilderInstruction<'a, 'b> {
     settings: Option<&'b solana_account_info::AccountInfo<'a>>,
     batch: Option<&'b solana_account_info::AccountInfo<'a>>,
     creator: Option<&'b solana_account_info::AccountInfo<'a>>,
-    rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+    fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
     account_index: Option<u8>,
     memo: Option<String>,

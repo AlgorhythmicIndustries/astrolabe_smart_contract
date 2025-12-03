@@ -26,7 +26,7 @@ pub struct CreateTransaction<'info> {
 
     #[account(
         init,
-        payer = rent_payer,
+        payer = fee_payer,
         space = Transaction::size(args.ephemeral_signers, &args.transaction_message)?,
         seeds = [
             SEED_PREFIX,
@@ -43,7 +43,7 @@ pub struct CreateTransaction<'info> {
 
     /// The payer for the transaction account rent.
     #[account(mut)]
-    pub rent_payer: Signer<'info>,
+    pub fee_payer: Signer<'info>,
 
     pub system_program: Program<'info, System>,
 }
@@ -73,7 +73,7 @@ impl<'info> CreateTransaction<'info> {
         let settings = &mut ctx.accounts.settings;
         let transaction = &mut ctx.accounts.transaction;
         let creator = &mut ctx.accounts.creator;
-        let rent_payer = &mut ctx.accounts.rent_payer;
+        let fee_payer = &mut ctx.accounts.fee_payer;
 
         // Debug logging for transaction message deserialization
         msg!("CreateTransaction: received message_size={}", args.transaction_message.len());
@@ -116,7 +116,7 @@ impl<'info> CreateTransaction<'info> {
         // Initialize the transaction fields.
         transaction.settings = settings_key;
         transaction.creator = creator.key();
-        transaction.rent_collector = rent_payer.key();
+        transaction.rent_collector = fee_payer.key();
         transaction.index = transaction_index;
         transaction.bump = ctx.bumps.transaction;
         transaction.account_index = args.account_index;

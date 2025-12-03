@@ -45,7 +45,7 @@ pub struct ExecuteSettingsTransaction<'info> {
     /// The account that will be charged/credited in case the settings transaction causes space reallocation
     /// This is usually the same as `signer`, but can be a different account if needed.
     #[account(mut)]
-    pub rent_payer: Option<Signer<'info>>,
+    pub fee_payer: Option<Signer<'info>>,
 
     /// We might need it in case reallocation is needed.
     pub system_program: Option<Program<'info, System>>,
@@ -108,7 +108,7 @@ impl<'info> ExecuteSettingsTransaction<'info> {
                 &settings_key,
                 action,
                 &rent,
-                ctx.accounts.rent_payer.clone(),
+                ctx.accounts.fee_payer.clone(),
                 &ctx.accounts.system_program,
                 &ctx.remaining_accounts,
                 &ctx.program_id,
@@ -120,7 +120,7 @@ impl<'info> ExecuteSettingsTransaction<'info> {
             settings.to_account_info(),
             settings.signers.len(),
             ctx.accounts
-                .rent_payer
+                .fee_payer
                 .as_ref()
                 .map(ToAccountInfo::to_account_info),
             ctx.accounts
