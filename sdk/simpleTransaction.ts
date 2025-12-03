@@ -336,7 +336,7 @@ export async function createSimpleTransaction(
     const accountKeyStr = accountKey.toString().trim();
 
     // Check if this account should be a signer
-    if (accountKeyStr === feePayerStr) {
+    if (accountKeyStr === feePayerStr || accountKey.toString() === feePayer.toString()) {
       console.log('  ✅ MATCHED FEE PAYER:', accountKeyStr, '-> Skipping (passed as named account)');
       continue;
     } else if (accountKeyStr === signerStr) {

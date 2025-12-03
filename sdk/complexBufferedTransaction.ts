@@ -421,6 +421,12 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
       totalStatic - numSignersInner - numReadonlyNonSignerAccounts
     );
     safeStaticAccounts.forEach((addrKey: any, idx: number) => {
+      // Skip if this is the fee payer (already in explicit params)
+      const addrStr = toAddress(addrKey).toString();
+      if (addrStr === feePayer.toString()) {
+        return;
+      }
+      
       let role = AccountRole.READONLY;
       if (idx < numSignersInner) {
         role = idx < numWritableSignersInner ? AccountRole.WRITABLE : AccountRole.READONLY;
