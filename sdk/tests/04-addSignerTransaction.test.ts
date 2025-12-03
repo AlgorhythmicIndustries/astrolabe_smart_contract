@@ -96,7 +96,7 @@ async function testAddSignerTransaction() {
     // IMPORTANT: Use the SAME creatorSigner instance everywhere to avoid "multiple signers" error
     const executeInstruction = getExecuteSettingsTransactionSyncInstruction({
       settings: smartAccountSettings,
-      rentPayer: backendFeePayerSigner, // Backend pays rent
+      feePayer: backendFeePayerSigner, // Backend pays rent
       systemProgram: address('11111111111111111111111111111111'),
       program: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
       numSigners: 1,

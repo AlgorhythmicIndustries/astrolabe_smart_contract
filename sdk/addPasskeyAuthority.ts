@@ -128,7 +128,7 @@ export async function addPasskeyAuthorityTransaction(
   // Note: The creator must be included as a remaining account (signer)
   const executeInstruction = getExecuteSettingsTransactionSyncInstruction({
     settings: smartAccountSettings,
-    rentPayer: createNoopSigner(feePayer),
+    feePayer: createNoopSigner(feePayer),
     systemProgram: address('11111111111111111111111111111111'),
     program: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
     numSigners,

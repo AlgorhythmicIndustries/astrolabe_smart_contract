@@ -190,7 +190,7 @@ async function main() {
     settings: smartAccountSettings,
     transaction: transactionPda,
     creator: feePayer,
-    rentPayer: feePayer,
+    feePayer: feePayer,
     systemProgram: address('11111111111111111111111111111111'),
     args: {
         accountIndex: 0,
@@ -241,7 +241,7 @@ async function main() {
     settings: smartAccountSettings,
     proposal: proposalPda,
     creator: feePayer,
-    rentPayer: feePayer,
+    feePayer: feePayer,
     systemProgram: address('11111111111111111111111111111111'),
     transactionIndex: transactionIndex,
     draft: false,
@@ -311,6 +311,8 @@ async function main() {
     proposal: proposalPda,
     transaction: transactionPda,
     signer: feePayer,
+    feePayer: feePayer,
+    systemProgram: address('11111111111111111111111111111111'),
   });
 
   // Add the remaining accounts in the exact order expected by the program:
