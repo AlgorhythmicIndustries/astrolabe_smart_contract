@@ -266,7 +266,7 @@ export async function createSimpleTransaction(
     settings: smartAccountSettings,
     transaction: transactionPda,
     creator: signer,
-    rentPayer: createNoopSigner(feePayer), // Backend pays for transaction account rent
+    feePayer: createNoopSigner(feePayer), // Backend pays for transaction account rent
     systemProgram: address('11111111111111111111111111111111'),
     args: {
       accountIndex: 0, // Use 0 for the primary smart account (default)
@@ -282,7 +282,7 @@ export async function createSimpleTransaction(
     settings: smartAccountSettings,
     proposal: proposalPda,
     creator: signer,
-    rentPayer: createNoopSigner(feePayer), // Backend pays for proposal account rent
+    feePayer: createNoopSigner(feePayer), // Backend pays for proposal account rent
     systemProgram: address('11111111111111111111111111111111'),
     transactionIndex: transactionIndex,
     draft: false,
@@ -303,7 +303,7 @@ export async function createSimpleTransaction(
     proposal: proposalPda,
     transaction: transactionPda,
     signer: signer,
-    rentPayer: createNoopSigner(feePayer),
+    feePayer: createNoopSigner(feePayer),
   });
 
   // CLONE the instruction and its accounts array because the generated code returns a frozen object

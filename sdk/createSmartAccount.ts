@@ -55,11 +55,6 @@ export type CreateSmartAccountParams = {
   rentCollector?: Address | null;
   /** Optional: A memo for the transaction. Defaults to None. */
   memo?: string | null;
-  /** 
-   * Optional: The account that will pay for the rent and creation fee via a transfer to the creator.
-   * If provided, a transfer instruction will be prepended to the transaction.
-   */
-  rentPayer?: Address;
 };
 
 /**
@@ -99,7 +94,6 @@ export async function createSmartAccountTransaction(
     timeLock = 0,
     rentCollector = null,
     memo = null,
-    rentPayer,
   } = params;
 
   // 1. Fetch program config PDA and treasury from on-chain, as seen in createAccountTest.ts
@@ -169,8 +163,8 @@ export async function createSmartAccountTransaction(
 
   const instructions = [];
 
-  // If a rent payer is provided, add a transfer instruction to fund the creator
-  if (rentPayer) {
+  // If a fee payer is provided, add a transfer instruction to fund the creator
+  if (feePayer) {
     // The settings account size is defined in the program's create_smart_account instruction as "space = 8 + 1016".
     // This equals 1024 bytes. We must use this exact value because the program will try to allocate
     // this amount of space, requiring the account to be rent-exempt for this size.
@@ -194,7 +188,7 @@ export async function createSmartAccountTransaction(
     if (totalAmount > 0n) {
        instructions.push(
           getTransferSolInstruction({
-            source: createNoopSigner(rentPayer),
+            source: createNoopSigner(feePayer),
             destination: creator,
             amount: lamports(totalAmount)
          })

@@ -50,9 +50,9 @@ import {
       return;
     }
     
-    const rentPayerSigner = initializerSigner;
+    const feePayerSigner = initializerSigner;
   
-    console.log('Rent Payer (pays fees):', rentPayerSigner.address);
+    console.log('Rent Payer (pays fees):', feePayerSigner.address);
     
     // Your multisig address (will be set as authority)
     const multisigAuthority = address('6o1hMk7a7fAkwEDGG5qxERprjspNb11hxdfAun2NxtdQ');
@@ -61,12 +61,12 @@ import {
     
     // Check balances
     const { value: initializerBalance } = await rpc.getBalance(initializerSigner.address).send();
-    const { value: rentPayerBalance } = await rpc.getBalance(rentPayerSigner.address).send();
+    const { value: feePayerBalance } = await rpc.getBalance(feePayerSigner.address).send();
     
     console.log(`Initializer balance: ${Number(initializerBalance) / 1e9} SOL`);
-    console.log(`Rent Payer balance: ${Number(rentPayerBalance) / 1e9} SOL`);
+    console.log(`Rent Payer balance: ${Number(feePayerBalance) / 1e9} SOL`);
     
-    if (rentPayerBalance < 10_000_000n) {
+    if (feePayerBalance < 10_000_000n) {
       console.error('❌ Rent payer needs at least 0.01 SOL for transaction fees and rent');
       return;
     }
@@ -99,7 +99,7 @@ import {
     const instruction = await getInitializeProgramConfigInstruction({
       programConfig: programConfigPda,
       initializer: initializerSigner,    // Must sign (hard-coded requirement)
-      rentPayer: rentPayerSigner,        // Pays rent (can be any wallet)
+      feePayer: feePayerSigner,        // Pays rent (can be any wallet)
       systemProgram: address('11111111111111111111111111111111'),
       authority: multisigAuthority,      // Your multisig becomes authority
       smartAccountCreationFee: lamports(0n),
@@ -112,7 +112,7 @@ import {
     // Build transaction (rent payer is also fee payer)
     const transactionMessage = pipe(
       createTransactionMessage({ version: 0 }),
-      (tx) => setTransactionMessageFeePayerSigner(rentPayerSigner, tx),
+      (tx) => setTransactionMessageFeePayerSigner(feePayerSigner, tx),
       (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
       (tx) => appendTransactionMessageInstructions([
         getSetComputeUnitLimitInstruction({ units: 200_000 }),

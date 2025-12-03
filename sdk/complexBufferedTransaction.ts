@@ -289,7 +289,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     settings: smartAccountSettings,
     transactionBuffer: transactionBufferPda,
     bufferCreator: signer,
-    rentPayer: feePayerSigner,
+    feePayer: feePayerSigner,
     systemProgram: address('11111111111111111111111111111111'),
     bufferIndex: chosenBufferIndex,
     accountIndex,
@@ -333,7 +333,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     settings: smartAccountSettings,
     transaction: transactionPda,
     creator: signer,
-    rentPayer: feePayerSigner,
+    feePayer: feePayerSigner,
     systemProgram: address('11111111111111111111111111111111'),
     transactionBuffer: transactionBufferPda,
     fromBufferCreator: signer,
@@ -351,7 +351,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     settings: smartAccountSettings,
     proposal: proposalPda,
     creator: signer,
-    rentPayer: feePayerSigner,
+    feePayer: feePayerSigner,
     systemProgram: address('11111111111111111111111111111111'),
     transactionIndex: nextIndex,
     draft: false,
@@ -394,7 +394,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     proposal: proposalPda,
     transaction: transactionPda,
     signer,
-    rentPayer: feePayerSigner,
+    feePayer: feePayerSigner,
   });
   // Note: We don't need to close the buffer - CreateTransactionFromBuffer already does that
   // with `close = from_buffer_creator` in the Rust code
