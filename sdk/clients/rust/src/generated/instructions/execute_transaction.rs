@@ -21,7 +21,7 @@ pub struct ExecuteTransaction {
 
     pub signer: solana_pubkey::Pubkey,
 
-    pub rent_payer: solana_pubkey::Pubkey,
+    pub fee_payer: solana_pubkey::Pubkey,
 
     pub system_program: solana_pubkey::Pubkey,
 }
@@ -50,7 +50,7 @@ impl ExecuteTransaction {
             self.signer,
             true,
         ));
-        accounts.push(solana_instruction::AccountMeta::new(self.rent_payer, true));
+        accounts.push(solana_instruction::AccountMeta::new(self.fee_payer, true));
         accounts.push(solana_instruction::AccountMeta::new_readonly(
             self.system_program,
             false,
@@ -100,7 +100,7 @@ impl Default for ExecuteTransactionInstructionData {
 ///   1. `[writable]` proposal
 ///   2. `[]` transaction
 ///   3. `[signer]` signer
-///   4. `[writable, signer]` rent_payer
+///   4. `[writable, signer]` fee_payer
 ///   5. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Clone, Debug, Default)]
 pub struct ExecuteTransactionBuilder {
@@ -108,7 +108,7 @@ pub struct ExecuteTransactionBuilder {
     proposal: Option<solana_pubkey::Pubkey>,
     transaction: Option<solana_pubkey::Pubkey>,
     signer: Option<solana_pubkey::Pubkey>,
-    rent_payer: Option<solana_pubkey::Pubkey>,
+    fee_payer: Option<solana_pubkey::Pubkey>,
     system_program: Option<solana_pubkey::Pubkey>,
     __remaining_accounts: Vec<solana_instruction::AccountMeta>,
 }
@@ -140,8 +140,8 @@ impl ExecuteTransactionBuilder {
         self
     }
     #[inline(always)]
-    pub fn rent_payer(&mut self, rent_payer: solana_pubkey::Pubkey) -> &mut Self {
-        self.rent_payer = Some(rent_payer);
+    pub fn fee_payer(&mut self, fee_payer: solana_pubkey::Pubkey) -> &mut Self {
+        self.fee_payer = Some(fee_payer);
         self
     }
     /// `[optional account, default to '11111111111111111111111111111111']`
@@ -172,7 +172,7 @@ impl ExecuteTransactionBuilder {
             proposal: self.proposal.expect("proposal is not set"),
             transaction: self.transaction.expect("transaction is not set"),
             signer: self.signer.expect("signer is not set"),
-            rent_payer: self.rent_payer.expect("rent_payer is not set"),
+            fee_payer: self.fee_payer.expect("fee_payer is not set"),
             system_program: self
                 .system_program
                 .unwrap_or(solana_pubkey::pubkey!("11111111111111111111111111111111")),
@@ -192,7 +192,7 @@ pub struct ExecuteTransactionCpiAccounts<'a, 'b> {
 
     pub signer: &'b solana_account_info::AccountInfo<'a>,
 
-    pub rent_payer: &'b solana_account_info::AccountInfo<'a>,
+    pub fee_payer: &'b solana_account_info::AccountInfo<'a>,
 
     pub system_program: &'b solana_account_info::AccountInfo<'a>,
 }
@@ -210,7 +210,7 @@ pub struct ExecuteTransactionCpi<'a, 'b> {
 
     pub signer: &'b solana_account_info::AccountInfo<'a>,
 
-    pub rent_payer: &'b solana_account_info::AccountInfo<'a>,
+    pub fee_payer: &'b solana_account_info::AccountInfo<'a>,
 
     pub system_program: &'b solana_account_info::AccountInfo<'a>,
 }
@@ -226,7 +226,7 @@ impl<'a, 'b> ExecuteTransactionCpi<'a, 'b> {
             proposal: accounts.proposal,
             transaction: accounts.transaction,
             signer: accounts.signer,
-            rent_payer: accounts.rent_payer,
+            fee_payer: accounts.fee_payer,
             system_program: accounts.system_program,
         }
     }
@@ -271,7 +271,7 @@ impl<'a, 'b> ExecuteTransactionCpi<'a, 'b> {
             true,
         ));
         accounts.push(solana_instruction::AccountMeta::new(
-            *self.rent_payer.key,
+            *self.fee_payer.key,
             true,
         ));
         accounts.push(solana_instruction::AccountMeta::new_readonly(
@@ -300,7 +300,7 @@ impl<'a, 'b> ExecuteTransactionCpi<'a, 'b> {
         account_infos.push(self.proposal.clone());
         account_infos.push(self.transaction.clone());
         account_infos.push(self.signer.clone());
-        account_infos.push(self.rent_payer.clone());
+        account_infos.push(self.fee_payer.clone());
         account_infos.push(self.system_program.clone());
         remaining_accounts
             .iter()
@@ -322,7 +322,7 @@ impl<'a, 'b> ExecuteTransactionCpi<'a, 'b> {
 ///   1. `[writable]` proposal
 ///   2. `[]` transaction
 ///   3. `[signer]` signer
-///   4. `[writable, signer]` rent_payer
+///   4. `[writable, signer]` fee_payer
 ///   5. `[]` system_program
 #[derive(Clone, Debug)]
 pub struct ExecuteTransactionCpiBuilder<'a, 'b> {
@@ -337,7 +337,7 @@ impl<'a, 'b> ExecuteTransactionCpiBuilder<'a, 'b> {
             proposal: None,
             transaction: None,
             signer: None,
-            rent_payer: None,
+            fee_payer: None,
             system_program: None,
             __remaining_accounts: Vec::new(),
         });
@@ -369,11 +369,8 @@ impl<'a, 'b> ExecuteTransactionCpiBuilder<'a, 'b> {
         self
     }
     #[inline(always)]
-    pub fn rent_payer(
-        &mut self,
-        rent_payer: &'b solana_account_info::AccountInfo<'a>,
-    ) -> &mut Self {
-        self.instruction.rent_payer = Some(rent_payer);
+    pub fn fee_payer(&mut self, fee_payer: &'b solana_account_info::AccountInfo<'a>) -> &mut Self {
+        self.instruction.fee_payer = Some(fee_payer);
         self
     }
     #[inline(always)]
@@ -432,7 +429,7 @@ impl<'a, 'b> ExecuteTransactionCpiBuilder<'a, 'b> {
 
             signer: self.instruction.signer.expect("signer is not set"),
 
-            rent_payer: self.instruction.rent_payer.expect("rent_payer is not set"),
+            fee_payer: self.instruction.fee_payer.expect("fee_payer is not set"),
 
             system_program: self
                 .instruction
@@ -453,7 +450,7 @@ struct ExecuteTransactionCpiBuilderInstruction<'a, 'b> {
     proposal: Option<&'b solana_account_info::AccountInfo<'a>>,
     transaction: Option<&'b solana_account_info::AccountInfo<'a>>,
     signer: Option<&'b solana_account_info::AccountInfo<'a>>,
-    rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+    fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(&'b solana_account_info::AccountInfo<'a>, bool, bool)>,

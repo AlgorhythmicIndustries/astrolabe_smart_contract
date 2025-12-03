@@ -102,7 +102,7 @@ async function setupProgramConfig() {
       programConfig: programConfigPda,
       treasury: treasuryPda,
       initializer: initializerSigner,
-      rentPayer: backendFeePayerSigner, // Use Backend Fee Payer
+      feePayer: backendFeePayerSigner, // Use Backend Fee Payer
       systemProgram: address('11111111111111111111111111111111'),
       authority: initializerSigner.address,
       smartAccountCreationFee: BigInt(0),

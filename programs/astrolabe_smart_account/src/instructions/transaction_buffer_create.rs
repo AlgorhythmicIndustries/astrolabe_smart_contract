@@ -29,7 +29,7 @@ pub struct CreateTransactionBuffer<'info> {
 
     #[account(
         init,
-        payer = rent_payer,
+        payer = fee_payer,
         space = TransactionBuffer::size(args.final_buffer_size)?,
         seeds = [
             SEED_PREFIX,
@@ -47,7 +47,7 @@ pub struct CreateTransactionBuffer<'info> {
 
     /// The payer for the transaction account rent.
     #[account(mut)]
-    pub rent_payer: Signer<'info>,
+    pub fee_payer: Signer<'info>,
 
     pub system_program: Program<'info, System>,
 }

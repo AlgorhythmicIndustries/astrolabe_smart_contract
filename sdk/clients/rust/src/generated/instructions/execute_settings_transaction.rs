@@ -23,7 +23,7 @@ pub struct ExecuteSettingsTransaction {
     pub transaction: solana_pubkey::Pubkey,
     /// The account that will be charged/credited in case the settings transaction causes space reallocation
     /// This is usually the same as `signer`, but can be a different account if needed.
-    pub rent_payer: Option<solana_pubkey::Pubkey>,
+    pub fee_payer: Option<solana_pubkey::Pubkey>,
     /// We might need it in case reallocation is needed.
     pub system_program: Option<solana_pubkey::Pubkey>,
 }
@@ -49,8 +49,8 @@ impl ExecuteSettingsTransaction {
             self.transaction,
             false,
         ));
-        if let Some(rent_payer) = self.rent_payer {
-            accounts.push(solana_instruction::AccountMeta::new(rent_payer, true));
+        if let Some(fee_payer) = self.fee_payer {
+            accounts.push(solana_instruction::AccountMeta::new(fee_payer, true));
         } else {
             accounts.push(solana_instruction::AccountMeta::new_readonly(
                 crate::ASTROLABE_SMART_ACCOUNT_ID,
@@ -113,7 +113,7 @@ impl Default for ExecuteSettingsTransactionInstructionData {
 ///   1. `[signer]` signer
 ///   2. `[writable]` proposal
 ///   3. `[]` transaction
-///   4. `[writable, signer, optional]` rent_payer
+///   4. `[writable, signer, optional]` fee_payer
 ///   5. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Clone, Debug, Default)]
 pub struct ExecuteSettingsTransactionBuilder {
@@ -121,7 +121,7 @@ pub struct ExecuteSettingsTransactionBuilder {
     signer: Option<solana_pubkey::Pubkey>,
     proposal: Option<solana_pubkey::Pubkey>,
     transaction: Option<solana_pubkey::Pubkey>,
-    rent_payer: Option<solana_pubkey::Pubkey>,
+    fee_payer: Option<solana_pubkey::Pubkey>,
     system_program: Option<solana_pubkey::Pubkey>,
     __remaining_accounts: Vec<solana_instruction::AccountMeta>,
 }
@@ -158,8 +158,8 @@ impl ExecuteSettingsTransactionBuilder {
     /// The account that will be charged/credited in case the settings transaction causes space reallocation
     /// This is usually the same as `signer`, but can be a different account if needed.
     #[inline(always)]
-    pub fn rent_payer(&mut self, rent_payer: Option<solana_pubkey::Pubkey>) -> &mut Self {
-        self.rent_payer = rent_payer;
+    pub fn fee_payer(&mut self, fee_payer: Option<solana_pubkey::Pubkey>) -> &mut Self {
+        self.fee_payer = fee_payer;
         self
     }
     /// `[optional account]`
@@ -191,7 +191,7 @@ impl ExecuteSettingsTransactionBuilder {
             signer: self.signer.expect("signer is not set"),
             proposal: self.proposal.expect("proposal is not set"),
             transaction: self.transaction.expect("transaction is not set"),
-            rent_payer: self.rent_payer,
+            fee_payer: self.fee_payer,
             system_program: self.system_program,
         };
 
@@ -211,7 +211,7 @@ pub struct ExecuteSettingsTransactionCpiAccounts<'a, 'b> {
     pub transaction: &'b solana_account_info::AccountInfo<'a>,
     /// The account that will be charged/credited in case the settings transaction causes space reallocation
     /// This is usually the same as `signer`, but can be a different account if needed.
-    pub rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+    pub fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     /// We might need it in case reallocation is needed.
     pub system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
 }
@@ -230,7 +230,7 @@ pub struct ExecuteSettingsTransactionCpi<'a, 'b> {
     pub transaction: &'b solana_account_info::AccountInfo<'a>,
     /// The account that will be charged/credited in case the settings transaction causes space reallocation
     /// This is usually the same as `signer`, but can be a different account if needed.
-    pub rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+    pub fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     /// We might need it in case reallocation is needed.
     pub system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
 }
@@ -246,7 +246,7 @@ impl<'a, 'b> ExecuteSettingsTransactionCpi<'a, 'b> {
             signer: accounts.signer,
             proposal: accounts.proposal,
             transaction: accounts.transaction,
-            rent_payer: accounts.rent_payer,
+            fee_payer: accounts.fee_payer,
             system_program: accounts.system_program,
         }
     }
@@ -290,8 +290,8 @@ impl<'a, 'b> ExecuteSettingsTransactionCpi<'a, 'b> {
             *self.transaction.key,
             false,
         ));
-        if let Some(rent_payer) = self.rent_payer {
-            accounts.push(solana_instruction::AccountMeta::new(*rent_payer.key, true));
+        if let Some(fee_payer) = self.fee_payer {
+            accounts.push(solana_instruction::AccountMeta::new(*fee_payer.key, true));
         } else {
             accounts.push(solana_instruction::AccountMeta::new_readonly(
                 crate::ASTROLABE_SMART_ACCOUNT_ID,
@@ -331,8 +331,8 @@ impl<'a, 'b> ExecuteSettingsTransactionCpi<'a, 'b> {
         account_infos.push(self.signer.clone());
         account_infos.push(self.proposal.clone());
         account_infos.push(self.transaction.clone());
-        if let Some(rent_payer) = self.rent_payer {
-            account_infos.push(rent_payer.clone());
+        if let Some(fee_payer) = self.fee_payer {
+            account_infos.push(fee_payer.clone());
         }
         if let Some(system_program) = self.system_program {
             account_infos.push(system_program.clone());
@@ -357,7 +357,7 @@ impl<'a, 'b> ExecuteSettingsTransactionCpi<'a, 'b> {
 ///   1. `[signer]` signer
 ///   2. `[writable]` proposal
 ///   3. `[]` transaction
-///   4. `[writable, signer, optional]` rent_payer
+///   4. `[writable, signer, optional]` fee_payer
 ///   5. `[optional]` system_program
 #[derive(Clone, Debug)]
 pub struct ExecuteSettingsTransactionCpiBuilder<'a, 'b> {
@@ -372,7 +372,7 @@ impl<'a, 'b> ExecuteSettingsTransactionCpiBuilder<'a, 'b> {
             signer: None,
             proposal: None,
             transaction: None,
-            rent_payer: None,
+            fee_payer: None,
             system_program: None,
             __remaining_accounts: Vec::new(),
         });
@@ -409,11 +409,11 @@ impl<'a, 'b> ExecuteSettingsTransactionCpiBuilder<'a, 'b> {
     /// The account that will be charged/credited in case the settings transaction causes space reallocation
     /// This is usually the same as `signer`, but can be a different account if needed.
     #[inline(always)]
-    pub fn rent_payer(
+    pub fn fee_payer(
         &mut self,
-        rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+        fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.rent_payer = rent_payer;
+        self.instruction.fee_payer = fee_payer;
         self
     }
     /// `[optional account]`
@@ -474,7 +474,7 @@ impl<'a, 'b> ExecuteSettingsTransactionCpiBuilder<'a, 'b> {
                 .transaction
                 .expect("transaction is not set"),
 
-            rent_payer: self.instruction.rent_payer,
+            fee_payer: self.instruction.fee_payer,
 
             system_program: self.instruction.system_program,
         };
@@ -492,7 +492,7 @@ struct ExecuteSettingsTransactionCpiBuilderInstruction<'a, 'b> {
     signer: Option<&'b solana_account_info::AccountInfo<'a>>,
     proposal: Option<&'b solana_account_info::AccountInfo<'a>>,
     transaction: Option<&'b solana_account_info::AccountInfo<'a>>,
-    rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+    fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(&'b solana_account_info::AccountInfo<'a>, bool, bool)>,

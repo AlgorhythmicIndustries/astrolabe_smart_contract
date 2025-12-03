@@ -34,6 +34,7 @@ impl<'a, 'info> ExecutableTransactionMessage<'a, 'info> {
         address_lookup_table_account_infos: &'a [AccountInfo<'info>],
         smart_account_pubkey: &'a Pubkey,
         ephemeral_signer_pdas: &'a [Pubkey],
+        fee_payer: Option<&'a AccountInfo<'info>>,
     ) -> Result<Self> {
         // CHECK: `address_lookup_table_account_infos` must be valid `AddressLookupTable`s
         //         and be the ones mentioned in `message.address_table_lookups`.
@@ -65,17 +66,38 @@ impl<'a, 'info> ExecutableTransactionMessage<'a, 'info> {
             .collect::<Result<HashMap<&Pubkey, &AccountInfo>>>()?;
 
         // CHECK: `account_infos` should exactly match the number of accounts mentioned in the message.
+        // We calculate expected remaining accounts by subtracting 1 if fee_payer is used in the message.
+        let expected_remaining_accounts = if let Some(rp) = fee_payer {
+            if message.account_keys.contains(rp.key) {
+                message.num_all_account_keys() - 1
+            } else {
+                message.num_all_account_keys()
+            }
+        } else {
+            message.num_all_account_keys()
+        };
+
         require_eq!(
             message_account_infos.len(),
-            message.num_all_account_keys(),
+            expected_remaining_accounts,
             SmartAccountError::InvalidNumberOfAccounts
         );
 
         let mut static_accounts = Vec::new();
 
+        let mut remaining_accounts_iter = message_account_infos.iter();
+
         // CHECK: `message.account_keys` should come first in `account_infos` and have modifiers expected by the message.
         for (i, account_key) in message.account_keys.iter().enumerate() {
-            let account_info = &message_account_infos[i];
+            let account_info = if let Some(rp) = fee_payer {
+                if rp.key == account_key {
+                    rp
+                } else {
+                    remaining_accounts_iter.next().ok_or(SmartAccountError::InvalidNumberOfAccounts)?
+                }
+            } else {
+                remaining_accounts_iter.next().ok_or(SmartAccountError::InvalidNumberOfAccounts)?
+            };
             require_keys_eq!(
                 *account_info.key,
                 *account_key,
@@ -176,7 +198,7 @@ impl<'a, 'info> ExecutableTransactionMessage<'a, 'info> {
     /// # Arguments
     /// * `smart_account_seeds` - Seeds for the smart account PDA.
     /// * `ephemeral_signer_seeds` - Seeds for the ephemeral signer PDAs.
-    /// * `protected_accounts` - Accounts that must not be passed as writable to the CPI calls to prevent potential reentrancy attacks.
+    /// * `protected_accounts` - Accounts that should not be closed by the transaction.
     pub fn execute_message(
         self,
         smart_account_seeds: &[&[u8]],

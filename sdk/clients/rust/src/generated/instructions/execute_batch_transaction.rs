@@ -18,7 +18,7 @@ pub struct ExecuteBatchTransaction {
     /// Signer of the settings.
     pub signer: solana_pubkey::Pubkey,
 
-    pub rent_payer: solana_pubkey::Pubkey,
+    pub fee_payer: solana_pubkey::Pubkey,
 
     pub system_program: solana_pubkey::Pubkey,
     /// The proposal account associated with the batch.
@@ -49,7 +49,7 @@ impl ExecuteBatchTransaction {
             self.signer,
             true,
         ));
-        accounts.push(solana_instruction::AccountMeta::new(self.rent_payer, true));
+        accounts.push(solana_instruction::AccountMeta::new(self.fee_payer, true));
         accounts.push(solana_instruction::AccountMeta::new_readonly(
             self.system_program,
             false,
@@ -103,7 +103,7 @@ impl Default for ExecuteBatchTransactionInstructionData {
 ///
 ///   0. `[]` settings
 ///   1. `[signer]` signer
-///   2. `[writable, signer]` rent_payer
+///   2. `[writable, signer]` fee_payer
 ///   3. `[optional]` system_program (default to `11111111111111111111111111111111`)
 ///   4. `[writable]` proposal
 ///   5. `[writable]` batch
@@ -112,7 +112,7 @@ impl Default for ExecuteBatchTransactionInstructionData {
 pub struct ExecuteBatchTransactionBuilder {
     settings: Option<solana_pubkey::Pubkey>,
     signer: Option<solana_pubkey::Pubkey>,
-    rent_payer: Option<solana_pubkey::Pubkey>,
+    fee_payer: Option<solana_pubkey::Pubkey>,
     system_program: Option<solana_pubkey::Pubkey>,
     proposal: Option<solana_pubkey::Pubkey>,
     batch: Option<solana_pubkey::Pubkey>,
@@ -137,8 +137,8 @@ impl ExecuteBatchTransactionBuilder {
         self
     }
     #[inline(always)]
-    pub fn rent_payer(&mut self, rent_payer: solana_pubkey::Pubkey) -> &mut Self {
-        self.rent_payer = Some(rent_payer);
+    pub fn fee_payer(&mut self, fee_payer: solana_pubkey::Pubkey) -> &mut Self {
+        self.fee_payer = Some(fee_payer);
         self
     }
     /// `[optional account, default to '11111111111111111111111111111111']`
@@ -185,7 +185,7 @@ impl ExecuteBatchTransactionBuilder {
         let accounts = ExecuteBatchTransaction {
             settings: self.settings.expect("settings is not set"),
             signer: self.signer.expect("signer is not set"),
-            rent_payer: self.rent_payer.expect("rent_payer is not set"),
+            fee_payer: self.fee_payer.expect("fee_payer is not set"),
             system_program: self
                 .system_program
                 .unwrap_or(solana_pubkey::pubkey!("11111111111111111111111111111111")),
@@ -205,7 +205,7 @@ pub struct ExecuteBatchTransactionCpiAccounts<'a, 'b> {
     /// Signer of the settings.
     pub signer: &'b solana_account_info::AccountInfo<'a>,
 
-    pub rent_payer: &'b solana_account_info::AccountInfo<'a>,
+    pub fee_payer: &'b solana_account_info::AccountInfo<'a>,
 
     pub system_program: &'b solana_account_info::AccountInfo<'a>,
     /// The proposal account associated with the batch.
@@ -226,7 +226,7 @@ pub struct ExecuteBatchTransactionCpi<'a, 'b> {
     /// Signer of the settings.
     pub signer: &'b solana_account_info::AccountInfo<'a>,
 
-    pub rent_payer: &'b solana_account_info::AccountInfo<'a>,
+    pub fee_payer: &'b solana_account_info::AccountInfo<'a>,
 
     pub system_program: &'b solana_account_info::AccountInfo<'a>,
     /// The proposal account associated with the batch.
@@ -247,7 +247,7 @@ impl<'a, 'b> ExecuteBatchTransactionCpi<'a, 'b> {
             __program: program,
             settings: accounts.settings,
             signer: accounts.signer,
-            rent_payer: accounts.rent_payer,
+            fee_payer: accounts.fee_payer,
             system_program: accounts.system_program,
             proposal: accounts.proposal,
             batch: accounts.batch,
@@ -287,7 +287,7 @@ impl<'a, 'b> ExecuteBatchTransactionCpi<'a, 'b> {
             true,
         ));
         accounts.push(solana_instruction::AccountMeta::new(
-            *self.rent_payer.key,
+            *self.fee_payer.key,
             true,
         ));
         accounts.push(solana_instruction::AccountMeta::new_readonly(
@@ -323,7 +323,7 @@ impl<'a, 'b> ExecuteBatchTransactionCpi<'a, 'b> {
         account_infos.push(self.__program.clone());
         account_infos.push(self.settings.clone());
         account_infos.push(self.signer.clone());
-        account_infos.push(self.rent_payer.clone());
+        account_infos.push(self.fee_payer.clone());
         account_infos.push(self.system_program.clone());
         account_infos.push(self.proposal.clone());
         account_infos.push(self.batch.clone());
@@ -346,7 +346,7 @@ impl<'a, 'b> ExecuteBatchTransactionCpi<'a, 'b> {
 ///
 ///   0. `[]` settings
 ///   1. `[signer]` signer
-///   2. `[writable, signer]` rent_payer
+///   2. `[writable, signer]` fee_payer
 ///   3. `[]` system_program
 ///   4. `[writable]` proposal
 ///   5. `[writable]` batch
@@ -362,7 +362,7 @@ impl<'a, 'b> ExecuteBatchTransactionCpiBuilder<'a, 'b> {
             __program: program,
             settings: None,
             signer: None,
-            rent_payer: None,
+            fee_payer: None,
             system_program: None,
             proposal: None,
             batch: None,
@@ -384,11 +384,8 @@ impl<'a, 'b> ExecuteBatchTransactionCpiBuilder<'a, 'b> {
         self
     }
     #[inline(always)]
-    pub fn rent_payer(
-        &mut self,
-        rent_payer: &'b solana_account_info::AccountInfo<'a>,
-    ) -> &mut Self {
-        self.instruction.rent_payer = Some(rent_payer);
+    pub fn fee_payer(&mut self, fee_payer: &'b solana_account_info::AccountInfo<'a>) -> &mut Self {
+        self.instruction.fee_payer = Some(fee_payer);
         self
     }
     #[inline(always)]
@@ -461,7 +458,7 @@ impl<'a, 'b> ExecuteBatchTransactionCpiBuilder<'a, 'b> {
 
             signer: self.instruction.signer.expect("signer is not set"),
 
-            rent_payer: self.instruction.rent_payer.expect("rent_payer is not set"),
+            fee_payer: self.instruction.fee_payer.expect("fee_payer is not set"),
 
             system_program: self
                 .instruction
@@ -489,7 +486,7 @@ struct ExecuteBatchTransactionCpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_account_info::AccountInfo<'a>,
     settings: Option<&'b solana_account_info::AccountInfo<'a>>,
     signer: Option<&'b solana_account_info::AccountInfo<'a>>,
-    rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+    fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
     proposal: Option<&'b solana_account_info::AccountInfo<'a>>,
     batch: Option<&'b solana_account_info::AccountInfo<'a>>,

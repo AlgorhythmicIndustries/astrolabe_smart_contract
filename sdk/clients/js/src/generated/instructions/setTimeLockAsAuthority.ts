@@ -56,7 +56,7 @@ export type SetTimeLockAsAuthorityInstruction<
   TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | AccountMeta<string> = string,
   TAccountSettingsAuthority extends string | AccountMeta<string> = string,
-  TAccountRentPayer extends string | AccountMeta<string> = string,
+  TAccountFeePayer extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
     | AccountMeta<string> = '11111111111111111111111111111111',
@@ -75,10 +75,10 @@ export type SetTimeLockAsAuthorityInstruction<
         ? ReadonlySignerAccount<TAccountSettingsAuthority> &
             AccountSignerMeta<TAccountSettingsAuthority>
         : TAccountSettingsAuthority,
-      TAccountRentPayer extends string
-        ? WritableSignerAccount<TAccountRentPayer> &
-            AccountSignerMeta<TAccountRentPayer>
-        : TAccountRentPayer,
+      TAccountFeePayer extends string
+        ? WritableSignerAccount<TAccountFeePayer> &
+            AccountSignerMeta<TAccountFeePayer>
+        : TAccountFeePayer,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -145,7 +145,7 @@ export function getSetTimeLockAsAuthorityInstructionDataCodec(): Codec<
 export type SetTimeLockAsAuthorityInput<
   TAccountSettings extends string = string,
   TAccountSettingsAuthority extends string = string,
-  TAccountRentPayer extends string = string,
+  TAccountFeePayer extends string = string,
   TAccountSystemProgram extends string = string,
   TAccountProgram extends string = string,
 > = {
@@ -157,7 +157,7 @@ export type SetTimeLockAsAuthorityInput<
    * for example when adding a new signer or a spending limit.
    * This is usually the same as `settings_authority`, but can be a different account if needed.
    */
-  rentPayer?: TransactionSigner<TAccountRentPayer>;
+  feePayer?: TransactionSigner<TAccountFeePayer>;
   /** We might need it in case reallocation is needed. */
   systemProgram?: Address<TAccountSystemProgram>;
   program?: Address<TAccountProgram>;
@@ -168,7 +168,7 @@ export type SetTimeLockAsAuthorityInput<
 export function getSetTimeLockAsAuthorityInstruction<
   TAccountSettings extends string,
   TAccountSettingsAuthority extends string,
-  TAccountRentPayer extends string,
+  TAccountFeePayer extends string,
   TAccountSystemProgram extends string,
   TAccountProgram extends string,
   TProgramAddress extends
@@ -177,7 +177,7 @@ export function getSetTimeLockAsAuthorityInstruction<
   input: SetTimeLockAsAuthorityInput<
     TAccountSettings,
     TAccountSettingsAuthority,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram,
     TAccountProgram
   >,
@@ -186,7 +186,7 @@ export function getSetTimeLockAsAuthorityInstruction<
   TProgramAddress,
   TAccountSettings,
   TAccountSettingsAuthority,
-  TAccountRentPayer,
+  TAccountFeePayer,
   TAccountSystemProgram,
   TAccountProgram
 > {
@@ -201,7 +201,7 @@ export function getSetTimeLockAsAuthorityInstruction<
       value: input.settingsAuthority ?? null,
       isWritable: false,
     },
-    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
+    feePayer: { value: input.feePayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
   };
@@ -228,7 +228,7 @@ export function getSetTimeLockAsAuthorityInstruction<
     accounts: [
       getAccountMeta(accounts.settings),
       getAccountMeta(accounts.settingsAuthority),
-      getAccountMeta(accounts.rentPayer),
+      getAccountMeta(accounts.feePayer),
       getAccountMeta(accounts.systemProgram),
       getAccountMeta(accounts.program),
     ],
@@ -240,7 +240,7 @@ export function getSetTimeLockAsAuthorityInstruction<
     TProgramAddress,
     TAccountSettings,
     TAccountSettingsAuthority,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram,
     TAccountProgram
   >);
@@ -260,7 +260,7 @@ export type ParsedSetTimeLockAsAuthorityInstruction<
      * for example when adding a new signer or a spending limit.
      * This is usually the same as `settings_authority`, but can be a different account if needed.
      */
-    rentPayer?: TAccountMetas[2] | undefined;
+    feePayer?: TAccountMetas[2] | undefined;
     /** We might need it in case reallocation is needed. */
     systemProgram?: TAccountMetas[3] | undefined;
     program: TAccountMetas[4];
@@ -297,7 +297,7 @@ export function parseSetTimeLockAsAuthorityInstruction<
     accounts: {
       settings: getNextAccount(),
       settingsAuthority: getNextAccount(),
-      rentPayer: getNextOptionalAccount(),
+      feePayer: getNextOptionalAccount(),
       systemProgram: getNextOptionalAccount(),
       program: getNextAccount(),
     },

@@ -18,7 +18,7 @@ pub struct ExecuteSettingsTransactionSync {
     /// The account that will be charged/credited in case the settings transaction causes space reallocation,
     /// for example when adding a new signer, adding or removing a spending limit.
     /// This is usually the same as `signer`, but can be a different account if needed.
-    pub rent_payer: Option<solana_pubkey::Pubkey>,
+    pub fee_payer: Option<solana_pubkey::Pubkey>,
     /// We might need it in case reallocation is needed.
     pub system_program: Option<solana_pubkey::Pubkey>,
 
@@ -41,8 +41,8 @@ impl ExecuteSettingsTransactionSync {
     ) -> solana_instruction::Instruction {
         let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
         accounts.push(solana_instruction::AccountMeta::new(self.settings, false));
-        if let Some(rent_payer) = self.rent_payer {
-            accounts.push(solana_instruction::AccountMeta::new(rent_payer, true));
+        if let Some(fee_payer) = self.fee_payer {
+            accounts.push(solana_instruction::AccountMeta::new(fee_payer, true));
         } else {
             accounts.push(solana_instruction::AccountMeta::new_readonly(
                 crate::ASTROLABE_SMART_ACCOUNT_ID,
@@ -122,13 +122,13 @@ impl ExecuteSettingsTransactionSyncInstructionArgs {
 /// ### Accounts:
 ///
 ///   0. `[writable]` settings
-///   1. `[writable, signer, optional]` rent_payer
+///   1. `[writable, signer, optional]` fee_payer
 ///   2. `[optional]` system_program (default to `11111111111111111111111111111111`)
 ///   3. `[optional]` program (default to `ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q`)
 #[derive(Clone, Debug, Default)]
 pub struct ExecuteSettingsTransactionSyncBuilder {
     settings: Option<solana_pubkey::Pubkey>,
-    rent_payer: Option<solana_pubkey::Pubkey>,
+    fee_payer: Option<solana_pubkey::Pubkey>,
     system_program: Option<solana_pubkey::Pubkey>,
     program: Option<solana_pubkey::Pubkey>,
     num_signers: Option<u8>,
@@ -151,8 +151,8 @@ impl ExecuteSettingsTransactionSyncBuilder {
     /// for example when adding a new signer, adding or removing a spending limit.
     /// This is usually the same as `signer`, but can be a different account if needed.
     #[inline(always)]
-    pub fn rent_payer(&mut self, rent_payer: Option<solana_pubkey::Pubkey>) -> &mut Self {
-        self.rent_payer = rent_payer;
+    pub fn fee_payer(&mut self, fee_payer: Option<solana_pubkey::Pubkey>) -> &mut Self {
+        self.fee_payer = fee_payer;
         self
     }
     /// `[optional account]`
@@ -203,7 +203,7 @@ impl ExecuteSettingsTransactionSyncBuilder {
     pub fn instruction(&self) -> solana_instruction::Instruction {
         let accounts = ExecuteSettingsTransactionSync {
             settings: self.settings.expect("settings is not set"),
-            rent_payer: self.rent_payer,
+            fee_payer: self.fee_payer,
             system_program: self.system_program,
             program: self.program.unwrap_or(solana_pubkey::pubkey!(
                 "ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q"
@@ -225,7 +225,7 @@ pub struct ExecuteSettingsTransactionSyncCpiAccounts<'a, 'b> {
     /// The account that will be charged/credited in case the settings transaction causes space reallocation,
     /// for example when adding a new signer, adding or removing a spending limit.
     /// This is usually the same as `signer`, but can be a different account if needed.
-    pub rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+    pub fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     /// We might need it in case reallocation is needed.
     pub system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
 
@@ -241,7 +241,7 @@ pub struct ExecuteSettingsTransactionSyncCpi<'a, 'b> {
     /// The account that will be charged/credited in case the settings transaction causes space reallocation,
     /// for example when adding a new signer, adding or removing a spending limit.
     /// This is usually the same as `signer`, but can be a different account if needed.
-    pub rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+    pub fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     /// We might need it in case reallocation is needed.
     pub system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
 
@@ -259,7 +259,7 @@ impl<'a, 'b> ExecuteSettingsTransactionSyncCpi<'a, 'b> {
         Self {
             __program: program,
             settings: accounts.settings,
-            rent_payer: accounts.rent_payer,
+            fee_payer: accounts.fee_payer,
             system_program: accounts.system_program,
             program: accounts.program,
             __args: args,
@@ -293,8 +293,8 @@ impl<'a, 'b> ExecuteSettingsTransactionSyncCpi<'a, 'b> {
             *self.settings.key,
             false,
         ));
-        if let Some(rent_payer) = self.rent_payer {
-            accounts.push(solana_instruction::AccountMeta::new(*rent_payer.key, true));
+        if let Some(fee_payer) = self.fee_payer {
+            accounts.push(solana_instruction::AccountMeta::new(*fee_payer.key, true));
         } else {
             accounts.push(solana_instruction::AccountMeta::new_readonly(
                 crate::ASTROLABE_SMART_ACCOUNT_ID,
@@ -337,8 +337,8 @@ impl<'a, 'b> ExecuteSettingsTransactionSyncCpi<'a, 'b> {
         let mut account_infos = Vec::with_capacity(5 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.settings.clone());
-        if let Some(rent_payer) = self.rent_payer {
-            account_infos.push(rent_payer.clone());
+        if let Some(fee_payer) = self.fee_payer {
+            account_infos.push(fee_payer.clone());
         }
         if let Some(system_program) = self.system_program {
             account_infos.push(system_program.clone());
@@ -361,7 +361,7 @@ impl<'a, 'b> ExecuteSettingsTransactionSyncCpi<'a, 'b> {
 /// ### Accounts:
 ///
 ///   0. `[writable]` settings
-///   1. `[writable, signer, optional]` rent_payer
+///   1. `[writable, signer, optional]` fee_payer
 ///   2. `[optional]` system_program
 ///   3. `[]` program
 #[derive(Clone, Debug)]
@@ -374,7 +374,7 @@ impl<'a, 'b> ExecuteSettingsTransactionSyncCpiBuilder<'a, 'b> {
         let instruction = Box::new(ExecuteSettingsTransactionSyncCpiBuilderInstruction {
             __program: program,
             settings: None,
-            rent_payer: None,
+            fee_payer: None,
             system_program: None,
             program: None,
             num_signers: None,
@@ -394,11 +394,11 @@ impl<'a, 'b> ExecuteSettingsTransactionSyncCpiBuilder<'a, 'b> {
     /// for example when adding a new signer, adding or removing a spending limit.
     /// This is usually the same as `signer`, but can be a different account if needed.
     #[inline(always)]
-    pub fn rent_payer(
+    pub fn fee_payer(
         &mut self,
-        rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+        fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.rent_payer = rent_payer;
+        self.instruction.fee_payer = fee_payer;
         self
     }
     /// `[optional account]`
@@ -484,7 +484,7 @@ impl<'a, 'b> ExecuteSettingsTransactionSyncCpiBuilder<'a, 'b> {
 
             settings: self.instruction.settings.expect("settings is not set"),
 
-            rent_payer: self.instruction.rent_payer,
+            fee_payer: self.instruction.fee_payer,
 
             system_program: self.instruction.system_program,
 
@@ -502,7 +502,7 @@ impl<'a, 'b> ExecuteSettingsTransactionSyncCpiBuilder<'a, 'b> {
 struct ExecuteSettingsTransactionSyncCpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_account_info::AccountInfo<'a>,
     settings: Option<&'b solana_account_info::AccountInfo<'a>>,
-    rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+    fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
     program: Option<&'b solana_account_info::AccountInfo<'a>>,
     num_signers: Option<u8>,

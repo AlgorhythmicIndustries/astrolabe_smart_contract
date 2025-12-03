@@ -48,7 +48,7 @@ export type ExecuteTransactionInstruction<
   TAccountProposal extends string | AccountMeta<string> = string,
   TAccountTransaction extends string | AccountMeta<string> = string,
   TAccountSigner extends string | AccountMeta<string> = string,
-  TAccountRentPayer extends string | AccountMeta<string> = string,
+  TAccountFeePayer extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
     | AccountMeta<string> = '11111111111111111111111111111111',
@@ -70,10 +70,10 @@ export type ExecuteTransactionInstruction<
         ? ReadonlySignerAccount<TAccountSigner> &
             AccountSignerMeta<TAccountSigner>
         : TAccountSigner,
-      TAccountRentPayer extends string
-        ? WritableSignerAccount<TAccountRentPayer> &
-            AccountSignerMeta<TAccountRentPayer>
-        : TAccountRentPayer,
+      TAccountFeePayer extends string
+        ? WritableSignerAccount<TAccountFeePayer> &
+            AccountSignerMeta<TAccountFeePayer>
+        : TAccountFeePayer,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -115,7 +115,7 @@ export type ExecuteTransactionInput<
   TAccountProposal extends string = string,
   TAccountTransaction extends string = string,
   TAccountSigner extends string = string,
-  TAccountRentPayer extends string = string,
+  TAccountFeePayer extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
   settings: Address<TAccountSettings>;
@@ -124,7 +124,7 @@ export type ExecuteTransactionInput<
   /** The transaction to execute. */
   transaction: Address<TAccountTransaction>;
   signer: TransactionSigner<TAccountSigner>;
-  rentPayer: TransactionSigner<TAccountRentPayer>;
+  feePayer: TransactionSigner<TAccountFeePayer>;
   systemProgram?: Address<TAccountSystemProgram>;
 };
 
@@ -133,7 +133,7 @@ export function getExecuteTransactionInstruction<
   TAccountProposal extends string,
   TAccountTransaction extends string,
   TAccountSigner extends string,
-  TAccountRentPayer extends string,
+  TAccountFeePayer extends string,
   TAccountSystemProgram extends string,
   TProgramAddress extends
     Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
@@ -143,7 +143,7 @@ export function getExecuteTransactionInstruction<
     TAccountProposal,
     TAccountTransaction,
     TAccountSigner,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram
   >,
   config?: { programAddress?: TProgramAddress }
@@ -153,7 +153,7 @@ export function getExecuteTransactionInstruction<
   TAccountProposal,
   TAccountTransaction,
   TAccountSigner,
-  TAccountRentPayer,
+  TAccountFeePayer,
   TAccountSystemProgram
 > {
   // Program address.
@@ -166,7 +166,7 @@ export function getExecuteTransactionInstruction<
     proposal: { value: input.proposal ?? null, isWritable: true },
     transaction: { value: input.transaction ?? null, isWritable: false },
     signer: { value: input.signer ?? null, isWritable: false },
-    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
+    feePayer: { value: input.feePayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
   };
   const accounts = originalAccounts as Record<
@@ -187,7 +187,7 @@ export function getExecuteTransactionInstruction<
       getAccountMeta(accounts.proposal),
       getAccountMeta(accounts.transaction),
       getAccountMeta(accounts.signer),
-      getAccountMeta(accounts.rentPayer),
+      getAccountMeta(accounts.feePayer),
       getAccountMeta(accounts.systemProgram),
     ],
     data: getExecuteTransactionInstructionDataEncoder().encode({}),
@@ -198,7 +198,7 @@ export function getExecuteTransactionInstruction<
     TAccountProposal,
     TAccountTransaction,
     TAccountSigner,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram
   >);
 }
@@ -215,7 +215,7 @@ export type ParsedExecuteTransactionInstruction<
     /** The transaction to execute. */
     transaction: TAccountMetas[2];
     signer: TAccountMetas[3];
-    rentPayer: TAccountMetas[4];
+    feePayer: TAccountMetas[4];
     systemProgram: TAccountMetas[5];
   };
   data: ExecuteTransactionInstructionData;
@@ -246,7 +246,7 @@ export function parseExecuteTransactionInstruction<
       proposal: getNextAccount(),
       transaction: getNextAccount(),
       signer: getNextAccount(),
-      rentPayer: getNextAccount(),
+      feePayer: getNextAccount(),
       systemProgram: getNextAccount(),
     },
     data: getExecuteTransactionInstructionDataDecoder().decode(

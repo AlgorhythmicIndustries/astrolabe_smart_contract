@@ -59,7 +59,7 @@ export type SetNewSettingsAuthorityAsAuthorityInstruction<
   TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | AccountMeta<string> = string,
   TAccountSettingsAuthority extends string | AccountMeta<string> = string,
-  TAccountRentPayer extends string | AccountMeta<string> = string,
+  TAccountFeePayer extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
     | AccountMeta<string> = '11111111111111111111111111111111',
@@ -78,10 +78,10 @@ export type SetNewSettingsAuthorityAsAuthorityInstruction<
         ? ReadonlySignerAccount<TAccountSettingsAuthority> &
             AccountSignerMeta<TAccountSettingsAuthority>
         : TAccountSettingsAuthority,
-      TAccountRentPayer extends string
-        ? WritableSignerAccount<TAccountRentPayer> &
-            AccountSignerMeta<TAccountRentPayer>
-        : TAccountRentPayer,
+      TAccountFeePayer extends string
+        ? WritableSignerAccount<TAccountFeePayer> &
+            AccountSignerMeta<TAccountFeePayer>
+        : TAccountFeePayer,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -148,7 +148,7 @@ export function getSetNewSettingsAuthorityAsAuthorityInstructionDataCodec(): Cod
 export type SetNewSettingsAuthorityAsAuthorityInput<
   TAccountSettings extends string = string,
   TAccountSettingsAuthority extends string = string,
-  TAccountRentPayer extends string = string,
+  TAccountFeePayer extends string = string,
   TAccountSystemProgram extends string = string,
   TAccountProgram extends string = string,
 > = {
@@ -160,7 +160,7 @@ export type SetNewSettingsAuthorityAsAuthorityInput<
    * for example when adding a new signer or a spending limit.
    * This is usually the same as `settings_authority`, but can be a different account if needed.
    */
-  rentPayer?: TransactionSigner<TAccountRentPayer>;
+  feePayer?: TransactionSigner<TAccountFeePayer>;
   /** We might need it in case reallocation is needed. */
   systemProgram?: Address<TAccountSystemProgram>;
   program?: Address<TAccountProgram>;
@@ -171,7 +171,7 @@ export type SetNewSettingsAuthorityAsAuthorityInput<
 export function getSetNewSettingsAuthorityAsAuthorityInstruction<
   TAccountSettings extends string,
   TAccountSettingsAuthority extends string,
-  TAccountRentPayer extends string,
+  TAccountFeePayer extends string,
   TAccountSystemProgram extends string,
   TAccountProgram extends string,
   TProgramAddress extends
@@ -180,7 +180,7 @@ export function getSetNewSettingsAuthorityAsAuthorityInstruction<
   input: SetNewSettingsAuthorityAsAuthorityInput<
     TAccountSettings,
     TAccountSettingsAuthority,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram,
     TAccountProgram
   >,
@@ -189,7 +189,7 @@ export function getSetNewSettingsAuthorityAsAuthorityInstruction<
   TProgramAddress,
   TAccountSettings,
   TAccountSettingsAuthority,
-  TAccountRentPayer,
+  TAccountFeePayer,
   TAccountSystemProgram,
   TAccountProgram
 > {
@@ -204,7 +204,7 @@ export function getSetNewSettingsAuthorityAsAuthorityInstruction<
       value: input.settingsAuthority ?? null,
       isWritable: false,
     },
-    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
+    feePayer: { value: input.feePayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
   };
@@ -231,7 +231,7 @@ export function getSetNewSettingsAuthorityAsAuthorityInstruction<
     accounts: [
       getAccountMeta(accounts.settings),
       getAccountMeta(accounts.settingsAuthority),
-      getAccountMeta(accounts.rentPayer),
+      getAccountMeta(accounts.feePayer),
       getAccountMeta(accounts.systemProgram),
       getAccountMeta(accounts.program),
     ],
@@ -243,7 +243,7 @@ export function getSetNewSettingsAuthorityAsAuthorityInstruction<
     TProgramAddress,
     TAccountSettings,
     TAccountSettingsAuthority,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram,
     TAccountProgram
   >);
@@ -263,7 +263,7 @@ export type ParsedSetNewSettingsAuthorityAsAuthorityInstruction<
      * for example when adding a new signer or a spending limit.
      * This is usually the same as `settings_authority`, but can be a different account if needed.
      */
-    rentPayer?: TAccountMetas[2] | undefined;
+    feePayer?: TAccountMetas[2] | undefined;
     /** We might need it in case reallocation is needed. */
     systemProgram?: TAccountMetas[3] | undefined;
     program: TAccountMetas[4];
@@ -303,7 +303,7 @@ export function parseSetNewSettingsAuthorityAsAuthorityInstruction<
     accounts: {
       settings: getNextAccount(),
       settingsAuthority: getNextAccount(),
-      rentPayer: getNextOptionalAccount(),
+      feePayer: getNextOptionalAccount(),
       systemProgram: getNextOptionalAccount(),
       program: getNextAccount(),
     },

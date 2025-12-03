@@ -46,7 +46,7 @@ export type ExecuteBatchTransactionInstruction<
   TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | AccountMeta<string> = string,
   TAccountSigner extends string | AccountMeta<string> = string,
-  TAccountRentPayer extends string | AccountMeta<string> = string,
+  TAccountFeePayer extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
     | AccountMeta<string> = '11111111111111111111111111111111',
@@ -65,10 +65,10 @@ export type ExecuteBatchTransactionInstruction<
         ? ReadonlySignerAccount<TAccountSigner> &
             AccountSignerMeta<TAccountSigner>
         : TAccountSigner,
-      TAccountRentPayer extends string
-        ? WritableSignerAccount<TAccountRentPayer> &
-            AccountSignerMeta<TAccountRentPayer>
-        : TAccountRentPayer,
+      TAccountFeePayer extends string
+        ? WritableSignerAccount<TAccountFeePayer> &
+            AccountSignerMeta<TAccountFeePayer>
+        : TAccountFeePayer,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -120,7 +120,7 @@ export function getExecuteBatchTransactionInstructionDataCodec(): FixedSizeCodec
 export type ExecuteBatchTransactionInput<
   TAccountSettings extends string = string,
   TAccountSigner extends string = string,
-  TAccountRentPayer extends string = string,
+  TAccountFeePayer extends string = string,
   TAccountSystemProgram extends string = string,
   TAccountProposal extends string = string,
   TAccountBatch extends string = string,
@@ -130,7 +130,7 @@ export type ExecuteBatchTransactionInput<
   settings: Address<TAccountSettings>;
   /** Signer of the settings. */
   signer: TransactionSigner<TAccountSigner>;
-  rentPayer: TransactionSigner<TAccountRentPayer>;
+  feePayer: TransactionSigner<TAccountFeePayer>;
   systemProgram?: Address<TAccountSystemProgram>;
   /**
    * The proposal account associated with the batch.
@@ -145,7 +145,7 @@ export type ExecuteBatchTransactionInput<
 export function getExecuteBatchTransactionInstruction<
   TAccountSettings extends string,
   TAccountSigner extends string,
-  TAccountRentPayer extends string,
+  TAccountFeePayer extends string,
   TAccountSystemProgram extends string,
   TAccountProposal extends string,
   TAccountBatch extends string,
@@ -156,7 +156,7 @@ export function getExecuteBatchTransactionInstruction<
   input: ExecuteBatchTransactionInput<
     TAccountSettings,
     TAccountSigner,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram,
     TAccountProposal,
     TAccountBatch,
@@ -167,7 +167,7 @@ export function getExecuteBatchTransactionInstruction<
   TProgramAddress,
   TAccountSettings,
   TAccountSigner,
-  TAccountRentPayer,
+  TAccountFeePayer,
   TAccountSystemProgram,
   TAccountProposal,
   TAccountBatch,
@@ -181,7 +181,7 @@ export function getExecuteBatchTransactionInstruction<
   const originalAccounts = {
     settings: { value: input.settings ?? null, isWritable: false },
     signer: { value: input.signer ?? null, isWritable: false },
-    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
+    feePayer: { value: input.feePayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
     proposal: { value: input.proposal ?? null, isWritable: true },
     batch: { value: input.batch ?? null, isWritable: true },
@@ -203,7 +203,7 @@ export function getExecuteBatchTransactionInstruction<
     accounts: [
       getAccountMeta(accounts.settings),
       getAccountMeta(accounts.signer),
-      getAccountMeta(accounts.rentPayer),
+      getAccountMeta(accounts.feePayer),
       getAccountMeta(accounts.systemProgram),
       getAccountMeta(accounts.proposal),
       getAccountMeta(accounts.batch),
@@ -215,7 +215,7 @@ export function getExecuteBatchTransactionInstruction<
     TProgramAddress,
     TAccountSettings,
     TAccountSigner,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram,
     TAccountProposal,
     TAccountBatch,
@@ -233,7 +233,7 @@ export type ParsedExecuteBatchTransactionInstruction<
     settings: TAccountMetas[0];
     /** Signer of the settings. */
     signer: TAccountMetas[1];
-    rentPayer: TAccountMetas[2];
+    feePayer: TAccountMetas[2];
     systemProgram: TAccountMetas[3];
     /**
      * The proposal account associated with the batch.
@@ -270,7 +270,7 @@ export function parseExecuteBatchTransactionInstruction<
     accounts: {
       settings: getNextAccount(),
       signer: getNextAccount(),
-      rentPayer: getNextAccount(),
+      feePayer: getNextAccount(),
       systemProgram: getNextAccount(),
       proposal: getNextAccount(),
       batch: getNextAccount(),

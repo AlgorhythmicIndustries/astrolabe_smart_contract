@@ -119,7 +119,7 @@ pub fn close<'info>(info: AccountInfo<'info>, sol_destination: AccountInfo<'info
 pub fn realloc<'info>(
     account: &AccountInfo<'info>,
     new_size: usize,
-    rent_payer: Option<AccountInfo<'info>>,
+    fee_payer: Option<AccountInfo<'info>>,
     system_program: Option<AccountInfo<'info>>,
 ) -> Result<()> {
     // Reallocate more space
@@ -137,13 +137,13 @@ pub fn realloc<'info>(
             SmartAccountError::InvalidAccount
         );
 
-        let rent_payer = rent_payer.ok_or(SmartAccountError::MissingAccount)?;
+        let fee_payer = fee_payer.ok_or(SmartAccountError::MissingAccount)?;
 
         system_program::transfer(
             CpiContext::new(
                 system_program,
                 system_program::Transfer {
-                    from: rent_payer,
+                    from: fee_payer,
                     to: account.clone(),
                 },
             ),

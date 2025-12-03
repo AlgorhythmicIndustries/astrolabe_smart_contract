@@ -58,7 +58,7 @@ impl Settings {
     pub fn find_and_initialize_settings_account<'info>(
         &self,
         settings_account_key: Pubkey,
-        rent_payer: &AccountInfo<'info>,
+        fee_payer: &AccountInfo<'info>,
         remaining_accounts: &'info [AccountInfo<'info>],
         system_program: &Program<'info, System>,
     ) -> Result<&AccountInfo<'info>> {
@@ -84,7 +84,7 @@ impl Settings {
         let rent = Rent::get()?;
 
         create_account(
-            rent_payer,
+            fee_payer,
             settings_account_info,
             system_program,
             &crate::ID,
@@ -148,7 +148,7 @@ impl Settings {
     pub fn realloc_if_needed<'a>(
         settings: AccountInfo<'a>,
         signers_length: usize,
-        rent_payer: Option<AccountInfo<'a>>,
+        fee_payer: Option<AccountInfo<'a>>,
         system_program: Option<AccountInfo<'a>>,
     ) -> Result<bool> {
         // Sanity checks
@@ -169,7 +169,7 @@ impl Settings {
         let new_size = account_size_to_fit_signers;
 
         // Reallocate more space.
-        realloc(&settings, new_size, rent_payer, system_program)?;
+        realloc(&settings, new_size, fee_payer, system_program)?;
 
         Ok(true)
     }
@@ -294,7 +294,7 @@ impl Settings {
         self_key: &Pubkey,
         action: &SettingsAction,
         rent: &Rent,
-        rent_payer: Option<anchor_lang::prelude::Signer<'info>>,
+        fee_payer: Option<anchor_lang::prelude::Signer<'info>>,
         system_program: &Option<Program<'info, System>>,
         remaining_accounts: &'info [AccountInfo<'info>],
         program_id: &Pubkey,

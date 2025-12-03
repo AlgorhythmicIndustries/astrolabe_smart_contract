@@ -53,7 +53,7 @@ export type CreateTransactionInstruction<
   TAccountSettings extends string | AccountMeta<string> = string,
   TAccountTransaction extends string | AccountMeta<string> = string,
   TAccountCreator extends string | AccountMeta<string> = string,
-  TAccountRentPayer extends string | AccountMeta<string> = string,
+  TAccountFeePayer extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
     | AccountMeta<string> = '11111111111111111111111111111111',
@@ -72,10 +72,10 @@ export type CreateTransactionInstruction<
         ? ReadonlySignerAccount<TAccountCreator> &
             AccountSignerMeta<TAccountCreator>
         : TAccountCreator,
-      TAccountRentPayer extends string
-        ? WritableSignerAccount<TAccountRentPayer> &
-            AccountSignerMeta<TAccountRentPayer>
-        : TAccountRentPayer,
+      TAccountFeePayer extends string
+        ? WritableSignerAccount<TAccountFeePayer> &
+            AccountSignerMeta<TAccountFeePayer>
+        : TAccountFeePayer,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -123,7 +123,7 @@ export type CreateTransactionInput<
   TAccountSettings extends string = string,
   TAccountTransaction extends string = string,
   TAccountCreator extends string = string,
-  TAccountRentPayer extends string = string,
+  TAccountFeePayer extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
   settings: Address<TAccountSettings>;
@@ -131,7 +131,7 @@ export type CreateTransactionInput<
   /** The member of the multisig that is creating the transaction. */
   creator: TransactionSigner<TAccountCreator>;
   /** The payer for the transaction account rent. */
-  rentPayer: TransactionSigner<TAccountRentPayer>;
+  feePayer: TransactionSigner<TAccountFeePayer>;
   systemProgram?: Address<TAccountSystemProgram>;
   args: CreateTransactionInstructionDataArgs['args'];
 };
@@ -140,7 +140,7 @@ export function getCreateTransactionInstruction<
   TAccountSettings extends string,
   TAccountTransaction extends string,
   TAccountCreator extends string,
-  TAccountRentPayer extends string,
+  TAccountFeePayer extends string,
   TAccountSystemProgram extends string,
   TProgramAddress extends
     Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
@@ -149,7 +149,7 @@ export function getCreateTransactionInstruction<
     TAccountSettings,
     TAccountTransaction,
     TAccountCreator,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram
   >,
   config?: { programAddress?: TProgramAddress }
@@ -158,7 +158,7 @@ export function getCreateTransactionInstruction<
   TAccountSettings,
   TAccountTransaction,
   TAccountCreator,
-  TAccountRentPayer,
+  TAccountFeePayer,
   TAccountSystemProgram
 > {
   // Program address.
@@ -170,7 +170,7 @@ export function getCreateTransactionInstruction<
     settings: { value: input.settings ?? null, isWritable: true },
     transaction: { value: input.transaction ?? null, isWritable: true },
     creator: { value: input.creator ?? null, isWritable: false },
-    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
+    feePayer: { value: input.feePayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
   };
   const accounts = originalAccounts as Record<
@@ -193,7 +193,7 @@ export function getCreateTransactionInstruction<
       getAccountMeta(accounts.settings),
       getAccountMeta(accounts.transaction),
       getAccountMeta(accounts.creator),
-      getAccountMeta(accounts.rentPayer),
+      getAccountMeta(accounts.feePayer),
       getAccountMeta(accounts.systemProgram),
     ],
     data: getCreateTransactionInstructionDataEncoder().encode(
@@ -205,7 +205,7 @@ export function getCreateTransactionInstruction<
     TAccountSettings,
     TAccountTransaction,
     TAccountCreator,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram
   >);
 }
@@ -221,7 +221,7 @@ export type ParsedCreateTransactionInstruction<
     /** The member of the multisig that is creating the transaction. */
     creator: TAccountMetas[2];
     /** The payer for the transaction account rent. */
-    rentPayer: TAccountMetas[3];
+    feePayer: TAccountMetas[3];
     systemProgram: TAccountMetas[4];
   };
   data: CreateTransactionInstructionData;
@@ -251,7 +251,7 @@ export function parseCreateTransactionInstruction<
       settings: getNextAccount(),
       transaction: getNextAccount(),
       creator: getNextAccount(),
-      rentPayer: getNextAccount(),
+      feePayer: getNextAccount(),
       systemProgram: getNextAccount(),
     },
     data: getCreateTransactionInstructionDataDecoder().decode(instruction.data),

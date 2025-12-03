@@ -51,7 +51,7 @@ export type CreateProposalInstruction<
   TAccountSettings extends string | AccountMeta<string> = string,
   TAccountProposal extends string | AccountMeta<string> = string,
   TAccountCreator extends string | AccountMeta<string> = string,
-  TAccountRentPayer extends string | AccountMeta<string> = string,
+  TAccountFeePayer extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
     | AccountMeta<string> = '11111111111111111111111111111111',
@@ -70,10 +70,10 @@ export type CreateProposalInstruction<
         ? ReadonlySignerAccount<TAccountCreator> &
             AccountSignerMeta<TAccountCreator>
         : TAccountCreator,
-      TAccountRentPayer extends string
-        ? WritableSignerAccount<TAccountRentPayer> &
-            AccountSignerMeta<TAccountRentPayer>
-        : TAccountRentPayer,
+      TAccountFeePayer extends string
+        ? WritableSignerAccount<TAccountFeePayer> &
+            AccountSignerMeta<TAccountFeePayer>
+        : TAccountFeePayer,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -129,7 +129,7 @@ export type CreateProposalInput<
   TAccountSettings extends string = string,
   TAccountProposal extends string = string,
   TAccountCreator extends string = string,
-  TAccountRentPayer extends string = string,
+  TAccountFeePayer extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
   settings: Address<TAccountSettings>;
@@ -137,7 +137,7 @@ export type CreateProposalInput<
   /** The signer on the smart account that is creating the proposal. */
   creator: TransactionSigner<TAccountCreator>;
   /** The payer for the proposal account rent. */
-  rentPayer: TransactionSigner<TAccountRentPayer>;
+  feePayer: TransactionSigner<TAccountFeePayer>;
   systemProgram?: Address<TAccountSystemProgram>;
   transactionIndex: CreateProposalInstructionDataArgs['transactionIndex'];
   draft: CreateProposalInstructionDataArgs['draft'];
@@ -147,7 +147,7 @@ export function getCreateProposalInstruction<
   TAccountSettings extends string,
   TAccountProposal extends string,
   TAccountCreator extends string,
-  TAccountRentPayer extends string,
+  TAccountFeePayer extends string,
   TAccountSystemProgram extends string,
   TProgramAddress extends
     Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
@@ -156,7 +156,7 @@ export function getCreateProposalInstruction<
     TAccountSettings,
     TAccountProposal,
     TAccountCreator,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram
   >,
   config?: { programAddress?: TProgramAddress }
@@ -165,7 +165,7 @@ export function getCreateProposalInstruction<
   TAccountSettings,
   TAccountProposal,
   TAccountCreator,
-  TAccountRentPayer,
+  TAccountFeePayer,
   TAccountSystemProgram
 > {
   // Program address.
@@ -177,7 +177,7 @@ export function getCreateProposalInstruction<
     settings: { value: input.settings ?? null, isWritable: false },
     proposal: { value: input.proposal ?? null, isWritable: true },
     creator: { value: input.creator ?? null, isWritable: false },
-    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
+    feePayer: { value: input.feePayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
   };
   const accounts = originalAccounts as Record<
@@ -200,7 +200,7 @@ export function getCreateProposalInstruction<
       getAccountMeta(accounts.settings),
       getAccountMeta(accounts.proposal),
       getAccountMeta(accounts.creator),
-      getAccountMeta(accounts.rentPayer),
+      getAccountMeta(accounts.feePayer),
       getAccountMeta(accounts.systemProgram),
     ],
     data: getCreateProposalInstructionDataEncoder().encode(
@@ -212,7 +212,7 @@ export function getCreateProposalInstruction<
     TAccountSettings,
     TAccountProposal,
     TAccountCreator,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram
   >);
 }
@@ -228,7 +228,7 @@ export type ParsedCreateProposalInstruction<
     /** The signer on the smart account that is creating the proposal. */
     creator: TAccountMetas[2];
     /** The payer for the proposal account rent. */
-    rentPayer: TAccountMetas[3];
+    feePayer: TAccountMetas[3];
     systemProgram: TAccountMetas[4];
   };
   data: CreateProposalInstructionData;
@@ -258,7 +258,7 @@ export function parseCreateProposalInstruction<
       settings: getNextAccount(),
       proposal: getNextAccount(),
       creator: getNextAccount(),
-      rentPayer: getNextAccount(),
+      feePayer: getNextAccount(),
       systemProgram: getNextAccount(),
     },
     data: getCreateProposalInstructionDataDecoder().decode(instruction.data),

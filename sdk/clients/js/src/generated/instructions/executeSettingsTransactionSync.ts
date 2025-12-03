@@ -66,7 +66,7 @@ export function getExecuteSettingsTransactionSyncDiscriminatorBytes() {
 export type ExecuteSettingsTransactionSyncInstruction<
   TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | AccountMeta<string> = string,
-  TAccountRentPayer extends string | AccountMeta<string> = string,
+  TAccountFeePayer extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
     | AccountMeta<string> = '11111111111111111111111111111111',
@@ -81,10 +81,10 @@ export type ExecuteSettingsTransactionSyncInstruction<
       TAccountSettings extends string
         ? WritableAccount<TAccountSettings>
         : TAccountSettings,
-      TAccountRentPayer extends string
-        ? WritableSignerAccount<TAccountRentPayer> &
-            AccountSignerMeta<TAccountRentPayer>
-        : TAccountRentPayer,
+      TAccountFeePayer extends string
+        ? WritableSignerAccount<TAccountFeePayer> &
+            AccountSignerMeta<TAccountFeePayer>
+        : TAccountFeePayer,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -156,7 +156,7 @@ export function getExecuteSettingsTransactionSyncInstructionDataCodec(): Codec<
 
 export type ExecuteSettingsTransactionSyncInput<
   TAccountSettings extends string = string,
-  TAccountRentPayer extends string = string,
+  TAccountFeePayer extends string = string,
   TAccountSystemProgram extends string = string,
   TAccountProgram extends string = string,
 > = {
@@ -166,7 +166,7 @@ export type ExecuteSettingsTransactionSyncInput<
    * for example when adding a new signer, adding or removing a spending limit.
    * This is usually the same as `signer`, but can be a different account if needed.
    */
-  rentPayer?: TransactionSigner<TAccountRentPayer>;
+  feePayer?: TransactionSigner<TAccountFeePayer>;
   /** We might need it in case reallocation is needed. */
   systemProgram?: Address<TAccountSystemProgram>;
   program?: Address<TAccountProgram>;
@@ -177,7 +177,7 @@ export type ExecuteSettingsTransactionSyncInput<
 
 export function getExecuteSettingsTransactionSyncInstruction<
   TAccountSettings extends string,
-  TAccountRentPayer extends string,
+  TAccountFeePayer extends string,
   TAccountSystemProgram extends string,
   TAccountProgram extends string,
   TProgramAddress extends
@@ -185,7 +185,7 @@ export function getExecuteSettingsTransactionSyncInstruction<
 >(
   input: ExecuteSettingsTransactionSyncInput<
     TAccountSettings,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram,
     TAccountProgram
   >,
@@ -193,7 +193,7 @@ export function getExecuteSettingsTransactionSyncInstruction<
 ): ExecuteSettingsTransactionSyncInstruction<
   TProgramAddress,
   TAccountSettings,
-  TAccountRentPayer,
+  TAccountFeePayer,
   TAccountSystemProgram,
   TAccountProgram
 > {
@@ -204,7 +204,7 @@ export function getExecuteSettingsTransactionSyncInstruction<
   // Original accounts.
   const originalAccounts = {
     settings: { value: input.settings ?? null, isWritable: true },
-    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
+    feePayer: { value: input.feePayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
   };
@@ -230,7 +230,7 @@ export function getExecuteSettingsTransactionSyncInstruction<
   return Object.freeze({
     accounts: [
       getAccountMeta(accounts.settings),
-      getAccountMeta(accounts.rentPayer),
+      getAccountMeta(accounts.feePayer),
       getAccountMeta(accounts.systemProgram),
       getAccountMeta(accounts.program),
     ],
@@ -241,7 +241,7 @@ export function getExecuteSettingsTransactionSyncInstruction<
   } as ExecuteSettingsTransactionSyncInstruction<
     TProgramAddress,
     TAccountSettings,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram,
     TAccountProgram
   >);
@@ -259,7 +259,7 @@ export type ParsedExecuteSettingsTransactionSyncInstruction<
      * for example when adding a new signer, adding or removing a spending limit.
      * This is usually the same as `signer`, but can be a different account if needed.
      */
-    rentPayer?: TAccountMetas[1] | undefined;
+    feePayer?: TAccountMetas[1] | undefined;
     /** We might need it in case reallocation is needed. */
     systemProgram?: TAccountMetas[2] | undefined;
     program: TAccountMetas[3];
@@ -295,7 +295,7 @@ export function parseExecuteSettingsTransactionSyncInstruction<
     programAddress: instruction.programAddress,
     accounts: {
       settings: getNextAccount(),
-      rentPayer: getNextOptionalAccount(),
+      feePayer: getNextOptionalAccount(),
       systemProgram: getNextOptionalAccount(),
       program: getNextAccount(),
     },

@@ -401,7 +401,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
   
   // Build remaining accounts for execute instruction (match complexTransaction.ts)
   {
-    // Use all generated accounts (settings, proposal, transaction, signer, rent_payer, system_program)
+    // Use all generated accounts (settings, proposal, transaction, signer, fee_payer, system_program)
     const explicitParams = executeIx.accounts;
     const resultAccounts: { address: Address; role: AccountRole }[] = [];
 

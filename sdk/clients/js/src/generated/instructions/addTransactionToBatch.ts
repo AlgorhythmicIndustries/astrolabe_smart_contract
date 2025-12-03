@@ -55,7 +55,7 @@ export type AddTransactionToBatchInstruction<
   TAccountBatch extends string | AccountMeta<string> = string,
   TAccountTransaction extends string | AccountMeta<string> = string,
   TAccountSigner extends string | AccountMeta<string> = string,
-  TAccountRentPayer extends string | AccountMeta<string> = string,
+  TAccountFeePayer extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
     | AccountMeta<string> = '11111111111111111111111111111111',
@@ -80,10 +80,10 @@ export type AddTransactionToBatchInstruction<
         ? ReadonlySignerAccount<TAccountSigner> &
             AccountSignerMeta<TAccountSigner>
         : TAccountSigner,
-      TAccountRentPayer extends string
-        ? WritableSignerAccount<TAccountRentPayer> &
-            AccountSignerMeta<TAccountRentPayer>
-        : TAccountRentPayer,
+      TAccountFeePayer extends string
+        ? WritableSignerAccount<TAccountFeePayer> &
+            AccountSignerMeta<TAccountFeePayer>
+        : TAccountFeePayer,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -148,7 +148,7 @@ export type AddTransactionToBatchInput<
   TAccountBatch extends string = string,
   TAccountTransaction extends string = string,
   TAccountSigner extends string = string,
-  TAccountRentPayer extends string = string,
+  TAccountFeePayer extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
   /** Settings account this batch belongs to. */
@@ -161,7 +161,7 @@ export type AddTransactionToBatchInput<
   /** Signer of the smart account. */
   signer: TransactionSigner<TAccountSigner>;
   /** The payer for the batch transaction account rent. */
-  rentPayer: TransactionSigner<TAccountRentPayer>;
+  feePayer: TransactionSigner<TAccountFeePayer>;
   systemProgram?: Address<TAccountSystemProgram>;
   ephemeralSigners: AddTransactionToBatchInstructionDataArgs['ephemeralSigners'];
   transactionMessage: AddTransactionToBatchInstructionDataArgs['transactionMessage'];
@@ -173,7 +173,7 @@ export function getAddTransactionToBatchInstruction<
   TAccountBatch extends string,
   TAccountTransaction extends string,
   TAccountSigner extends string,
-  TAccountRentPayer extends string,
+  TAccountFeePayer extends string,
   TAccountSystemProgram extends string,
   TProgramAddress extends
     Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
@@ -184,7 +184,7 @@ export function getAddTransactionToBatchInstruction<
     TAccountBatch,
     TAccountTransaction,
     TAccountSigner,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram
   >,
   config?: { programAddress?: TProgramAddress }
@@ -195,7 +195,7 @@ export function getAddTransactionToBatchInstruction<
   TAccountBatch,
   TAccountTransaction,
   TAccountSigner,
-  TAccountRentPayer,
+  TAccountFeePayer,
   TAccountSystemProgram
 > {
   // Program address.
@@ -209,7 +209,7 @@ export function getAddTransactionToBatchInstruction<
     batch: { value: input.batch ?? null, isWritable: true },
     transaction: { value: input.transaction ?? null, isWritable: true },
     signer: { value: input.signer ?? null, isWritable: false },
-    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
+    feePayer: { value: input.feePayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
   };
   const accounts = originalAccounts as Record<
@@ -234,7 +234,7 @@ export function getAddTransactionToBatchInstruction<
       getAccountMeta(accounts.batch),
       getAccountMeta(accounts.transaction),
       getAccountMeta(accounts.signer),
-      getAccountMeta(accounts.rentPayer),
+      getAccountMeta(accounts.feePayer),
       getAccountMeta(accounts.systemProgram),
     ],
     data: getAddTransactionToBatchInstructionDataEncoder().encode(
@@ -248,7 +248,7 @@ export function getAddTransactionToBatchInstruction<
     TAccountBatch,
     TAccountTransaction,
     TAccountSigner,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram
   >);
 }
@@ -269,7 +269,7 @@ export type ParsedAddTransactionToBatchInstruction<
     /** Signer of the smart account. */
     signer: TAccountMetas[4];
     /** The payer for the batch transaction account rent. */
-    rentPayer: TAccountMetas[5];
+    feePayer: TAccountMetas[5];
     systemProgram: TAccountMetas[6];
   };
   data: AddTransactionToBatchInstructionData;
@@ -301,7 +301,7 @@ export function parseAddTransactionToBatchInstruction<
       batch: getNextAccount(),
       transaction: getNextAccount(),
       signer: getNextAccount(),
-      rentPayer: getNextAccount(),
+      feePayer: getNextAccount(),
       systemProgram: getNextAccount(),
     },
     data: getAddTransactionToBatchInstructionDataDecoder().decode(

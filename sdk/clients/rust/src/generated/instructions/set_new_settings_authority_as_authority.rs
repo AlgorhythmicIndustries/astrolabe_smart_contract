@@ -20,7 +20,7 @@ pub struct SetNewSettingsAuthorityAsAuthority {
     /// The account that will be charged or credited in case the settings account needs to reallocate space,
     /// for example when adding a new signer or a spending limit.
     /// This is usually the same as `settings_authority`, but can be a different account if needed.
-    pub rent_payer: Option<solana_pubkey::Pubkey>,
+    pub fee_payer: Option<solana_pubkey::Pubkey>,
     /// We might need it in case reallocation is needed.
     pub system_program: Option<solana_pubkey::Pubkey>,
 
@@ -47,8 +47,8 @@ impl SetNewSettingsAuthorityAsAuthority {
             self.settings_authority,
             true,
         ));
-        if let Some(rent_payer) = self.rent_payer {
-            accounts.push(solana_instruction::AccountMeta::new(rent_payer, true));
+        if let Some(fee_payer) = self.fee_payer {
+            accounts.push(solana_instruction::AccountMeta::new(fee_payer, true));
         } else {
             accounts.push(solana_instruction::AccountMeta::new_readonly(
                 crate::ASTROLABE_SMART_ACCOUNT_ID,
@@ -128,14 +128,14 @@ impl SetNewSettingsAuthorityAsAuthorityInstructionArgs {
 ///
 ///   0. `[writable]` settings
 ///   1. `[signer]` settings_authority
-///   2. `[writable, signer, optional]` rent_payer
+///   2. `[writable, signer, optional]` fee_payer
 ///   3. `[optional]` system_program (default to `11111111111111111111111111111111`)
 ///   4. `[optional]` program (default to `ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q`)
 #[derive(Clone, Debug, Default)]
 pub struct SetNewSettingsAuthorityAsAuthorityBuilder {
     settings: Option<solana_pubkey::Pubkey>,
     settings_authority: Option<solana_pubkey::Pubkey>,
-    rent_payer: Option<solana_pubkey::Pubkey>,
+    fee_payer: Option<solana_pubkey::Pubkey>,
     system_program: Option<solana_pubkey::Pubkey>,
     program: Option<solana_pubkey::Pubkey>,
     new_settings_authority: Option<Pubkey>,
@@ -163,8 +163,8 @@ impl SetNewSettingsAuthorityAsAuthorityBuilder {
     /// for example when adding a new signer or a spending limit.
     /// This is usually the same as `settings_authority`, but can be a different account if needed.
     #[inline(always)]
-    pub fn rent_payer(&mut self, rent_payer: Option<solana_pubkey::Pubkey>) -> &mut Self {
-        self.rent_payer = rent_payer;
+    pub fn fee_payer(&mut self, fee_payer: Option<solana_pubkey::Pubkey>) -> &mut Self {
+        self.fee_payer = fee_payer;
         self
     }
     /// `[optional account]`
@@ -213,7 +213,7 @@ impl SetNewSettingsAuthorityAsAuthorityBuilder {
             settings_authority: self
                 .settings_authority
                 .expect("settings_authority is not set"),
-            rent_payer: self.rent_payer,
+            fee_payer: self.fee_payer,
             system_program: self.system_program,
             program: self.program.unwrap_or(solana_pubkey::pubkey!(
                 "ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q"
@@ -239,7 +239,7 @@ pub struct SetNewSettingsAuthorityAsAuthorityCpiAccounts<'a, 'b> {
     /// The account that will be charged or credited in case the settings account needs to reallocate space,
     /// for example when adding a new signer or a spending limit.
     /// This is usually the same as `settings_authority`, but can be a different account if needed.
-    pub rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+    pub fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     /// We might need it in case reallocation is needed.
     pub system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
 
@@ -257,7 +257,7 @@ pub struct SetNewSettingsAuthorityAsAuthorityCpi<'a, 'b> {
     /// The account that will be charged or credited in case the settings account needs to reallocate space,
     /// for example when adding a new signer or a spending limit.
     /// This is usually the same as `settings_authority`, but can be a different account if needed.
-    pub rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+    pub fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     /// We might need it in case reallocation is needed.
     pub system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
 
@@ -276,7 +276,7 @@ impl<'a, 'b> SetNewSettingsAuthorityAsAuthorityCpi<'a, 'b> {
             __program: program,
             settings: accounts.settings,
             settings_authority: accounts.settings_authority,
-            rent_payer: accounts.rent_payer,
+            fee_payer: accounts.fee_payer,
             system_program: accounts.system_program,
             program: accounts.program,
             __args: args,
@@ -314,8 +314,8 @@ impl<'a, 'b> SetNewSettingsAuthorityAsAuthorityCpi<'a, 'b> {
             *self.settings_authority.key,
             true,
         ));
-        if let Some(rent_payer) = self.rent_payer {
-            accounts.push(solana_instruction::AccountMeta::new(*rent_payer.key, true));
+        if let Some(fee_payer) = self.fee_payer {
+            accounts.push(solana_instruction::AccountMeta::new(*fee_payer.key, true));
         } else {
             accounts.push(solana_instruction::AccountMeta::new_readonly(
                 crate::ASTROLABE_SMART_ACCOUNT_ID,
@@ -359,8 +359,8 @@ impl<'a, 'b> SetNewSettingsAuthorityAsAuthorityCpi<'a, 'b> {
         account_infos.push(self.__program.clone());
         account_infos.push(self.settings.clone());
         account_infos.push(self.settings_authority.clone());
-        if let Some(rent_payer) = self.rent_payer {
-            account_infos.push(rent_payer.clone());
+        if let Some(fee_payer) = self.fee_payer {
+            account_infos.push(fee_payer.clone());
         }
         if let Some(system_program) = self.system_program {
             account_infos.push(system_program.clone());
@@ -384,7 +384,7 @@ impl<'a, 'b> SetNewSettingsAuthorityAsAuthorityCpi<'a, 'b> {
 ///
 ///   0. `[writable]` settings
 ///   1. `[signer]` settings_authority
-///   2. `[writable, signer, optional]` rent_payer
+///   2. `[writable, signer, optional]` fee_payer
 ///   3. `[optional]` system_program
 ///   4. `[]` program
 #[derive(Clone, Debug)]
@@ -398,7 +398,7 @@ impl<'a, 'b> SetNewSettingsAuthorityAsAuthorityCpiBuilder<'a, 'b> {
             __program: program,
             settings: None,
             settings_authority: None,
-            rent_payer: None,
+            fee_payer: None,
             system_program: None,
             program: None,
             new_settings_authority: None,
@@ -426,11 +426,11 @@ impl<'a, 'b> SetNewSettingsAuthorityAsAuthorityCpiBuilder<'a, 'b> {
     /// for example when adding a new signer or a spending limit.
     /// This is usually the same as `settings_authority`, but can be a different account if needed.
     #[inline(always)]
-    pub fn rent_payer(
+    pub fn fee_payer(
         &mut self,
-        rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+        fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.rent_payer = rent_payer;
+        self.instruction.fee_payer = fee_payer;
         self
     }
     /// `[optional account]`
@@ -511,7 +511,7 @@ impl<'a, 'b> SetNewSettingsAuthorityAsAuthorityCpiBuilder<'a, 'b> {
                 .settings_authority
                 .expect("settings_authority is not set"),
 
-            rent_payer: self.instruction.rent_payer,
+            fee_payer: self.instruction.fee_payer,
 
             system_program: self.instruction.system_program,
 
@@ -530,7 +530,7 @@ struct SetNewSettingsAuthorityAsAuthorityCpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_account_info::AccountInfo<'a>,
     settings: Option<&'b solana_account_info::AccountInfo<'a>>,
     settings_authority: Option<&'b solana_account_info::AccountInfo<'a>>,
-    rent_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
+    fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
     program: Option<&'b solana_account_info::AccountInfo<'a>>,
     new_settings_authority: Option<Pubkey>,

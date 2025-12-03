@@ -231,7 +231,7 @@ export async function createComplexTransaction(
     settings: smartAccountSettings,
     transaction: transactionPda,
     creator: signer,
-    rentPayer: createNoopSigner(feePayer), // Backend pays for transaction account rent
+    feePayer: createNoopSigner(feePayer), // Backend pays for transaction account rent
     systemProgram: address('11111111111111111111111111111111'),
     args: {
       accountIndex: 0, // Use 0 for the primary smart account
@@ -247,7 +247,7 @@ export async function createComplexTransaction(
     settings: smartAccountSettings,
     proposal: proposalPda,
     creator: signer,
-    rentPayer: createNoopSigner(feePayer), // Backend pays for proposal account rent
+    feePayer: createNoopSigner(feePayer), // Backend pays for proposal account rent
     systemProgram: address('11111111111111111111111111111111'),
     transactionIndex: transactionIndex,
     draft: false,
@@ -366,6 +366,8 @@ export async function createComplexTransaction(
     proposal: proposalPda,
     transaction: transactionPda,
     signer: signer,
+    feePayer: createNoopSigner(feePayer), // Backend pays for transaction execution fees
+    systemProgram: address('11111111111111111111111111111111'),
   });
 
   // Create close instruction to reclaim rent back to fee payer
