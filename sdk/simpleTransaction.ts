@@ -17,6 +17,7 @@ import {
   type AccountMeta,
   type AccountSignerMeta,
 } from '@solana/kit';
+import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
 import { Buffer } from 'buffer';
 import { fetchSettings } from './clients/js/src/generated/accounts/settings';
 import {
@@ -57,6 +58,12 @@ export type SimpleTransactionParams = {
   innerTransactionBytes?: Uint8Array;
   /** Optional memo for the transaction */
   memo?: string;
+  /** Flag to indicate if a token account should be closed after the transaction */
+  closeTokenAccount?: boolean;
+  /** The mint address of the token account to close */
+  closeTokenAccountMint?: string;
+  /** The owner of the token account to close (usually smartAccountPda) */
+  closeTokenAccountOwner?: Address;
 };
 
 /**
@@ -125,6 +132,9 @@ export async function createSimpleTransaction(
   const innerInstructions = params.innerInstructions;
   const innerTransactionBytes = params.innerTransactionBytes;
   const memo = params.memo || 'Smart Account Transaction';
+  const closeTokenAccount = params.closeTokenAccount || false;
+  const closeTokenAccountMint = params.closeTokenAccountMint;
+  const closeTokenAccountOwner = params.closeTokenAccountOwner;
 
   console.log('✅ Destructuring completed');
 
@@ -182,11 +192,68 @@ export async function createSimpleTransaction(
     // Instead, the feePayer will be marked as WRITABLE_SIGNER in the executeTransaction
     // remaining accounts, which allows it to sign for inner CPIs.
 
+    // Prepare instructions array (potentially with closeAccount appended)
+    let finalInnerInstructions = [...(innerInstructions || [])];
+    
+    // Add CloseAccount instruction if requested (to reclaim rent after emptying token account)
+    if (closeTokenAccount && closeTokenAccountMint && closeTokenAccountOwner) {
+      console.log('🔒 Adding CloseAccount instruction to reclaim rent for token account:', closeTokenAccountMint);
+      
+      // Import required utilities
+      const { findAssociatedTokenPda, getCloseAccountInstruction } = await import('@solana-program/token');
+      
+      // Determine token program (Token or Token-2022)
+      let tokenProgramAddress: Address = address(TOKEN_PROGRAM_ID.toBase58());
+      let isToken2022 = false;
+      try {
+        const mintAccountInfo = await rpc.getAccountInfo(address(closeTokenAccountMint), { encoding: 'base64' }).send();
+        if (mintAccountInfo.value?.owner === TOKEN_2022_PROGRAM_ID.toBase58()) {
+          tokenProgramAddress = address(TOKEN_2022_PROGRAM_ID.toBase58());
+          isToken2022 = true;
+          console.log('🔧 Using Token-2022 program for closeAccount instruction');
+        } else {
+          console.log('🔧 Using Token program for closeAccount instruction');
+        }
+      } catch (e) {
+        console.warn('⚠️ Failed to fetch mint account info, defaulting to Token program:', e);
+      }
+      
+      // Find the ATA for this token and owner
+      const [ata] = isToken2022 
+        ? await findAssociatedTokenPda({
+            mint: address(closeTokenAccountMint),
+            owner: closeTokenAccountOwner,
+            tokenProgram: address(TOKEN_2022_PROGRAM_ID.toBase58()),
+          })
+        : await findAssociatedTokenPda({
+            mint: address(closeTokenAccountMint),
+            owner: closeTokenAccountOwner,
+            tokenProgram: address(TOKEN_PROGRAM_ID.toBase58()),
+          });
+      
+      // Create CloseAccount instruction using the SDK helper
+      const closeInstruction = isToken2022
+        ? getCloseAccountInstruction({
+            account: ata,
+            destination: feePayer, // Reclaimed rent goes to backend fee payer
+            owner: createNoopSigner(closeTokenAccountOwner), // Smart account signs via CPI
+          }, { programAddress: address(TOKEN_2022_PROGRAM_ID.toBase58()) })
+        : getCloseAccountInstruction({
+            account: ata,
+            destination: feePayer, // Reclaimed rent goes to backend fee payer
+            owner: createNoopSigner(closeTokenAccountOwner), // Smart account signs via CPI
+          }, { programAddress: address(TOKEN_PROGRAM_ID.toBase58()) });
+      
+      // Append to instructions
+      finalInnerInstructions.push(closeInstruction);
+      console.log('✅ CloseAccount instruction appended to transaction');
+    }
+
     const innerTransactionMessage = pipe(
       createTransactionMessage({ version: 0 }),
       (tx) => setTransactionMessageFeePayerSigner(createNoopSigner(smartAccountPda), tx), // Inner transaction uses smart account PDA
       (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhashForInner, tx),
-      (tx) => appendTransactionMessageInstructions(innerInstructions || [], tx)
+      (tx) => appendTransactionMessageInstructions(finalInnerInstructions, tx)
     );
 
     console.log('🔧 Compiling inner transaction message...');

@@ -17,6 +17,7 @@ import {
 } from '@solana/kit';
 import { getTransactionDecoder } from '@solana/transactions';
 import { getSetComputeUnitLimitInstruction } from '@solana-program/compute-budget';
+import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
 import * as bs58 from 'bs58';
 
 type SolanaRpc = ReturnType<typeof createSolanaRpc>;
@@ -52,6 +53,10 @@ export interface BufferedTransactionParams {
   bufferIndex?: number; // 0..255
   accountIndex?: number; // usually 0
   transactionIndexOffset?: number; // Offset to add to nextIndex (e.g., +1 if phase0 will execute first)
+  additionalInstructions?: any[]; // Instructions to append to the inner transaction (e.g. close account)
+  closeTokenAccount?: boolean; // Flag to indicate if the token account should be closed after the transaction
+  closeTokenAccountMint?: string; // The mint address of the token account to close
+  closeTokenAccountOwner?: Address; // The owner of the token account to close (usually smartAccountPda)
 }
 
 export interface BufferedTransactionResult {
@@ -80,6 +85,9 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     bufferIndex = 0,
     accountIndex = 0,
     transactionIndexOffset = 0,
+    closeTokenAccount = false,
+    closeTokenAccountMint,
+    closeTokenAccountOwner,
   } = params;
 
   // Derive PDAs and fetch settings
@@ -203,6 +211,123 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     // Insert at the beginning of instructions array (compute budget instructions should come first)
     finalInstructions = [cuLimitInstruction, ...modifiedInstructions];
     console.log(`✅ Added SetComputeUnitLimit instruction with ${CU_LIMIT} CU`);
+  }
+  
+  // Track the original length before potentially adding close account instruction
+  const originalStaticAccountsLen = finalStaticAccounts.length;
+  
+  // Add CloseAccount instruction if requested (to reclaim rent after emptying token account)
+  if (closeTokenAccount && closeTokenAccountMint && closeTokenAccountOwner) {
+    console.log('🔒 Adding CloseAccount instruction to reclaim rent for token account:', closeTokenAccountMint);
+    
+    // Import required utilities
+    const { findAssociatedTokenPda, getCloseAccountInstruction } = await import('@solana-program/token');
+    
+    // Determine token program (Token or Token-2022)
+    // Fetch mint account info to determine which program owns it
+    let tokenProgramAddress: Address = address(TOKEN_PROGRAM_ID.toBase58());
+    let isToken2022 = false;
+    try {
+      const mintAccountInfo = await rpc.getAccountInfo(address(closeTokenAccountMint), { encoding: 'base64' }).send();
+      if (mintAccountInfo.value?.owner === TOKEN_2022_PROGRAM_ID.toBase58()) {
+        tokenProgramAddress = address(TOKEN_2022_PROGRAM_ID.toBase58());
+        isToken2022 = true;
+        console.log('🔧 Using Token-2022 program for closeAccount instruction');
+      } else {
+        console.log('🔧 Using Token program for closeAccount instruction');
+      }
+    } catch (e) {
+      console.warn('⚠️ Failed to fetch mint account info, defaulting to Token program:', e);
+    }
+    
+    // Find the ATA for this token and owner
+    const [ata] = isToken2022 
+      ? await findAssociatedTokenPda({
+          mint: address(closeTokenAccountMint),
+          owner: closeTokenAccountOwner,
+          tokenProgram: address(TOKEN_2022_PROGRAM_ID.toBase58()),
+        })
+      : await findAssociatedTokenPda({
+          mint: address(closeTokenAccountMint),
+          owner: closeTokenAccountOwner,
+          tokenProgram: address(TOKEN_PROGRAM_ID.toBase58()),
+        });
+    
+    // Create CloseAccount instruction using the SDK helper
+    const closeInstruction = isToken2022
+      ? getCloseAccountInstruction({
+          account: ata,
+          destination: feePayer, // Reclaimed rent goes to backend fee payer
+          owner: createNoopSigner(closeTokenAccountOwner), // Smart account signs via CPI
+        }, { programAddress: address(TOKEN_2022_PROGRAM_ID.toBase58()) })
+      : getCloseAccountInstruction({
+          account: ata,
+          destination: feePayer, // Reclaimed rent goes to backend fee payer
+          owner: createNoopSigner(closeTokenAccountOwner), // Smart account signs via CPI
+        }, { programAddress: address(TOKEN_PROGRAM_ID.toBase58()) });
+    
+    // Now we need to convert this high-level instruction to the low-level format
+    // High-level instruction has: { programAddress, accounts: Array<{address, role}>, data }
+    // Low-level instruction needs: { programIdIndex, accountIndexes, data }
+    
+    // Get all unique addresses from the closeInstruction
+    const closeInstructionAccounts = closeInstruction.accounts || [];
+    const closeInstructionAddresses = [
+      tokenProgramAddress, // The program itself
+      ...closeInstructionAccounts.map((acc: any) => acc.address),
+    ];
+    
+    // Add missing accounts to finalStaticAccounts and track their indices
+    const closeAccountIndexMap = new Map<string, number>();
+    let updatedStaticAccounts = [...finalStaticAccounts];
+    
+    for (const addr of closeInstructionAddresses) {
+      const addrStr = addr.toString();
+      const existingIndex = updatedStaticAccounts.findIndex((a: any) => toAddress(a).toString() === addrStr);
+      
+      if (existingIndex !== -1) {
+        closeAccountIndexMap.set(addrStr, existingIndex);
+      } else {
+        // Add new account
+        const newIndex = updatedStaticAccounts.length;
+        updatedStaticAccounts.push(addr);
+        closeAccountIndexMap.set(addrStr, newIndex);
+        console.log(`🔧 Added account ${addrStr} at index ${newIndex} for CloseAccount instruction`);
+      }
+    }
+    
+    // Build the low-level instruction
+    const programIndex = closeAccountIndexMap.get(tokenProgramAddress.toString());
+    if (programIndex === undefined) {
+      throw new Error('Failed to find token program index for CloseAccount instruction');
+    }
+    
+    const accountIndices = closeInstructionAccounts.map((acc: any) => {
+      const idx = closeAccountIndexMap.get(acc.address.toString());
+      if (idx === undefined) {
+        throw new Error(`Failed to find account index for ${acc.address.toString()}`);
+      }
+      return idx;
+    });
+    
+    const lowLevelCloseInstruction = {
+      programIdIndex: programIndex,
+      accountIndexes: new Uint8Array(accountIndices),
+      data: closeInstruction.data || new Uint8Array(),
+    };
+    
+    // Append to instructions
+    finalInstructions = [...finalInstructions, lowLevelCloseInstruction];
+    finalStaticAccounts = updatedStaticAccounts;
+    
+    // Update readonly counts if token program was added
+    if (updatedStaticAccounts.length > originalStaticAccountsLen) {
+      const addedAccounts = updatedStaticAccounts.length - originalStaticAccountsLen;
+      finalNumReadonlyNonSignerAccounts += addedAccounts; // Assume all added accounts are readonly non-signers
+      console.log(`🔧 Updated readonly non-signer count by +${addedAccounts} (now ${finalNumReadonlyNonSignerAccounts})`);
+    }
+    
+    console.log('✅ CloseAccount instruction appended to transaction');
   }
   
   const finalStaticAccountsLen = finalStaticAccounts.length;
