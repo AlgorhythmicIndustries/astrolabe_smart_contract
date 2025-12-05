@@ -273,6 +273,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     console.log('🔧 Creating simple transaction for closeAccount...');
     
     // Build a simple propose-approve-execute transaction with just the closeAccount instruction
+    // IMPORTANT: The buffered swap uses transaction index N, so closeAccount must use N+1
     const closeResult = await createSimpleTransaction({
       rpc,
       smartAccountSettings,
@@ -282,6 +283,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
       feePayer,
       innerInstructions: [closeInstruction],
       memo: `Close token account: ${closeTokenAccountMint.slice(0, 8)}...`,
+      transactionIndexOffset: 1, // Buffered swap uses current nextIndex, so this uses nextIndex+1
     });
     
     closeAccountTransaction = closeResult.transactionBuffer;
