@@ -538,14 +538,15 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     }
 
     // 2) Static accounts with correct roles
-    const totalStatic = safeStaticAccounts.length;
+    // IMPORTANT: Use finalStaticAccounts (not safeStaticAccounts) because we may have added accounts for closeAccount
+    const totalStatic = finalStaticAccounts.length;
     const numSignersInner = numSignerAccounts;
     const numWritableSignersInner = Math.max(0, numSignersInner - numReadonlySignerAccounts);
     const numWritableNonSignersInner = Math.max(
       0,
-      totalStatic - numSignersInner - numReadonlyNonSignerAccounts
+      totalStatic - numSignersInner - finalNumReadonlyNonSignerAccounts // Use updated count
     );
-    safeStaticAccounts.forEach((addrKey: any, idx: number) => {
+    finalStaticAccounts.forEach((addrKey: any, idx: number) => {
       // Skip if this is the fee payer (already in explicit params)
       const addrStr = toAddress(addrKey).toString();
       if (addrStr === feePayer.toString()) {
