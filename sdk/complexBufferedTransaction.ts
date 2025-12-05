@@ -64,6 +64,7 @@ export interface BufferedTransactionResult {
   createFromBufferTx: Uint8Array;
   proposeAndApproveTx: Uint8Array; // createProposal + approve (separate from createFromBuffer for large transactions)
   executeTx: Uint8Array;
+  closeAccountTx?: Uint8Array; // Optional: separate transaction to close token account after swap
   transactionPda: Address;
   proposalPda: Address;
   transactionBufferPda: Address;
@@ -213,18 +214,21 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     console.log(`✅ Added SetComputeUnitLimit instruction with ${CU_LIMIT} CU`);
   }
   
-  // Track the original length before potentially adding close account instruction
-  const originalStaticAccountsLen = finalStaticAccounts.length;
+  // NOTE: Injecting closeAccount into Jupiter's pre-built transaction is too fragile
+  // Jupiter's transactions use ALTs and have carefully calculated account roles/indices
+  // Adding instructions breaks this structure. Instead, we'll build a separate transaction
+  // to close the token account after the swap completes.
   
-  // Add CloseAccount instruction if requested (to reclaim rent after emptying token account)
+  let closeAccountTransaction: Uint8Array | undefined;
+  
   if (closeTokenAccount && closeTokenAccountMint && closeTokenAccountOwner) {
-    console.log('🔒 Adding CloseAccount instruction to reclaim rent for token account:', closeTokenAccountMint);
+    console.log('🔒 Building separate closeAccount transaction for:', closeTokenAccountMint);
     
     // Import required utilities
     const { findAssociatedTokenPda, getCloseAccountInstruction } = await import('@solana-program/token');
+    const { createSimpleTransaction } = await import('./simpleTransaction');
     
     // Determine token program (Token or Token-2022)
-    // Fetch mint account info to determine which program owns it
     let tokenProgramAddress: Address = address(TOKEN_PROGRAM_ID.toBase58());
     let isToken2022 = false;
     try {
@@ -253,7 +257,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
           tokenProgram: address(TOKEN_PROGRAM_ID.toBase58()),
         });
     
-    // Create CloseAccount instruction using the SDK helper
+    // Create CloseAccount instruction
     const closeInstruction = isToken2022
       ? getCloseAccountInstruction({
           account: ata,
@@ -266,68 +270,22 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
           owner: createNoopSigner(closeTokenAccountOwner), // Smart account signs via CPI
         }, { programAddress: address(TOKEN_PROGRAM_ID.toBase58()) });
     
-    // Now we need to convert this high-level instruction to the low-level format
-    // High-level instruction has: { programAddress, accounts: Array<{address, role}>, data }
-    // Low-level instruction needs: { programIdIndex, accountIndexes, data }
+    console.log('🔧 Creating simple transaction for closeAccount...');
     
-    // Get all unique addresses from the closeInstruction
-    const closeInstructionAccounts = closeInstruction.accounts || [];
-    const closeInstructionAddresses = [
-      tokenProgramAddress, // The program itself
-      ...closeInstructionAccounts.map((acc: any) => acc.address),
-    ];
-    
-    // Add missing accounts to finalStaticAccounts and track their indices
-    const closeAccountIndexMap = new Map<string, number>();
-    let updatedStaticAccounts = [...finalStaticAccounts];
-    
-    for (const addr of closeInstructionAddresses) {
-      const addrStr = addr.toString();
-      const existingIndex = updatedStaticAccounts.findIndex((a: any) => toAddress(a).toString() === addrStr);
-      
-      if (existingIndex !== -1) {
-        closeAccountIndexMap.set(addrStr, existingIndex);
-      } else {
-        // Add new account
-        const newIndex = updatedStaticAccounts.length;
-        updatedStaticAccounts.push(addr);
-        closeAccountIndexMap.set(addrStr, newIndex);
-        console.log(`🔧 Added account ${addrStr} at index ${newIndex} for CloseAccount instruction`);
-      }
-    }
-    
-    // Build the low-level instruction
-    const programIndex = closeAccountIndexMap.get(tokenProgramAddress.toString());
-    if (programIndex === undefined) {
-      throw new Error('Failed to find token program index for CloseAccount instruction');
-    }
-    
-    const accountIndices = closeInstructionAccounts.map((acc: any) => {
-      const idx = closeAccountIndexMap.get(acc.address.toString());
-      if (idx === undefined) {
-        throw new Error(`Failed to find account index for ${acc.address.toString()}`);
-      }
-      return idx;
+    // Build a simple propose-approve-execute transaction with just the closeAccount instruction
+    const closeResult = await createSimpleTransaction({
+      rpc,
+      smartAccountSettings,
+      smartAccountPda,
+      smartAccountPdaBump,
+      signer,
+      feePayer,
+      innerInstructions: [closeInstruction],
+      memo: `Close token account: ${closeTokenAccountMint.slice(0, 8)}...`,
     });
     
-    const lowLevelCloseInstruction = {
-      programIdIndex: programIndex,
-      accountIndexes: new Uint8Array(accountIndices),
-      data: closeInstruction.data || new Uint8Array(),
-    };
-    
-    // Append to instructions
-    finalInstructions = [...finalInstructions, lowLevelCloseInstruction];
-    finalStaticAccounts = updatedStaticAccounts;
-    
-    // Update readonly counts if token program was added
-    if (updatedStaticAccounts.length > originalStaticAccountsLen) {
-      const addedAccounts = updatedStaticAccounts.length - originalStaticAccountsLen;
-      finalNumReadonlyNonSignerAccounts += addedAccounts; // Assume all added accounts are readonly non-signers
-      console.log(`🔧 Updated readonly non-signer count by +${addedAccounts} (now ${finalNumReadonlyNonSignerAccounts})`);
-    }
-    
-    console.log('✅ CloseAccount instruction appended to transaction');
+    closeAccountTransaction = closeResult.transactionBuffer;
+    console.log('✅ CloseAccount transaction built, size:', closeAccountTransaction.length, 'bytes');
   }
   
   const finalStaticAccountsLen = finalStaticAccounts.length;
@@ -731,6 +689,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
       createFromBufferTx,
       proposeAndApproveTx,
       executeTx: executeTxLocal,
+      closeAccountTx: closeAccountTransaction, // Optional: separate transaction to close token account
       transactionPda,
       proposalPda,
       transactionBufferPda,
