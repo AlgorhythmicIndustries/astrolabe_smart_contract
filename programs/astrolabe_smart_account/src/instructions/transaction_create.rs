@@ -75,11 +75,6 @@ impl<'info> CreateTransaction<'info> {
         let creator = &mut ctx.accounts.creator;
         let fee_payer = &mut ctx.accounts.fee_payer;
 
-        // Debug logging for transaction message deserialization
-        msg!("CreateTransaction: received message_size={}", args.transaction_message.len());
-        msg!("CreateTransaction: first_32_bytes={:?}", 
-             &args.transaction_message[..std::cmp::min(32, args.transaction_message.len())]);
-
         let transaction_message =
             TransactionMessage::deserialize(&mut args.transaction_message.as_slice())?;
 
