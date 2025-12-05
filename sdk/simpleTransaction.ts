@@ -64,6 +64,8 @@ export type SimpleTransactionParams = {
   closeTokenAccountMint?: string;
   /** The owner of the token account to close (usually smartAccountPda) */
   closeTokenAccountOwner?: Address;
+  /** Offset to add to the current transaction index (for chaining transactions) */
+  transactionIndexOffset?: number;
 };
 
 /**
@@ -135,6 +137,7 @@ export async function createSimpleTransaction(
   const closeTokenAccount = params.closeTokenAccount || false;
   const closeTokenAccountMint = params.closeTokenAccountMint;
   const closeTokenAccountOwner = params.closeTokenAccountOwner;
+  const transactionIndexOffset = params.transactionIndexOffset || 0;
 
   console.log('✅ Destructuring completed');
 
@@ -149,10 +152,12 @@ export async function createSimpleTransaction(
   console.log('🔧 Step 1: Fetching latest settings state...');
   // 1. Fetch the latest on-chain state for the Settings account
   const settingsData = await fetchSmartAccountSettings(rpc, smartAccountSettings);
-  const transactionIndex = settingsData.nextTransactionIndex;
+  const transactionIndex = settingsData.nextTransactionIndex + BigInt(transactionIndexOffset);
   console.log('✅ Settings fetched:', {
     currentTransactionIndex: settingsData.currentTransactionIndex.toString(),
-    nextTransactionIndex: transactionIndex.toString(),
+    nextTransactionIndex: settingsData.nextTransactionIndex.toString(),
+    transactionIndexWithOffset: transactionIndex.toString(),
+    offset: transactionIndexOffset,
     threshold: settingsData.threshold
   });
 
