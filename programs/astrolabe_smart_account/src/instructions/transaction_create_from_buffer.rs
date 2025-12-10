@@ -81,10 +81,10 @@ impl<'info> CreateTransactionFromBuffer<'info> {
             .transaction_create
             .transaction
             .to_account_info();
-        let rent_payer_account_info = &ctx
+        let fee_payer_account_info = &ctx
             .accounts
             .transaction_create
-            .rent_payer
+            .fee_payer
             .to_account_info();
 
         let system_program = &ctx
@@ -112,7 +112,7 @@ impl<'info> CreateTransactionFromBuffer<'info> {
         let transfer_context = CpiContext::new(
             system_program.to_account_info(),
             system_program::Transfer {
-                from: rent_payer_account_info.clone(),
+                from: fee_payer_account_info.clone(),
                 to: transaction_account_info.clone(),
             },
         );

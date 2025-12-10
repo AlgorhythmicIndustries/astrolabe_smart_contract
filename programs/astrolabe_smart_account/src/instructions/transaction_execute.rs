@@ -39,13 +39,18 @@ pub struct ExecuteTransaction<'info> {
     pub transaction: Account<'info, Transaction>,
 
     pub signer: Signer<'info>,
+
+    #[account(mut)]
+    pub fee_payer: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
     // `remaining_accounts` must include the following accounts in the exact order:
     // 1. AddressLookupTable accounts in the order they appear in `message.address_table_lookups`.
     // 2. Accounts in the order they appear in `message.account_keys`.
     // 3. Accounts in the order they appear in `message.address_table_lookups`.
 }
 
-impl ExecuteTransaction<'_> {
+impl<'info> ExecuteTransaction<'info> {
     fn validate(&self) -> Result<()> {
         let Self {
             settings,
@@ -85,7 +90,7 @@ impl ExecuteTransaction<'_> {
     /// Execute the smart account transaction.
     /// The transaction must be `Approved`.
     #[access_control(ctx.accounts.validate())]
-    pub fn execute_transaction(ctx: Context<Self>) -> Result<()> {
+    pub fn execute_transaction(ctx: Context<'_, '_, '_, 'info, Self>) -> Result<()> {
         let settings = &mut ctx.accounts.settings;
         let proposal = &mut ctx.accounts.proposal;
 
@@ -130,6 +135,7 @@ impl ExecuteTransaction<'_> {
             address_lookup_table_account_infos,
             &smart_account_pubkey,
             &ephemeral_signer_keys[..],
+            Some(ctx.accounts.fee_payer.as_ref()),
         )?;
 
         let protected_accounts = &[proposal.key()];

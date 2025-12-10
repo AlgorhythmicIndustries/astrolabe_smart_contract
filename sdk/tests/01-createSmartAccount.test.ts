@@ -13,8 +13,10 @@ import {
   appendTransactionMessageInstructions,
   pipe,
   getProgramDerivedAddress,
+  lamports,
 } from '@solana/kit';
 import * as fs from 'fs';
+import * as path from 'path';
 import { Buffer } from 'buffer';
 import { createSmartAccountTransaction } from '../createSmartAccount';
 import { getCreateSmartAccountInstructionAsync } from '../clients/js/src/generated/instructions';
@@ -34,6 +36,17 @@ async function testCreateSmartAccount() {
   const creatorKeypair = await createKeyPairFromBytes(creatorKeypairBytes);
   const creatorSigner = await createSignerFromKeyPair(creatorKeypair);
   
+  // Load Backend Fee Payer
+  const backendFeePayerFile = fs.readFileSync(path.join(__dirname, 'backend-fee-payer-keypair.json'));
+  const backendFeePayerBytes = new Uint8Array(JSON.parse(backendFeePayerFile.toString()));
+  const backendFeePayerKeypair = await createKeyPairFromBytes(backendFeePayerBytes);
+  const backendFeePayerSigner = await createSignerFromKeyPair(backendFeePayerKeypair);
+  console.log('📝 Backend Fee Payer:', backendFeePayerSigner.address);
+
+  // Fund Backend Fee Payer
+  console.log('💰 Funding Backend Fee Payer...');
+  await rpc.requestAirdrop(backendFeePayerSigner.address, lamports(BigInt(1_000_000_000)), { commitment: 'confirmed' }).send();
+  
   try {
     console.log('Creator address:', creatorSigner.address);
     console.log('About to call createSmartAccountTransaction...');
@@ -41,7 +54,7 @@ async function testCreateSmartAccount() {
     const result = await createSmartAccountTransaction({
       rpc,
       creator: creatorSigner.address,
-      feePayer: creatorSigner.address,
+      feePayer: backendFeePayerSigner.address, // Use backend fee payer
       threshold: 1,
       signers: [{ key: creatorSigner.address, permissions: { mask: 7 } }],
       restrictedSigners: [],
@@ -91,12 +104,24 @@ async function testCreateSmartAccount() {
     const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
     const transactionMessage = pipe(
       createTransactionMessage({ version: 0 }),
-      (tx) => setTransactionMessageFeePayerSigner(creatorSigner, tx),
+      (tx) => setTransactionMessageFeePayerSigner(backendFeePayerSigner, tx), // Use backend fee payer signer
       (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
       (tx) => appendTransactionMessageInstructions([createSmartAccountInstruction], tx)
     );
     
-    // Sign the transaction
+    // Sign the transaction (fee payer signs automatically via setTransactionMessageFeePayerSigner, creator must sign instruction)
+    // Since we used setTransactionMessageFeePayerSigner with backendFeePayerSigner, it is attached.
+    // We also need to attach creatorSigner because it is a signer in the instruction (creator account).
+    // However, pipe doesn't attach other signers. We must do it or signTransactionMessageWithSigners takes an array?
+    // signTransactionMessageWithSigners signature: (message: TransactionMessage) => Promise<SignedTransaction>
+    // It looks at message.accountKeys and signs if the account is a signer AND it finds a signer implementation.
+    // setTransactionMessageFeePayerSigner attaches the fee payer signer.
+    // For other signers, we need to ensure they are present?
+    // Wait, transactionMessage from pipe() has instructions. The instruction from getCreateSmartAccountInstructionAsync
+    // has 'creator' as a Signer object (TransactionSigner).
+    // So the message *should* have the signer embedded.
+    // Let's verify.
+    
     const signedTransaction = await signTransactionMessageWithSigners(transactionMessage);
     assertIsTransactionWithinSizeLimit(signedTransaction);
     
@@ -125,6 +150,7 @@ async function testCreateSmartAccount() {
       smartAccountSettings: result.settingsAddress,
       smartAccountPda: result.smartAccountPda,
       createdAt: new Date().toISOString(),
+      backendFeePayer: backendFeePayerSigner.address,
     };
     
     require('fs').writeFileSync(

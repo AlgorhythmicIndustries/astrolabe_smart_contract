@@ -55,7 +55,7 @@ export type CreateTransactionBufferInstruction<
   TAccountSettings extends string | AccountMeta<string> = string,
   TAccountTransactionBuffer extends string | AccountMeta<string> = string,
   TAccountBufferCreator extends string | AccountMeta<string> = string,
-  TAccountRentPayer extends string | AccountMeta<string> = string,
+  TAccountFeePayer extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
     | AccountMeta<string> = '11111111111111111111111111111111',
@@ -74,10 +74,10 @@ export type CreateTransactionBufferInstruction<
         ? ReadonlySignerAccount<TAccountBufferCreator> &
             AccountSignerMeta<TAccountBufferCreator>
         : TAccountBufferCreator,
-      TAccountRentPayer extends string
-        ? WritableSignerAccount<TAccountRentPayer> &
-            AccountSignerMeta<TAccountRentPayer>
-        : TAccountRentPayer,
+      TAccountFeePayer extends string
+        ? WritableSignerAccount<TAccountFeePayer> &
+            AccountSignerMeta<TAccountFeePayer>
+        : TAccountFeePayer,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -154,7 +154,7 @@ export type CreateTransactionBufferInput<
   TAccountSettings extends string = string,
   TAccountTransactionBuffer extends string = string,
   TAccountBufferCreator extends string = string,
-  TAccountRentPayer extends string = string,
+  TAccountFeePayer extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
   settings: Address<TAccountSettings>;
@@ -162,7 +162,7 @@ export type CreateTransactionBufferInput<
   /** The signer on the smart account that is creating the transaction. */
   bufferCreator: TransactionSigner<TAccountBufferCreator>;
   /** The payer for the transaction account rent. */
-  rentPayer: TransactionSigner<TAccountRentPayer>;
+  feePayer: TransactionSigner<TAccountFeePayer>;
   systemProgram?: Address<TAccountSystemProgram>;
   bufferIndex: CreateTransactionBufferInstructionDataArgs['bufferIndex'];
   accountIndex: CreateTransactionBufferInstructionDataArgs['accountIndex'];
@@ -175,7 +175,7 @@ export function getCreateTransactionBufferInstruction<
   TAccountSettings extends string,
   TAccountTransactionBuffer extends string,
   TAccountBufferCreator extends string,
-  TAccountRentPayer extends string,
+  TAccountFeePayer extends string,
   TAccountSystemProgram extends string,
   TProgramAddress extends
     Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
@@ -184,7 +184,7 @@ export function getCreateTransactionBufferInstruction<
     TAccountSettings,
     TAccountTransactionBuffer,
     TAccountBufferCreator,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram
   >,
   config?: { programAddress?: TProgramAddress }
@@ -193,7 +193,7 @@ export function getCreateTransactionBufferInstruction<
   TAccountSettings,
   TAccountTransactionBuffer,
   TAccountBufferCreator,
-  TAccountRentPayer,
+  TAccountFeePayer,
   TAccountSystemProgram
 > {
   // Program address.
@@ -208,7 +208,7 @@ export function getCreateTransactionBufferInstruction<
       isWritable: true,
     },
     bufferCreator: { value: input.bufferCreator ?? null, isWritable: false },
-    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
+    feePayer: { value: input.feePayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
   };
   const accounts = originalAccounts as Record<
@@ -231,7 +231,7 @@ export function getCreateTransactionBufferInstruction<
       getAccountMeta(accounts.settings),
       getAccountMeta(accounts.transactionBuffer),
       getAccountMeta(accounts.bufferCreator),
-      getAccountMeta(accounts.rentPayer),
+      getAccountMeta(accounts.feePayer),
       getAccountMeta(accounts.systemProgram),
     ],
     data: getCreateTransactionBufferInstructionDataEncoder().encode(
@@ -243,7 +243,7 @@ export function getCreateTransactionBufferInstruction<
     TAccountSettings,
     TAccountTransactionBuffer,
     TAccountBufferCreator,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram
   >);
 }
@@ -259,7 +259,7 @@ export type ParsedCreateTransactionBufferInstruction<
     /** The signer on the smart account that is creating the transaction. */
     bufferCreator: TAccountMetas[2];
     /** The payer for the transaction account rent. */
-    rentPayer: TAccountMetas[3];
+    feePayer: TAccountMetas[3];
     systemProgram: TAccountMetas[4];
   };
   data: CreateTransactionBufferInstructionData;
@@ -289,7 +289,7 @@ export function parseCreateTransactionBufferInstruction<
       settings: getNextAccount(),
       transactionBuffer: getNextAccount(),
       bufferCreator: getNextAccount(),
-      rentPayer: getNextAccount(),
+      feePayer: getNextAccount(),
       systemProgram: getNextAccount(),
     },
     data: getCreateTransactionBufferInstructionDataDecoder().decode(

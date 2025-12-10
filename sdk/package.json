@@ -21,8 +21,7 @@
         "test:create": "npx tsx tests/01-createSmartAccount.test.ts",
         "test:simple": "npx tsx tests/02-solXferTransaction.test.ts",
         "test:buffered": "npx tsx tests/03-complexSwapBufferedTransaction.test.ts",
-        "test:noSDKbuffered": "npx tsx tests/04-noSDKBufferedTransaction.test.ts",
-        "test:addSigner": "npx tsx tests/05-addSignerTransaction.test.ts",
+        "test:addSigner": "npx tsx tests/04-addSignerTransaction.test.ts",
         "clean-buffers": "npx tsx scripts/clean-buffers.ts"
     },
     "license": "MIT",

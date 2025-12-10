@@ -231,7 +231,7 @@ export async function createComplexTransaction(
     settings: smartAccountSettings,
     transaction: transactionPda,
     creator: signer,
-    rentPayer: createNoopSigner(feePayer), // Backend pays for transaction account rent
+    feePayer: createNoopSigner(feePayer), // Backend pays for transaction account rent
     systemProgram: address('11111111111111111111111111111111'),
     args: {
       accountIndex: 0, // Use 0 for the primary smart account
@@ -247,7 +247,7 @@ export async function createComplexTransaction(
     settings: smartAccountSettings,
     proposal: proposalPda,
     creator: signer,
-    rentPayer: createNoopSigner(feePayer), // Backend pays for proposal account rent
+    feePayer: createNoopSigner(feePayer), // Backend pays for proposal account rent
     systemProgram: address('11111111111111111111111111111111'),
     transactionIndex: transactionIndex,
     draft: false,
@@ -366,6 +366,8 @@ export async function createComplexTransaction(
     proposal: proposalPda,
     transaction: transactionPda,
     signer: signer,
+    feePayer: createNoopSigner(feePayer), // Backend pays for transaction execution fees
+    systemProgram: address('11111111111111111111111111111111'),
   });
 
   // Create close instruction to reclaim rent back to fee payer
@@ -393,7 +395,8 @@ export async function createComplexTransaction(
   console.log('🔍 Static accounts:', decodedMessage.staticAccounts?.length || 0);
   
   // Build remaining accounts precisely and in-order.
-  const explicitParamsCount = 4; // settings, proposal, transaction, signer
+  // ExecuteTransaction has: Settings, Proposal, Transaction, Signer, FeePayer, SystemProgram
+  const explicitParamsCount = 6; 
   const explicitParams = executeTransactionInstruction.accounts.slice(0, explicitParamsCount);
   const resultAccounts: { address: Address; role: AccountRole }[] = [];
 
@@ -413,6 +416,11 @@ export async function createComplexTransaction(
 
   // 2) Static accounts in order with correct roles
   decodedMessage.staticAccounts.forEach((addrKey: Address, idx: number) => {
+    // Skip if this is the fee payer (already in explicit params)
+    if (addrKey.toString() === feePayer.toString()) {
+      return;
+    }
+
     let role = AccountRole.READONLY;
     if (idx < numSignersInner) {
       role = idx < numWritableSignersInner ? AccountRole.WRITABLE : AccountRole.READONLY;

@@ -207,7 +207,7 @@ pub mod astrolabe_smart_account {
     /// Execute a smart account transaction.
     /// The transaction must be `Approved`.
     #[instruction(discriminator = [19])]
-    pub fn execute_transaction(ctx: Context<ExecuteTransaction>) -> Result<()> {
+    pub fn execute_transaction<'info>(ctx: Context<'_, '_, 'info, 'info, ExecuteTransaction<'info>>) -> Result<()> {
         ExecuteTransaction::execute_transaction(ctx)
     }
 
@@ -228,7 +228,7 @@ pub mod astrolabe_smart_account {
 
     /// Execute a transaction from the batch.
     #[instruction(discriminator = [22])]
-    pub fn execute_batch_transaction(ctx: Context<ExecuteBatchTransaction>) -> Result<()> {
+    pub fn execute_batch_transaction<'info>(ctx: Context<'_, '_, 'info, 'info, ExecuteBatchTransaction<'info>>) -> Result<()> {
         ExecuteBatchTransaction::execute_batch_transaction(ctx)
     }
 

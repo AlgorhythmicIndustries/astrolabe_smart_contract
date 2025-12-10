@@ -10,7 +10,9 @@ import {
   address,
   compileTransaction,
   createSolanaRpc,
+  lamports,
 } from '@solana/kit';
+import { getTransferSolInstruction } from '@solana-program/system';
 import { Buffer } from 'buffer';
 import { fetchProgramConfig } from './clients/js/src/generated/accounts/programConfig';
 import { getCreateSmartAccountInstructionAsync } from './clients/js/src/generated/instructions';
@@ -158,12 +160,50 @@ export async function createSmartAccountTransaction(
   // 6. Build the base transaction message. The fee payer is the creator,
   // also represented as a NoopSigner.
   const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
+
+  const instructions = [];
+
+  // If a fee payer is provided, add a transfer instruction to fund the creator
+  if (feePayer) {
+    // The settings account size is defined in the program's create_smart_account instruction as "space = 8 + 1016".
+    // This equals 1024 bytes. We must use this exact value because the program will try to allocate
+    // this amount of space, requiring the account to be rent-exempt for this size.
+    // Since the Settings struct contains Vec fields, it is variable size, but the program enforces a fixed allocation.
+    const settingsAccountSize = 1024n;
+    
+    // rpc.getMinimumBalanceForRentExemption returns the value directly (as bigint in recent versions)
+    // or as { value: bigint } depending on the RPC client version/adapter. 
+    // With @solana/kit's createSolanaRpc, .send() returns the result.
+    // We handle both cases to be safe.
+    const rentExemptionAmount = await rpc.getMinimumBalanceForRentExemption(settingsAccountSize).send();
+    
+    const creationFee = programConfig.data.smartAccountCreationFee;
+    
+    // Handle potential return type differences (if it's an object or primitive)
+    // @ts-ignore - valueOf handles both primitive BigInt and object wrapper if present
+    const rentVal = typeof rentExemptionAmount === 'object' && 'value' in rentExemptionAmount ? rentExemptionAmount.value : rentExemptionAmount;
+    
+    const totalAmount = BigInt(rentVal) + creationFee;
+
+    if (totalAmount > 0n) {
+       instructions.push(
+          getTransferSolInstruction({
+            source: createNoopSigner(feePayer),
+            destination: creator,
+            amount: lamports(totalAmount)
+         })
+       );
+    }
+  }
+
+  instructions.push(createSmartAccountInstruction);
+
   const baseTransactionMessage = pipe(
     createTransactionMessage({ version: 0 }),
     (tx) => setTransactionMessageFeePayerSigner(createNoopSigner(feePayer), tx),
     (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
     (tx) =>
-      appendTransactionMessageInstructions([createSmartAccountInstruction], tx)
+      appendTransactionMessageInstructions(instructions, tx)
   );
 
   // 7. Compile the transaction to get the buffer to be sent to the backend

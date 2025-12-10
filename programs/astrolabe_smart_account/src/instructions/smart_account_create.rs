@@ -83,15 +83,6 @@ impl<'info> CreateSmartAccount<'info> {
         ctx: Context<'_, '_, 'info, 'info, Self>,
         args: CreateSmartAccountArgs,
     ) -> Result<()> {
-        msg!("--- Debug: CreateSmartAccount ---");
-        msg!("Required accounts:");
-        msg!("  program_config: {}", ctx.accounts.program_config.key());
-        msg!("  treasury: {}", ctx.accounts.treasury.key());
-        msg!("  creator: {}", ctx.accounts.creator.key());
-        msg!("  system_program: {}", ctx.accounts.system_program.key());
-        msg!("  program: {}", ctx.accounts.program.key());
-        msg!("  settings: {}", ctx.accounts.settings.key());
-        msg!("--- End Debug: CreateSmartAccount ---");
 
         let program_config = &mut ctx.accounts.program_config;
         // Sort the members by pubkey.

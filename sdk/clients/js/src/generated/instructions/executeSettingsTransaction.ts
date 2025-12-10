@@ -48,7 +48,7 @@ export type ExecuteSettingsTransactionInstruction<
   TAccountSigner extends string | AccountMeta<string> = string,
   TAccountProposal extends string | AccountMeta<string> = string,
   TAccountTransaction extends string | AccountMeta<string> = string,
-  TAccountRentPayer extends string | AccountMeta<string> = string,
+  TAccountFeePayer extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
     | AccountMeta<string> = '11111111111111111111111111111111',
@@ -70,10 +70,10 @@ export type ExecuteSettingsTransactionInstruction<
       TAccountTransaction extends string
         ? ReadonlyAccount<TAccountTransaction>
         : TAccountTransaction,
-      TAccountRentPayer extends string
-        ? WritableSignerAccount<TAccountRentPayer> &
-            AccountSignerMeta<TAccountRentPayer>
-        : TAccountRentPayer,
+      TAccountFeePayer extends string
+        ? WritableSignerAccount<TAccountFeePayer> &
+            AccountSignerMeta<TAccountFeePayer>
+        : TAccountFeePayer,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -118,7 +118,7 @@ export type ExecuteSettingsTransactionInput<
   TAccountSigner extends string = string,
   TAccountProposal extends string = string,
   TAccountTransaction extends string = string,
-  TAccountRentPayer extends string = string,
+  TAccountFeePayer extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
   /** The settings account of the smart account that owns the transaction. */
@@ -133,7 +133,7 @@ export type ExecuteSettingsTransactionInput<
    * The account that will be charged/credited in case the settings transaction causes space reallocation
    * This is usually the same as `signer`, but can be a different account if needed.
    */
-  rentPayer?: TransactionSigner<TAccountRentPayer>;
+  feePayer?: TransactionSigner<TAccountFeePayer>;
   /** We might need it in case reallocation is needed. */
   systemProgram?: Address<TAccountSystemProgram>;
 };
@@ -143,7 +143,7 @@ export function getExecuteSettingsTransactionInstruction<
   TAccountSigner extends string,
   TAccountProposal extends string,
   TAccountTransaction extends string,
-  TAccountRentPayer extends string,
+  TAccountFeePayer extends string,
   TAccountSystemProgram extends string,
   TProgramAddress extends
     Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
@@ -153,7 +153,7 @@ export function getExecuteSettingsTransactionInstruction<
     TAccountSigner,
     TAccountProposal,
     TAccountTransaction,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram
   >,
   config?: { programAddress?: TProgramAddress }
@@ -163,7 +163,7 @@ export function getExecuteSettingsTransactionInstruction<
   TAccountSigner,
   TAccountProposal,
   TAccountTransaction,
-  TAccountRentPayer,
+  TAccountFeePayer,
   TAccountSystemProgram
 > {
   // Program address.
@@ -176,7 +176,7 @@ export function getExecuteSettingsTransactionInstruction<
     signer: { value: input.signer ?? null, isWritable: false },
     proposal: { value: input.proposal ?? null, isWritable: true },
     transaction: { value: input.transaction ?? null, isWritable: false },
-    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
+    feePayer: { value: input.feePayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
   };
   const accounts = originalAccounts as Record<
@@ -197,7 +197,7 @@ export function getExecuteSettingsTransactionInstruction<
       getAccountMeta(accounts.signer),
       getAccountMeta(accounts.proposal),
       getAccountMeta(accounts.transaction),
-      getAccountMeta(accounts.rentPayer),
+      getAccountMeta(accounts.feePayer),
       getAccountMeta(accounts.systemProgram),
     ],
     data: getExecuteSettingsTransactionInstructionDataEncoder().encode({}),
@@ -208,7 +208,7 @@ export function getExecuteSettingsTransactionInstruction<
     TAccountSigner,
     TAccountProposal,
     TAccountTransaction,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram
   >);
 }
@@ -231,7 +231,7 @@ export type ParsedExecuteSettingsTransactionInstruction<
      * The account that will be charged/credited in case the settings transaction causes space reallocation
      * This is usually the same as `signer`, but can be a different account if needed.
      */
-    rentPayer?: TAccountMetas[4] | undefined;
+    feePayer?: TAccountMetas[4] | undefined;
     /** We might need it in case reallocation is needed. */
     systemProgram?: TAccountMetas[5] | undefined;
   };
@@ -269,7 +269,7 @@ export function parseExecuteSettingsTransactionInstruction<
       signer: getNextAccount(),
       proposal: getNextAccount(),
       transaction: getNextAccount(),
-      rentPayer: getNextOptionalAccount(),
+      feePayer: getNextOptionalAccount(),
       systemProgram: getNextOptionalAccount(),
     },
     data: getExecuteSettingsTransactionInstructionDataDecoder().decode(

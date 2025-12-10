@@ -34,7 +34,7 @@ impl Proposal {
         8 +   // anchor account discriminator
         32 +  // settings
         8 +   // index
-        32 +  // rent_payer
+        32 +  // fee_payer
         1 +   // status enum variant
         8 +   // status enum wrapped timestamp (i64)
         1 +   // bump
@@ -135,7 +135,7 @@ impl Proposal {
     pub fn realloc_if_needed<'a>(
         proposal: AccountInfo<'a>,
         signers_length: usize,
-        rent_payer: Option<AccountInfo<'a>>,
+        fee_payer: Option<AccountInfo<'a>>,
         system_program: Option<AccountInfo<'a>>,
     ) -> Result<bool> {
         // Sanity checks
@@ -153,7 +153,7 @@ impl Proposal {
             return Ok(false);
         }
         // Reallocate more space.
-        realloc(&proposal, account_size_to_fit_signers, rent_payer, system_program)?;
+        realloc(&proposal, account_size_to_fit_signers, fee_payer, system_program)?;
 
         Ok(true)
     }

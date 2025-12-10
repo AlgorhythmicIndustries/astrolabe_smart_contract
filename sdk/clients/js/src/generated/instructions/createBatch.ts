@@ -59,7 +59,7 @@ export type CreateBatchInstruction<
   TAccountSettings extends string | AccountMeta<string> = string,
   TAccountBatch extends string | AccountMeta<string> = string,
   TAccountCreator extends string | AccountMeta<string> = string,
-  TAccountRentPayer extends string | AccountMeta<string> = string,
+  TAccountFeePayer extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
     | AccountMeta<string> = '11111111111111111111111111111111',
@@ -78,10 +78,10 @@ export type CreateBatchInstruction<
         ? ReadonlySignerAccount<TAccountCreator> &
             AccountSignerMeta<TAccountCreator>
         : TAccountCreator,
-      TAccountRentPayer extends string
-        ? WritableSignerAccount<TAccountRentPayer> &
-            AccountSignerMeta<TAccountRentPayer>
-        : TAccountRentPayer,
+      TAccountFeePayer extends string
+        ? WritableSignerAccount<TAccountFeePayer> &
+            AccountSignerMeta<TAccountFeePayer>
+        : TAccountFeePayer,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -143,7 +143,7 @@ export type CreateBatchInput<
   TAccountSettings extends string = string,
   TAccountBatch extends string = string,
   TAccountCreator extends string = string,
-  TAccountRentPayer extends string = string,
+  TAccountFeePayer extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
   settings: Address<TAccountSettings>;
@@ -151,7 +151,7 @@ export type CreateBatchInput<
   /** The signer of the settings that is creating the batch. */
   creator: TransactionSigner<TAccountCreator>;
   /** The payer for the batch account rent. */
-  rentPayer: TransactionSigner<TAccountRentPayer>;
+  feePayer: TransactionSigner<TAccountFeePayer>;
   systemProgram?: Address<TAccountSystemProgram>;
   accountIndex: CreateBatchInstructionDataArgs['accountIndex'];
   memo: CreateBatchInstructionDataArgs['memo'];
@@ -161,7 +161,7 @@ export function getCreateBatchInstruction<
   TAccountSettings extends string,
   TAccountBatch extends string,
   TAccountCreator extends string,
-  TAccountRentPayer extends string,
+  TAccountFeePayer extends string,
   TAccountSystemProgram extends string,
   TProgramAddress extends
     Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
@@ -170,7 +170,7 @@ export function getCreateBatchInstruction<
     TAccountSettings,
     TAccountBatch,
     TAccountCreator,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram
   >,
   config?: { programAddress?: TProgramAddress }
@@ -179,7 +179,7 @@ export function getCreateBatchInstruction<
   TAccountSettings,
   TAccountBatch,
   TAccountCreator,
-  TAccountRentPayer,
+  TAccountFeePayer,
   TAccountSystemProgram
 > {
   // Program address.
@@ -191,7 +191,7 @@ export function getCreateBatchInstruction<
     settings: { value: input.settings ?? null, isWritable: true },
     batch: { value: input.batch ?? null, isWritable: true },
     creator: { value: input.creator ?? null, isWritable: false },
-    rentPayer: { value: input.rentPayer ?? null, isWritable: true },
+    feePayer: { value: input.feePayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
   };
   const accounts = originalAccounts as Record<
@@ -214,7 +214,7 @@ export function getCreateBatchInstruction<
       getAccountMeta(accounts.settings),
       getAccountMeta(accounts.batch),
       getAccountMeta(accounts.creator),
-      getAccountMeta(accounts.rentPayer),
+      getAccountMeta(accounts.feePayer),
       getAccountMeta(accounts.systemProgram),
     ],
     data: getCreateBatchInstructionDataEncoder().encode(
@@ -226,7 +226,7 @@ export function getCreateBatchInstruction<
     TAccountSettings,
     TAccountBatch,
     TAccountCreator,
-    TAccountRentPayer,
+    TAccountFeePayer,
     TAccountSystemProgram
   >);
 }
@@ -242,7 +242,7 @@ export type ParsedCreateBatchInstruction<
     /** The signer of the settings that is creating the batch. */
     creator: TAccountMetas[2];
     /** The payer for the batch account rent. */
-    rentPayer: TAccountMetas[3];
+    feePayer: TAccountMetas[3];
     systemProgram: TAccountMetas[4];
   };
   data: CreateBatchInstructionData;
@@ -272,7 +272,7 @@ export function parseCreateBatchInstruction<
       settings: getNextAccount(),
       batch: getNextAccount(),
       creator: getNextAccount(),
-      rentPayer: getNextAccount(),
+      feePayer: getNextAccount(),
       systemProgram: getNextAccount(),
     },
     data: getCreateBatchInstructionDataDecoder().decode(instruction.data),

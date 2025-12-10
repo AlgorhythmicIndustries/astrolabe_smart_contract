@@ -51,7 +51,7 @@ import {
 } from '../instructions';
 
 export const ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS =
-  'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh' as Address<'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh'>;
+  'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q' as Address<'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q'>;
 
 export enum AstrolabeSmartAccountAccount {
   Batch,
@@ -514,7 +514,7 @@ export function identifyAstrolabeSmartAccountInstruction(
 }
 
 export type ParsedAstrolabeSmartAccountInstruction<
-  TProgram extends string = 'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh',
+  TProgram extends string = 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q',
 > =
   | ({
       instructionType: AstrolabeSmartAccountInstruction.ActivateProposal;

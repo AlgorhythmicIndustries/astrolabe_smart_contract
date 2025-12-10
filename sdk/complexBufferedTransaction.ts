@@ -17,6 +17,7 @@ import {
 } from '@solana/kit';
 import { getTransactionDecoder } from '@solana/transactions';
 import { getSetComputeUnitLimitInstruction } from '@solana-program/compute-budget';
+import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
 import * as bs58 from 'bs58';
 
 type SolanaRpc = ReturnType<typeof createSolanaRpc>;
@@ -52,6 +53,10 @@ export interface BufferedTransactionParams {
   bufferIndex?: number; // 0..255
   accountIndex?: number; // usually 0
   transactionIndexOffset?: number; // Offset to add to nextIndex (e.g., +1 if phase0 will execute first)
+  additionalInstructions?: any[]; // Instructions to append to the inner transaction (e.g. close account)
+  closeTokenAccount?: boolean; // Flag to indicate if the token account should be closed after the transaction
+  closeTokenAccountMint?: string; // The mint address of the token account to close
+  closeTokenAccountOwner?: Address; // The owner of the token account to close (usually smartAccountPda)
 }
 
 export interface BufferedTransactionResult {
@@ -59,6 +64,7 @@ export interface BufferedTransactionResult {
   createFromBufferTx: Uint8Array;
   proposeAndApproveTx: Uint8Array; // createProposal + approve (separate from createFromBuffer for large transactions)
   executeTx: Uint8Array;
+  closeAccountTx?: Uint8Array; // Optional: separate transaction to close token account after swap
   transactionPda: Address;
   proposalPda: Address;
   transactionBufferPda: Address;
@@ -80,6 +86,9 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     bufferIndex = 0,
     accountIndex = 0,
     transactionIndexOffset = 0,
+    closeTokenAccount = false,
+    closeTokenAccountMint,
+    closeTokenAccountOwner,
   } = params;
 
   // Derive PDAs and fetch settings
@@ -205,6 +214,82 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     console.log(`✅ Added SetComputeUnitLimit instruction with ${CU_LIMIT} CU`);
   }
   
+  // NOTE: Injecting closeAccount into Jupiter's pre-built transaction is too fragile
+  // Jupiter's transactions use ALTs and have carefully calculated account roles/indices
+  // Adding instructions breaks this structure. Instead, we'll build a separate transaction
+  // to close the token account after the swap completes.
+  
+  let closeAccountTransaction: Uint8Array | undefined;
+  
+  if (closeTokenAccount && closeTokenAccountMint && closeTokenAccountOwner) {
+    console.log('🔒 Building separate closeAccount transaction for:', closeTokenAccountMint);
+    
+    // Import required utilities
+    const { findAssociatedTokenPda, getCloseAccountInstruction } = await import('@solana-program/token');
+    const { createSimpleTransaction } = await import('./simpleTransaction');
+    
+    // Determine token program (Token or Token-2022)
+    let tokenProgramAddress: Address = address(TOKEN_PROGRAM_ID.toBase58());
+    let isToken2022 = false;
+    try {
+      const mintAccountInfo = await rpc.getAccountInfo(address(closeTokenAccountMint), { encoding: 'base64' }).send();
+      if (mintAccountInfo.value?.owner === TOKEN_2022_PROGRAM_ID.toBase58()) {
+        tokenProgramAddress = address(TOKEN_2022_PROGRAM_ID.toBase58());
+        isToken2022 = true;
+        console.log('🔧 Using Token-2022 program for closeAccount instruction');
+      } else {
+        console.log('🔧 Using Token program for closeAccount instruction');
+      }
+    } catch (e) {
+      console.warn('⚠️ Failed to fetch mint account info, defaulting to Token program:', e);
+    }
+    
+    // Find the ATA for this token and owner
+    const [ata] = isToken2022 
+      ? await findAssociatedTokenPda({
+          mint: address(closeTokenAccountMint),
+          owner: closeTokenAccountOwner,
+          tokenProgram: address(TOKEN_2022_PROGRAM_ID.toBase58()),
+        })
+      : await findAssociatedTokenPda({
+          mint: address(closeTokenAccountMint),
+          owner: closeTokenAccountOwner,
+          tokenProgram: address(TOKEN_PROGRAM_ID.toBase58()),
+        });
+    
+    // Create CloseAccount instruction
+    const closeInstruction = isToken2022
+      ? getCloseAccountInstruction({
+          account: ata,
+          destination: feePayer, // Reclaimed rent goes to backend fee payer
+          owner: createNoopSigner(closeTokenAccountOwner), // Smart account signs via CPI
+        }, { programAddress: address(TOKEN_2022_PROGRAM_ID.toBase58()) })
+      : getCloseAccountInstruction({
+          account: ata,
+          destination: feePayer, // Reclaimed rent goes to backend fee payer
+          owner: createNoopSigner(closeTokenAccountOwner), // Smart account signs via CPI
+        }, { programAddress: address(TOKEN_PROGRAM_ID.toBase58()) });
+    
+    console.log('🔧 Creating simple transaction for closeAccount...');
+    
+    // Build a simple propose-approve-execute transaction with just the closeAccount instruction
+    // IMPORTANT: The buffered swap uses transaction index N, so closeAccount must use N+1
+    const closeResult = await createSimpleTransaction({
+      rpc,
+      smartAccountSettings,
+      smartAccountPda,
+      smartAccountPdaBump,
+      signer,
+      feePayer,
+      innerInstructions: [closeInstruction],
+      memo: `Close token account: ${closeTokenAccountMint.slice(0, 8)}...`,
+      transactionIndexOffset: 1, // Buffered swap uses current nextIndex, so this uses nextIndex+1
+    });
+    
+    closeAccountTransaction = closeResult.transactionBuffer;
+    console.log('✅ CloseAccount transaction built, size:', closeAccountTransaction.length, 'bytes');
+  }
+  
   const finalStaticAccountsLen = finalStaticAccounts.length;
 
   const transactionMessage = {
@@ -289,7 +374,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     settings: smartAccountSettings,
     transactionBuffer: transactionBufferPda,
     bufferCreator: signer,
-    rentPayer: feePayerSigner,
+    feePayer: feePayerSigner,
     systemProgram: address('11111111111111111111111111111111'),
     bufferIndex: chosenBufferIndex,
     accountIndex,
@@ -333,7 +418,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     settings: smartAccountSettings,
     transaction: transactionPda,
     creator: signer,
-    rentPayer: feePayerSigner,
+    feePayer: feePayerSigner,
     systemProgram: address('11111111111111111111111111111111'),
     transactionBuffer: transactionBufferPda,
     fromBufferCreator: signer,
@@ -351,7 +436,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     settings: smartAccountSettings,
     proposal: proposalPda,
     creator: signer,
-    rentPayer: feePayerSigner,
+    feePayer: feePayerSigner,
     systemProgram: address('11111111111111111111111111111111'),
     transactionIndex: nextIndex,
     draft: false,
@@ -394,14 +479,15 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     proposal: proposalPda,
     transaction: transactionPda,
     signer,
+    feePayer: feePayerSigner,
   });
   // Note: We don't need to close the buffer - CreateTransactionFromBuffer already does that
   // with `close = from_buffer_creator` in the Rust code
   
   // Build remaining accounts for execute instruction (match complexTransaction.ts)
   {
-    const explicitParamsCount = 4; // settings, proposal, transaction, signer
-    const explicitParams = executeIx.accounts.slice(0, explicitParamsCount);
+    // Use all generated accounts (settings, proposal, transaction, signer, fee_payer, system_program)
+    const explicitParams = executeIx.accounts;
     const resultAccounts: { address: Address; role: AccountRole }[] = [];
 
     // 1) ALT table accounts first (readonly), in the order of address_table_lookups
@@ -412,14 +498,21 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     }
 
     // 2) Static accounts with correct roles
-    const totalStatic = safeStaticAccounts.length;
+    // IMPORTANT: Use finalStaticAccounts (not safeStaticAccounts) because we may have added accounts for closeAccount
+    const totalStatic = finalStaticAccounts.length;
     const numSignersInner = numSignerAccounts;
     const numWritableSignersInner = Math.max(0, numSignersInner - numReadonlySignerAccounts);
     const numWritableNonSignersInner = Math.max(
       0,
-      totalStatic - numSignersInner - numReadonlyNonSignerAccounts
+      totalStatic - numSignersInner - finalNumReadonlyNonSignerAccounts // Use updated count
     );
-    safeStaticAccounts.forEach((addrKey: any, idx: number) => {
+    finalStaticAccounts.forEach((addrKey: any, idx: number) => {
+      // Skip if this is the fee payer (already in explicit params)
+      const addrStr = toAddress(addrKey).toString();
+      if (addrStr === feePayer.toString()) {
+        return;
+      }
+      
       let role = AccountRole.READONLY;
       if (idx < numSignersInner) {
         role = idx < numWritableSignersInner ? AccountRole.WRITABLE : AccountRole.READONLY;
@@ -598,6 +691,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
       createFromBufferTx,
       proposeAndApproveTx,
       executeTx: executeTxLocal,
+      closeAccountTx: closeAccountTransaction, // Optional: separate transaction to close token account
       transactionPda,
       proposalPda,
       transactionBufferPda,

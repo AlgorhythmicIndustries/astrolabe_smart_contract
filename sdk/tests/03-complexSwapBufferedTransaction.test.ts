@@ -18,6 +18,8 @@ import {
   AccountRole,
   pipe,
   getBase64EncodedWireTransaction,
+  generateKeyPair,
+  lamports,
 } from '@solana/kit';
 import { 
   findAssociatedTokenPda as findToken2022Ata, 
@@ -47,6 +49,45 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
   const creatorKeypairBytes = new Uint8Array(JSON.parse(creatorKeypairFile.toString()));
   const creatorKeypair = await createKeyPairFromBytes(creatorKeypairBytes);
   const creatorSigner = await createSignerFromKeyPair(creatorKeypair);
+  
+  // Load Backend Fee Payer
+  const backendFeePayerFile = fs.readFileSync(require('path').join(__dirname, 'backend-fee-payer-keypair.json'));
+  const backendFeePayerBytes = new Uint8Array(JSON.parse(backendFeePayerFile.toString()));
+  const backendFeePayerKeypair = await createKeyPairFromBytes(backendFeePayerBytes);
+  const backendFeePayerSigner = await createSignerFromKeyPair(backendFeePayerKeypair);
+  console.log('📝 Backend Fee Payer:', backendFeePayerSigner.address);
+
+  // Fund the Backend Fee Payer
+  console.log('💰 Funding Backend Fee Payer with 1 SOL...');
+  try {
+    await rpc.requestAirdrop(backendFeePayerSigner.address, lamports(1_000_000_000n), { commitment: 'confirmed' }).send();
+    console.log('✅ Backend Fee Payer funded');
+  } catch (e) {
+    console.error('❌ Failed to fund Backend Fee Payer:', e);
+    throw e;
+  }
+  
+  // Helper to attach signer to decompiled message instructions
+  // This is critical because decompiled messages lose the signer objects
+  function attachSignerToMessage(message: any, signer: any) {
+    const signerAddress = signer.address;
+    let attachedCount = 0;
+    if (message.instructions) {
+      for (const instruction of message.instructions) {
+        if (instruction.accounts) {
+          for (const account of instruction.accounts) {
+            // Check if account matches signer address and requires signing
+            // AccountRole: WRITABLE_SIGNER (3) or READONLY_SIGNER (2) (checking logic or strict role)
+             if (account.address === signerAddress && (account.role === AccountRole.WRITABLE_SIGNER || account.role === AccountRole.READONLY_SIGNER)) {
+               account.signer = signer;
+               attachedCount++;
+             }
+          }
+        }
+      }
+    }
+    return message;
+  }
   
   // Load the smart account settings from the previous test
   let smartAccountSettings;
@@ -81,14 +122,14 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
       // USDC to sUSD swap parameters (using your exact parameters)
       const FROM_TOKEN_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'; // USDC mint
       const TO_TOKEN_MINT = 'susdabGDNbhrnCa6ncrYo81u4s9GM8ecK2UwMyZiq4X'; // Real sUSD mint
-      const swapAmount = 1_000_000_000; // 1000 USDC (6 decimals) - your exact amount
-      const slippage = 10; // 1% slippage - your exact slippage
+      const swapAmount = 10_000_000; // 10 USDC (6 decimals) - lowered to ensure route availability
+      const slippage = 1; // 1% slippage (bps)
       
       // Fund the smart account PDA with USDC using surfpool's surfnet_setTokenAccount RPC
       console.log('💰 Funding smart account PDA with USDC via surfpool...');
       console.log('   Owner:', smartAccountInfo.smartAccountPda);
       console.log('   Mint:', FROM_TOKEN_MINT);
-      console.log('   Amount:', swapAmount, 'micro-USDC (1000 USDC)');
+      console.log('   Amount:', swapAmount, 'micro-USDC (10 USDC)');
       
       try {
         const fundingResponse = await fetch('http://localhost:8899', {
@@ -161,7 +202,7 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
         
         const createAtaMsg = await pipe(
           createTransactionMessage({ version: 0 }),
-          (tx: any) => setTransactionMessageFeePayerSigner(creatorSigner, tx),
+          (tx: any) => setTransactionMessageFeePayerSigner(creatorSigner, tx), // Creator pays for ATA creation (standard flow)
           (tx: any) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
           (tx: any) => appendTransactionMessageInstruction(createAtaIx, tx)
         );
@@ -178,7 +219,7 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
         console.log('✅ susda token account already exists:', toTokenAccount.toString());
       }
       
-      console.log('🔄 Getting Jupiter quote: 1000 USDC → sUSD (1% slippage)...');
+      console.log('🔄 Getting Jupiter quote: 10 USDC → sUSD (1% slippage)...');
       
       const quote = await getSwapQuote(
         FROM_TOKEN_MINT,
@@ -254,7 +295,7 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
       smartAccountPda: smartAccountInfo.smartAccountPda,
       smartAccountPdaBump: smartAccountInfo.smartAccountPdaBump,
       signer: creatorSigner,
-      feePayer: creatorSigner.address,
+      feePayer: backendFeePayerSigner.address, // Use Backend Fee Payer
       innerTransactionBytes: versionedTransactionBytes,
       addressTableLookups: finalAddressTableLookups,
       memo: 'Jupiter Swap via Complex Buffered Transaction',
@@ -288,8 +329,9 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
           
           // Set fee payer and lifetime
           const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
-          const txMessageWithSigner = setTransactionMessageFeePayerSigner(creatorSigner, decodedTxMessage as any);
-          const txMessageWithBlockhash = setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, txMessageWithSigner as any);
+          const txMessageWithSigner = setTransactionMessageFeePayerSigner(backendFeePayerSigner, decodedTxMessage as any);
+          const txMessageWithCreator = attachSignerToMessage(txMessageWithSigner, creatorSigner); // Attach creator signer
+          const txMessageWithBlockhash = setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, txMessageWithCreator as any);
           
           // Sign and send the transaction
           const signedBufferTx = await signTransactionMessageWithSigners(txMessageWithBlockhash as any);
@@ -318,8 +360,9 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
         const compiled = getCompiledTransactionMessageDecoder().decode(result.createFromBufferTx);
         const { value: latestBlockhash2 } = await rpc.getLatestBlockhash().send();
         const decoded = decompileTransactionMessage(compiled);
-        const msgWithSigner = setTransactionMessageFeePayerSigner(creatorSigner, decoded as any);
-        const msgWithBh = setTransactionMessageLifetimeUsingBlockhash(latestBlockhash2, msgWithSigner as any);
+        const msgWithSigner = setTransactionMessageFeePayerSigner(backendFeePayerSigner, decoded as any);
+        const msgWithCreator = attachSignerToMessage(msgWithSigner, creatorSigner);
+        const msgWithBh = setTransactionMessageLifetimeUsingBlockhash(latestBlockhash2, msgWithCreator as any);
         const signed = await signTransactionMessageWithSigners(msgWithBh as any);
         assertIsTransactionWithinSizeLimit(signed);
         const sendAndConfirm2 = sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions });
@@ -337,8 +380,9 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
         const compiled = getCompiledTransactionMessageDecoder().decode(result.proposeAndApproveTx);
         const { value: latestBlockhash3 } = await rpc.getLatestBlockhash().send();
         const decoded = decompileTransactionMessage(compiled);
-        const msgWithSigner = setTransactionMessageFeePayerSigner(creatorSigner, decoded as any);
-        const msgWithBh = setTransactionMessageLifetimeUsingBlockhash(latestBlockhash3, msgWithSigner as any);
+        const msgWithSigner = setTransactionMessageFeePayerSigner(backendFeePayerSigner, decoded as any);
+        const msgWithCreator = attachSignerToMessage(msgWithSigner, creatorSigner);
+        const msgWithBh = setTransactionMessageLifetimeUsingBlockhash(latestBlockhash3, msgWithCreator as any);
         const signed = await signTransactionMessageWithSigners(msgWithBh as any);
         assertIsTransactionWithinSizeLimit(signed);
         const sendAndConfirm3 = sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions });
@@ -366,8 +410,9 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
         // Note: SDK already added compute budget instruction in createComplexBufferedTransaction
         // No need to add another one here (would cause DuplicateInstruction error)
         
-        const msgWithSigner = setTransactionMessageFeePayerSigner(creatorSigner, decoded as any);
-        const msgWithBh = setTransactionMessageLifetimeUsingBlockhash(latestBlockhash4, msgWithSigner as any);
+        const msgWithSigner = setTransactionMessageFeePayerSigner(backendFeePayerSigner, decoded as any);
+        const msgWithCreator = attachSignerToMessage(msgWithSigner, creatorSigner);
+        const msgWithBh = setTransactionMessageLifetimeUsingBlockhash(latestBlockhash4, msgWithCreator as any);
         const signed = await signTransactionMessageWithSigners(msgWithBh as any);
         assertIsTransactionWithinSizeLimit(signed);
         
