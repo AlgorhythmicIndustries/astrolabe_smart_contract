@@ -11,8 +11,6 @@ use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 use solana_pubkey::Pubkey;
 
-pub const CREATE_SMART_ACCOUNT_DISCRIMINATOR: [u8; 1] = [5];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct CreateSmartAccount {
@@ -22,8 +20,10 @@ pub struct CreateSmartAccount {
     pub settings: solana_pubkey::Pubkey,
     /// The treasury where the creation fee is transferred to.
     pub treasury: solana_pubkey::Pubkey,
-    /// The creator of the smart account.
+    /// The creator of the smart account (defines signers, not necessarily paying for fees).
     pub creator: solana_pubkey::Pubkey,
+    /// The account that pays for rent and creation fees.
+    pub fee_payer: solana_pubkey::Pubkey,
 
     pub system_program: solana_pubkey::Pubkey,
 
@@ -44,14 +44,18 @@ impl CreateSmartAccount {
         args: CreateSmartAccountInstructionArgs,
         remaining_accounts: &[solana_instruction::AccountMeta],
     ) -> solana_instruction::Instruction {
-        let mut accounts = Vec::with_capacity(6 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(7 + remaining_accounts.len());
         accounts.push(solana_instruction::AccountMeta::new(
             self.program_config,
             false,
         ));
         accounts.push(solana_instruction::AccountMeta::new(self.settings, false));
         accounts.push(solana_instruction::AccountMeta::new(self.treasury, false));
-        accounts.push(solana_instruction::AccountMeta::new(self.creator, true));
+        accounts.push(solana_instruction::AccountMeta::new_readonly(
+            self.creator,
+            true,
+        ));
+        accounts.push(solana_instruction::AccountMeta::new(self.fee_payer, true));
         accounts.push(solana_instruction::AccountMeta::new_readonly(
             self.system_program,
             false,
@@ -61,10 +65,8 @@ impl CreateSmartAccount {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = CreateSmartAccountInstructionData::new()
-            .try_to_vec()
-            .unwrap();
-        let mut args = args.try_to_vec().unwrap();
+        let mut data = borsh::to_vec(&CreateSmartAccountInstructionData::new()).unwrap();
+        let mut args = borsh::to_vec(&args).unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -84,10 +86,6 @@ pub struct CreateSmartAccountInstructionData {
 impl CreateSmartAccountInstructionData {
     pub fn new() -> Self {
         Self { discriminator: [5] }
-    }
-
-    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
-        borsh::to_vec(self)
     }
 }
 
@@ -109,12 +107,6 @@ pub struct CreateSmartAccountInstructionArgs {
     pub memo: Option<String>,
 }
 
-impl CreateSmartAccountInstructionArgs {
-    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
-        borsh::to_vec(self)
-    }
-}
-
 /// Instruction builder for `CreateSmartAccount`.
 ///
 /// ### Accounts:
@@ -122,15 +114,17 @@ impl CreateSmartAccountInstructionArgs {
 ///   0. `[writable]` program_config
 ///   1. `[writable]` settings
 ///   2. `[writable]` treasury
-///   3. `[writable, signer]` creator
-///   4. `[optional]` system_program (default to `11111111111111111111111111111111`)
-///   5. `[optional]` program (default to `ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q`)
+///   3. `[signer]` creator
+///   4. `[writable, signer]` fee_payer
+///   5. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   6. `[optional]` program (default to `aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh`)
 #[derive(Clone, Debug, Default)]
 pub struct CreateSmartAccountBuilder {
     program_config: Option<solana_pubkey::Pubkey>,
     settings: Option<solana_pubkey::Pubkey>,
     treasury: Option<solana_pubkey::Pubkey>,
     creator: Option<solana_pubkey::Pubkey>,
+    fee_payer: Option<solana_pubkey::Pubkey>,
     system_program: Option<solana_pubkey::Pubkey>,
     program: Option<solana_pubkey::Pubkey>,
     settings_authority: Option<Pubkey>,
@@ -165,10 +159,16 @@ impl CreateSmartAccountBuilder {
         self.treasury = Some(treasury);
         self
     }
-    /// The creator of the smart account.
+    /// The creator of the smart account (defines signers, not necessarily paying for fees).
     #[inline(always)]
     pub fn creator(&mut self, creator: solana_pubkey::Pubkey) -> &mut Self {
         self.creator = Some(creator);
+        self
+    }
+    /// The account that pays for rent and creation fees.
+    #[inline(always)]
+    pub fn fee_payer(&mut self, fee_payer: solana_pubkey::Pubkey) -> &mut Self {
+        self.fee_payer = Some(fee_payer);
         self
     }
     /// `[optional account, default to '11111111111111111111111111111111']`
@@ -177,7 +177,7 @@ impl CreateSmartAccountBuilder {
         self.system_program = Some(system_program);
         self
     }
-    /// `[optional account, default to 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q']`
+    /// `[optional account, default to 'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh']`
     #[inline(always)]
     pub fn program(&mut self, program: solana_pubkey::Pubkey) -> &mut Self {
         self.program = Some(program);
@@ -246,11 +246,12 @@ impl CreateSmartAccountBuilder {
             settings: self.settings.expect("settings is not set"),
             treasury: self.treasury.expect("treasury is not set"),
             creator: self.creator.expect("creator is not set"),
+            fee_payer: self.fee_payer.expect("fee_payer is not set"),
             system_program: self
                 .system_program
                 .unwrap_or(solana_pubkey::pubkey!("11111111111111111111111111111111")),
             program: self.program.unwrap_or(solana_pubkey::pubkey!(
-                "ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q"
+                "aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh"
             )),
         };
         let args = CreateSmartAccountInstructionArgs {
@@ -278,8 +279,10 @@ pub struct CreateSmartAccountCpiAccounts<'a, 'b> {
     pub settings: &'b solana_account_info::AccountInfo<'a>,
     /// The treasury where the creation fee is transferred to.
     pub treasury: &'b solana_account_info::AccountInfo<'a>,
-    /// The creator of the smart account.
+    /// The creator of the smart account (defines signers, not necessarily paying for fees).
     pub creator: &'b solana_account_info::AccountInfo<'a>,
+    /// The account that pays for rent and creation fees.
+    pub fee_payer: &'b solana_account_info::AccountInfo<'a>,
 
     pub system_program: &'b solana_account_info::AccountInfo<'a>,
 
@@ -296,8 +299,10 @@ pub struct CreateSmartAccountCpi<'a, 'b> {
     pub settings: &'b solana_account_info::AccountInfo<'a>,
     /// The treasury where the creation fee is transferred to.
     pub treasury: &'b solana_account_info::AccountInfo<'a>,
-    /// The creator of the smart account.
+    /// The creator of the smart account (defines signers, not necessarily paying for fees).
     pub creator: &'b solana_account_info::AccountInfo<'a>,
+    /// The account that pays for rent and creation fees.
+    pub fee_payer: &'b solana_account_info::AccountInfo<'a>,
 
     pub system_program: &'b solana_account_info::AccountInfo<'a>,
 
@@ -318,24 +323,28 @@ impl<'a, 'b> CreateSmartAccountCpi<'a, 'b> {
             settings: accounts.settings,
             treasury: accounts.treasury,
             creator: accounts.creator,
+            fee_payer: accounts.fee_payer,
             system_program: accounts.system_program,
             program: accounts.program,
             __args: args,
         }
     }
     #[inline(always)]
-    pub fn invoke(&self) -> solana_program_error::ProgramResult {
+    pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], &[])
     }
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
         remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)],
-    ) -> solana_program_error::ProgramResult {
+    ) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
     #[inline(always)]
-    pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
     }
     #[allow(clippy::arithmetic_side_effects)]
@@ -345,8 +354,8 @@ impl<'a, 'b> CreateSmartAccountCpi<'a, 'b> {
         &self,
         signers_seeds: &[&[&[u8]]],
         remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)],
-    ) -> solana_program_error::ProgramResult {
-        let mut accounts = Vec::with_capacity(6 + remaining_accounts.len());
+    ) -> solana_program_entrypoint::ProgramResult {
+        let mut accounts = Vec::with_capacity(7 + remaining_accounts.len());
         accounts.push(solana_instruction::AccountMeta::new(
             *self.program_config.key,
             false,
@@ -359,8 +368,12 @@ impl<'a, 'b> CreateSmartAccountCpi<'a, 'b> {
             *self.treasury.key,
             false,
         ));
-        accounts.push(solana_instruction::AccountMeta::new(
+        accounts.push(solana_instruction::AccountMeta::new_readonly(
             *self.creator.key,
+            true,
+        ));
+        accounts.push(solana_instruction::AccountMeta::new(
+            *self.fee_payer.key,
             true,
         ));
         accounts.push(solana_instruction::AccountMeta::new_readonly(
@@ -378,10 +391,8 @@ impl<'a, 'b> CreateSmartAccountCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = CreateSmartAccountInstructionData::new()
-            .try_to_vec()
-            .unwrap();
-        let mut args = self.__args.try_to_vec().unwrap();
+        let mut data = borsh::to_vec(&CreateSmartAccountInstructionData::new()).unwrap();
+        let mut args = borsh::to_vec(&self.__args).unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {
@@ -389,12 +400,13 @@ impl<'a, 'b> CreateSmartAccountCpi<'a, 'b> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(7 + remaining_accounts.len());
+        let mut account_infos = Vec::with_capacity(8 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.program_config.clone());
         account_infos.push(self.settings.clone());
         account_infos.push(self.treasury.clone());
         account_infos.push(self.creator.clone());
+        account_infos.push(self.fee_payer.clone());
         account_infos.push(self.system_program.clone());
         account_infos.push(self.program.clone());
         remaining_accounts
@@ -416,9 +428,10 @@ impl<'a, 'b> CreateSmartAccountCpi<'a, 'b> {
 ///   0. `[writable]` program_config
 ///   1. `[writable]` settings
 ///   2. `[writable]` treasury
-///   3. `[writable, signer]` creator
-///   4. `[]` system_program
-///   5. `[]` program
+///   3. `[signer]` creator
+///   4. `[writable, signer]` fee_payer
+///   5. `[]` system_program
+///   6. `[]` program
 #[derive(Clone, Debug)]
 pub struct CreateSmartAccountCpiBuilder<'a, 'b> {
     instruction: Box<CreateSmartAccountCpiBuilderInstruction<'a, 'b>>,
@@ -432,6 +445,7 @@ impl<'a, 'b> CreateSmartAccountCpiBuilder<'a, 'b> {
             settings: None,
             treasury: None,
             creator: None,
+            fee_payer: None,
             system_program: None,
             program: None,
             settings_authority: None,
@@ -466,10 +480,16 @@ impl<'a, 'b> CreateSmartAccountCpiBuilder<'a, 'b> {
         self.instruction.treasury = Some(treasury);
         self
     }
-    /// The creator of the smart account.
+    /// The creator of the smart account (defines signers, not necessarily paying for fees).
     #[inline(always)]
     pub fn creator(&mut self, creator: &'b solana_account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.creator = Some(creator);
+        self
+    }
+    /// The account that pays for rent and creation fees.
+    #[inline(always)]
+    pub fn fee_payer(&mut self, fee_payer: &'b solana_account_info::AccountInfo<'a>) -> &mut Self {
+        self.instruction.fee_payer = Some(fee_payer);
         self
     }
     #[inline(always)]
@@ -554,12 +574,15 @@ impl<'a, 'b> CreateSmartAccountCpiBuilder<'a, 'b> {
         self
     }
     #[inline(always)]
-    pub fn invoke(&self) -> solana_program_error::ProgramResult {
+    pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed(&[])
     }
     #[allow(clippy::clone_on_copy)]
     #[allow(clippy::vec_init_then_push)]
-    pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program_entrypoint::ProgramResult {
         let args = CreateSmartAccountInstructionArgs {
             settings_authority: self.instruction.settings_authority.clone(),
             threshold: self
@@ -599,6 +622,8 @@ impl<'a, 'b> CreateSmartAccountCpiBuilder<'a, 'b> {
 
             creator: self.instruction.creator.expect("creator is not set"),
 
+            fee_payer: self.instruction.fee_payer.expect("fee_payer is not set"),
+
             system_program: self
                 .instruction
                 .system_program
@@ -621,6 +646,7 @@ struct CreateSmartAccountCpiBuilderInstruction<'a, 'b> {
     settings: Option<&'b solana_account_info::AccountInfo<'a>>,
     treasury: Option<&'b solana_account_info::AccountInfo<'a>>,
     creator: Option<&'b solana_account_info::AccountInfo<'a>>,
+    fee_payer: Option<&'b solana_account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
     program: Option<&'b solana_account_info::AccountInfo<'a>>,
     settings_authority: Option<Pubkey>,

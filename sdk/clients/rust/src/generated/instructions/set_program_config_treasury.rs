@@ -9,8 +9,6 @@ use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 use solana_pubkey::Pubkey;
 
-pub const SET_PROGRAM_CONFIG_TREASURY_DISCRIMINATOR: [u8; 1] = [4];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct SetProgramConfigTreasury {
@@ -43,10 +41,8 @@ impl SetProgramConfigTreasury {
             true,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = SetProgramConfigTreasuryInstructionData::new()
-            .try_to_vec()
-            .unwrap();
-        let mut args = args.try_to_vec().unwrap();
+        let mut data = borsh::to_vec(&SetProgramConfigTreasuryInstructionData::new()).unwrap();
+        let mut args = borsh::to_vec(&args).unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -67,10 +63,6 @@ impl SetProgramConfigTreasuryInstructionData {
     pub fn new() -> Self {
         Self { discriminator: [4] }
     }
-
-    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
-        borsh::to_vec(self)
-    }
 }
 
 impl Default for SetProgramConfigTreasuryInstructionData {
@@ -83,12 +75,6 @@ impl Default for SetProgramConfigTreasuryInstructionData {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SetProgramConfigTreasuryInstructionArgs {
     pub new_treasury: Pubkey,
-}
-
-impl SetProgramConfigTreasuryInstructionArgs {
-    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
-        borsh::to_vec(self)
-    }
 }
 
 /// Instruction builder for `SetProgramConfigTreasury`.
@@ -186,18 +172,21 @@ impl<'a, 'b> SetProgramConfigTreasuryCpi<'a, 'b> {
         }
     }
     #[inline(always)]
-    pub fn invoke(&self) -> solana_program_error::ProgramResult {
+    pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], &[])
     }
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
         remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)],
-    ) -> solana_program_error::ProgramResult {
+    ) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
     #[inline(always)]
-    pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
     }
     #[allow(clippy::arithmetic_side_effects)]
@@ -207,7 +196,7 @@ impl<'a, 'b> SetProgramConfigTreasuryCpi<'a, 'b> {
         &self,
         signers_seeds: &[&[&[u8]]],
         remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)],
-    ) -> solana_program_error::ProgramResult {
+    ) -> solana_program_entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(2 + remaining_accounts.len());
         accounts.push(solana_instruction::AccountMeta::new(
             *self.program_config.key,
@@ -224,10 +213,8 @@ impl<'a, 'b> SetProgramConfigTreasuryCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = SetProgramConfigTreasuryInstructionData::new()
-            .try_to_vec()
-            .unwrap();
-        let mut args = self.__args.try_to_vec().unwrap();
+        let mut data = borsh::to_vec(&SetProgramConfigTreasuryInstructionData::new()).unwrap();
+        let mut args = borsh::to_vec(&self.__args).unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {
@@ -319,12 +306,15 @@ impl<'a, 'b> SetProgramConfigTreasuryCpiBuilder<'a, 'b> {
         self
     }
     #[inline(always)]
-    pub fn invoke(&self) -> solana_program_error::ProgramResult {
+    pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed(&[])
     }
     #[allow(clippy::clone_on_copy)]
     #[allow(clippy::vec_init_then_push)]
-    pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program_entrypoint::ProgramResult {
         let args = SetProgramConfigTreasuryInstructionArgs {
             new_treasury: self
                 .instruction

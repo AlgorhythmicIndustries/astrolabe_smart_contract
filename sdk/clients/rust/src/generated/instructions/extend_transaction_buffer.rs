@@ -8,8 +8,6 @@
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
-pub const EXTEND_TRANSACTION_BUFFER_DISCRIMINATOR: [u8; 1] = [17];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct ExtendTransactionBuffer {
@@ -48,10 +46,8 @@ impl ExtendTransactionBuffer {
             true,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = ExtendTransactionBufferInstructionData::new()
-            .try_to_vec()
-            .unwrap();
-        let mut args = args.try_to_vec().unwrap();
+        let mut data = borsh::to_vec(&ExtendTransactionBufferInstructionData::new()).unwrap();
+        let mut args = borsh::to_vec(&args).unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -74,10 +70,6 @@ impl ExtendTransactionBufferInstructionData {
             discriminator: [17],
         }
     }
-
-    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
-        borsh::to_vec(self)
-    }
 }
 
 impl Default for ExtendTransactionBufferInstructionData {
@@ -90,12 +82,6 @@ impl Default for ExtendTransactionBufferInstructionData {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ExtendTransactionBufferInstructionArgs {
     pub buffer: Vec<u8>,
-}
-
-impl ExtendTransactionBufferInstructionArgs {
-    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
-        borsh::to_vec(self)
-    }
 }
 
 /// Instruction builder for `ExtendTransactionBuffer`.
@@ -209,18 +195,21 @@ impl<'a, 'b> ExtendTransactionBufferCpi<'a, 'b> {
         }
     }
     #[inline(always)]
-    pub fn invoke(&self) -> solana_program_error::ProgramResult {
+    pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], &[])
     }
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
         remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)],
-    ) -> solana_program_error::ProgramResult {
+    ) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
     #[inline(always)]
-    pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
     }
     #[allow(clippy::arithmetic_side_effects)]
@@ -230,7 +219,7 @@ impl<'a, 'b> ExtendTransactionBufferCpi<'a, 'b> {
         &self,
         signers_seeds: &[&[&[u8]]],
         remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)],
-    ) -> solana_program_error::ProgramResult {
+    ) -> solana_program_entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(3 + remaining_accounts.len());
         accounts.push(solana_instruction::AccountMeta::new_readonly(
             *self.settings.key,
@@ -251,10 +240,8 @@ impl<'a, 'b> ExtendTransactionBufferCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = ExtendTransactionBufferInstructionData::new()
-            .try_to_vec()
-            .unwrap();
-        let mut args = self.__args.try_to_vec().unwrap();
+        let mut data = borsh::to_vec(&ExtendTransactionBufferInstructionData::new()).unwrap();
+        let mut args = borsh::to_vec(&self.__args).unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {
@@ -355,12 +342,15 @@ impl<'a, 'b> ExtendTransactionBufferCpiBuilder<'a, 'b> {
         self
     }
     #[inline(always)]
-    pub fn invoke(&self) -> solana_program_error::ProgramResult {
+    pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed(&[])
     }
     #[allow(clippy::clone_on_copy)]
     #[allow(clippy::vec_init_then_push)]
-    pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program_entrypoint::ProgramResult {
         let args = ExtendTransactionBufferInstructionArgs {
             buffer: self.instruction.buffer.clone().expect("buffer is not set"),
         };

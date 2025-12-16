@@ -34,8 +34,6 @@ pub struct BatchTransaction {
     pub message: SmartAccountTransactionMessage,
 }
 
-pub const BATCH_TRANSACTION_DISCRIMINATOR: [u8; 8] = [92, 20, 61, 146, 155, 62, 112, 72];
-
 impl BatchTransaction {
     #[inline(always)]
     pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {
@@ -145,5 +143,5 @@ impl anchor_lang::IdlBuild for BatchTransaction {}
 
 #[cfg(feature = "anchor-idl-build")]
 impl anchor_lang::Discriminator for BatchTransaction {
-    const DISCRIMINATOR: &[u8] = &[0; 8];
+    const DISCRIMINATOR: [u8; 8] = [0; 8];
 }

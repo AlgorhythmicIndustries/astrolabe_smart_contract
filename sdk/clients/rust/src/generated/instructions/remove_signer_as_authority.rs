@@ -9,8 +9,6 @@ use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 use solana_pubkey::Pubkey;
 
-pub const REMOVE_SIGNER_AS_AUTHORITY_DISCRIMINATOR: [u8; 1] = [7];
-
 /// Accounts.
 #[derive(Debug)]
 pub struct RemoveSignerAsAuthority {
@@ -71,10 +69,8 @@ impl RemoveSignerAsAuthority {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = RemoveSignerAsAuthorityInstructionData::new()
-            .try_to_vec()
-            .unwrap();
-        let mut args = args.try_to_vec().unwrap();
+        let mut data = borsh::to_vec(&RemoveSignerAsAuthorityInstructionData::new()).unwrap();
+        let mut args = borsh::to_vec(&args).unwrap();
         data.append(&mut args);
 
         solana_instruction::Instruction {
@@ -95,10 +91,6 @@ impl RemoveSignerAsAuthorityInstructionData {
     pub fn new() -> Self {
         Self { discriminator: [7] }
     }
-
-    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
-        borsh::to_vec(self)
-    }
 }
 
 impl Default for RemoveSignerAsAuthorityInstructionData {
@@ -114,12 +106,6 @@ pub struct RemoveSignerAsAuthorityInstructionArgs {
     pub memo: Option<String>,
 }
 
-impl RemoveSignerAsAuthorityInstructionArgs {
-    pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
-        borsh::to_vec(self)
-    }
-}
-
 /// Instruction builder for `RemoveSignerAsAuthority`.
 ///
 /// ### Accounts:
@@ -128,7 +114,7 @@ impl RemoveSignerAsAuthorityInstructionArgs {
 ///   1. `[signer]` settings_authority
 ///   2. `[writable, signer, optional]` fee_payer
 ///   3. `[optional]` system_program (default to `11111111111111111111111111111111`)
-///   4. `[optional]` program (default to `ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q`)
+///   4. `[optional]` program (default to `aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh`)
 #[derive(Clone, Debug, Default)]
 pub struct RemoveSignerAsAuthorityBuilder {
     settings: Option<solana_pubkey::Pubkey>,
@@ -172,7 +158,7 @@ impl RemoveSignerAsAuthorityBuilder {
         self.system_program = system_program;
         self
     }
-    /// `[optional account, default to 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q']`
+    /// `[optional account, default to 'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh']`
     #[inline(always)]
     pub fn program(&mut self, program: solana_pubkey::Pubkey) -> &mut Self {
         self.program = Some(program);
@@ -214,7 +200,7 @@ impl RemoveSignerAsAuthorityBuilder {
             fee_payer: self.fee_payer,
             system_program: self.system_program,
             program: self.program.unwrap_or(solana_pubkey::pubkey!(
-                "ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q"
+                "aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh"
             )),
         };
         let args = RemoveSignerAsAuthorityInstructionArgs {
@@ -278,18 +264,21 @@ impl<'a, 'b> RemoveSignerAsAuthorityCpi<'a, 'b> {
         }
     }
     #[inline(always)]
-    pub fn invoke(&self) -> solana_program_error::ProgramResult {
+    pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], &[])
     }
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
         remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)],
-    ) -> solana_program_error::ProgramResult {
+    ) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
     #[inline(always)]
-    pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
     }
     #[allow(clippy::arithmetic_side_effects)]
@@ -299,7 +288,7 @@ impl<'a, 'b> RemoveSignerAsAuthorityCpi<'a, 'b> {
         &self,
         signers_seeds: &[&[&[u8]]],
         remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)],
-    ) -> solana_program_error::ProgramResult {
+    ) -> solana_program_entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(5 + remaining_accounts.len());
         accounts.push(solana_instruction::AccountMeta::new(
             *self.settings.key,
@@ -339,10 +328,8 @@ impl<'a, 'b> RemoveSignerAsAuthorityCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = RemoveSignerAsAuthorityInstructionData::new()
-            .try_to_vec()
-            .unwrap();
-        let mut args = self.__args.try_to_vec().unwrap();
+        let mut data = borsh::to_vec(&RemoveSignerAsAuthorityInstructionData::new()).unwrap();
+        let mut args = borsh::to_vec(&self.__args).unwrap();
         data.append(&mut args);
 
         let instruction = solana_instruction::Instruction {
@@ -482,12 +469,15 @@ impl<'a, 'b> RemoveSignerAsAuthorityCpiBuilder<'a, 'b> {
         self
     }
     #[inline(always)]
-    pub fn invoke(&self) -> solana_program_error::ProgramResult {
+    pub fn invoke(&self) -> solana_program_entrypoint::ProgramResult {
         self.invoke_signed(&[])
     }
     #[allow(clippy::clone_on_copy)]
     #[allow(clippy::vec_init_then_push)]
-    pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program_entrypoint::ProgramResult {
         let args = RemoveSignerAsAuthorityInstructionArgs {
             old_signer: self
                 .instruction
