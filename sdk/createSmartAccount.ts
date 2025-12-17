@@ -10,9 +10,7 @@ import {
   address,
   compileTransaction,
   createSolanaRpc,
-  lamports,
 } from '@solana/kit';
-import { getTransferSolInstruction } from '@solana-program/system';
 import { Buffer } from 'buffer';
 import { fetchProgramConfig } from './clients/js/src/generated/accounts/programConfig';
 import { getCreateSmartAccountInstructionAsync } from './clients/js/src/generated/instructions';
