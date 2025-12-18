@@ -3,7 +3,7 @@ name: Push SDK Subtree
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ dev, main ]
     paths: 
       - 'sdk/**'  # Only trigger when files in sdk/ directory change
   workflow_dispatch:  # Allow manual triggering
@@ -36,12 +36,18 @@ jobs:
     
     - name: Push subtree to SDK repository
       run: |
-        # Try to push, if it fails, try to add the subtree first
-        git subtree push --prefix=sdk astrolabe-sdk-remote dev || {
-          echo "Subtree push failed, trying to add subtree first..."
-          git subtree add --prefix=sdk astrolabe-sdk-remote dev --squash
-          git subtree push --prefix=sdk astrolabe-sdk-remote dev
-        }
+        # Get the current branch name
+        BRANCH_NAME="${{ github.ref_name }}"
+        echo "Pushing SDK subtree to branch: $BRANCH_NAME"
+        
+        # Split the subtree into a temporary branch
+        git subtree split --prefix=sdk -b sdk-temp
+        
+        # Force push to the corresponding branch in astrolabe-sdk
+        git push astrolabe-sdk-remote sdk-temp:$BRANCH_NAME --force
+        
+        # Clean up the temporary branch
+        git branch -D sdk-temp
     
     - name: Clean up remote
       if: always()
