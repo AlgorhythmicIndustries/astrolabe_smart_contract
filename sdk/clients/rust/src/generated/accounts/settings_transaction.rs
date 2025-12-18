@@ -40,6 +40,8 @@ pub struct SettingsTransaction {
     pub actions: Vec<SettingsAction>,
 }
 
+pub const SETTINGS_TRANSACTION_DISCRIMINATOR: [u8; 8] = [199, 151, 72, 87, 77, 124, 16, 0];
+
 impl SettingsTransaction {
     #[inline(always)]
     pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {
@@ -149,5 +151,5 @@ impl anchor_lang::IdlBuild for SettingsTransaction {}
 
 #[cfg(feature = "anchor-idl-build")]
 impl anchor_lang::Discriminator for SettingsTransaction {
-    const DISCRIMINATOR: [u8; 8] = [0; 8];
+    const DISCRIMINATOR: &[u8] = &[0; 8];
 }

@@ -52,6 +52,8 @@ pub struct Proposal {
     pub cancelled: Vec<Pubkey>,
 }
 
+pub const PROPOSAL_DISCRIMINATOR: [u8; 8] = [26, 94, 189, 187, 116, 136, 53, 33];
+
 impl Proposal {
     #[inline(always)]
     pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {
@@ -161,5 +163,5 @@ impl anchor_lang::IdlBuild for Proposal {}
 
 #[cfg(feature = "anchor-idl-build")]
 impl anchor_lang::Discriminator for Proposal {
-    const DISCRIMINATOR: [u8; 8] = [0; 8];
+    const DISCRIMINATOR: &[u8] = &[0; 8];
 }

@@ -165,14 +165,8 @@ pub enum AstrolabeSmartAccountError {
     NotImplemented = 0x17A2,
 }
 
-impl solana_program_error::PrintProgramError for AstrolabeSmartAccountError {
-    fn print<E>(&self) {
-        solana_msg::msg!(&self.to_string());
-    }
-}
-
-impl<T> solana_decode_error::DecodeError<T> for AstrolabeSmartAccountError {
-    fn type_of() -> &'static str {
-        "AstrolabeSmartAccountError"
+impl From<AstrolabeSmartAccountError> for solana_program_error::ProgramError {
+    fn from(e: AstrolabeSmartAccountError) -> Self {
+        solana_program_error::ProgramError::Custom(e as u32)
     }
 }

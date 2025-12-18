@@ -53,6 +53,8 @@ pub struct Transaction {
     pub message: SmartAccountTransactionMessage,
 }
 
+pub const TRANSACTION_DISCRIMINATOR: [u8; 8] = [11, 24, 174, 129, 203, 117, 242, 23];
+
 impl Transaction {
     #[inline(always)]
     pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {
@@ -162,5 +164,5 @@ impl anchor_lang::IdlBuild for Transaction {}
 
 #[cfg(feature = "anchor-idl-build")]
 impl anchor_lang::Discriminator for Transaction {
-    const DISCRIMINATOR: [u8; 8] = [0; 8];
+    const DISCRIMINATOR: &[u8] = &[0; 8];
 }
