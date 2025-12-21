@@ -363,7 +363,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
   let transactionBufferPda = await deriveBufferPda(smartAccountSettings, signer.address, chosenBufferIndex);
   // Probe and find a free buffer index if current exists.
   for (let attempts = 0; attempts < 256; attempts++) {
-    const info = await rpc.getAccountInfo(transactionBufferPda, { commitment: 'processed' as any }).send();
+    const info = await rpc.getAccountInfo(transactionBufferPda, { encoding: 'base64', commitment: 'processed' as any }).send();
     if (!info.value) break; // free
     chosenBufferIndex = (chosenBufferIndex + 1) & 0xff;
     transactionBufferPda = await deriveBufferPda(smartAccountSettings, signer.address, chosenBufferIndex);

@@ -67,7 +67,7 @@ async function cleanBuffers() {
 
       // Check if the buffer account exists
       try {
-        const accountInfo = await rpc.getAccountInfo(transactionBufferPda).send();
+        const accountInfo = await rpc.getAccountInfo(transactionBufferPda, { encoding: 'base64' }).send();
         
         if (accountInfo.value === null) {
           console.log(`  ⚪ Buffer ${bufferIndex}: Account doesn't exist, skipping`);

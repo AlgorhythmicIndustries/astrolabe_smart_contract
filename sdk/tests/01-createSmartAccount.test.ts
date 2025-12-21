@@ -135,7 +135,7 @@ async function testCreateSmartAccount() {
     // Verify the account exists on-chain
     console.log('🔍 Verifying smart account settings exist on-chain...');
     try {
-      const accountInfo = await rpc.getAccountInfo(result.settingsAddress, { commitment: 'confirmed' }).send();
+      const accountInfo = await rpc.getAccountInfo(result.settingsAddress, { encoding: 'base64', commitment: 'confirmed' }).send();
       if (accountInfo.value) {
         console.log('✅ Smart account settings confirmed on-chain');
       } else {

@@ -207,7 +207,7 @@ function createComplexBufferedTransaction(params) {
                     _t.label = 7;
                 case 7:
                     if (!(attempts < 256)) return [3 /*break*/, 11];
-                    return [4 /*yield*/, rpc.getAccountInfo(transactionBufferPda, { commitment: 'processed' }).send()];
+                    return [4 /*yield*/, rpc.getAccountInfo(transactionBufferPda, { encoding: 'base64', commitment: 'processed' }).send()];
                 case 8:
                     info = _t.sent();
                     if (!info.value)
