@@ -639,8 +639,8 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
         console.log('⚠️  Simulation did not return CU consumption, using data-driven fallback: 400K CU');
       }
     } catch (error) {
-      console.log(`⚠️  Transaction simulation failed (likely CORS), using data-driven fallback: 400K CU`);
-      // Don't log full error as it's expected to fail on some RPC endpoints due to CORS
+      console.log(`⚠️  Transaction simulation failed, using data-driven fallback: 400K CU`);
+      console.log(`📛 Simulation error:`, error);
     }
     
     // Step 3: Create execute transaction with optimal CU limit
