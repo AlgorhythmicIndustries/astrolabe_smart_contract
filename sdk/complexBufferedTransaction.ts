@@ -180,7 +180,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
   let finalNumReadonlyNonSignerAccounts = numReadonlyNonSignerAccounts;
   
   if (!hasComputeUnitLimit) {
-    console.log('⚠️  No compute unit limit instruction found - adding one with 1.2M CU for smart account swap');
+    console.log('⚠️  No compute unit limit instruction found - adding placeholder (backend will re-estimate)');
     
     // Add ComputeBudget program to accounts if not already there
     if (computeBudgetProgramIndex === -1) {
@@ -194,8 +194,8 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
       finalComputeBudgetProgramIndex = computeBudgetProgramIndex;
     }
     
-    // Create SetComputeUnitLimit instruction (1.2M CU for complex swaps with smart account overhead)
-    const CU_LIMIT = 600_000;
+    // Create SetComputeUnitLimit instruction (placeholder - backend will re-estimate via simulation)
+    const CU_LIMIT = 800_000;
     const cuLimitData = new Uint8Array(5);
     cuLimitData[0] = 2; // SetComputeUnitLimit discriminator
     cuLimitData[1] = CU_LIMIT & 0xff;
@@ -614,9 +614,10 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     console.log('🧪 Curl command:');
     console.log(`curl -X POST https://api.dev.astrolabefinance.com/surfpool -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1,"method":"simulateTransaction","params":["${base64Tx}",{"encoding":"base64","replaceRecentBlockhash":true,"sigVerify":false}]}'`);
     
-    // Fallback based on real-world data: ExecuteTransaction typically uses 200-250K CU for complex swaps
-    // Using 400K provides ~80% safety margin and avoids overpaying for CUs
-    let optimalCULimit = 400_000; 
+    // Fallback CU limit - used when simulation fails (e.g., CORS in browser)
+    // The backend will re-estimate CU via simulation before signing, so this is just a placeholder.
+    // Using 800K as a safe default that handles most 2-hop swaps with smart account overhead.
+    let optimalCULimit = 800_000; 
     
     try {
       // Use simulateTransaction RPC method (may fail due to CORS on some endpoints)
@@ -636,10 +637,10 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
         optimalCULimit = Math.ceil(consumedCU * 1.3);
         console.log(`🔧 Simulated CU consumption: ${consumedCU}, setting limit to ${optimalCULimit} (30% margin)`);
       } else {
-        console.log('⚠️  Simulation did not return CU consumption, using data-driven fallback: 400K CU');
+        console.log('⚠️  Simulation did not return CU consumption, using fallback: 1M CU');
       }
     } catch (error) {
-      console.log(`⚠️  Transaction simulation failed, using data-driven fallback: 400K CU`);
+      console.log(`⚠️  Transaction simulation failed (likely CORS), using fallback: 1M CU`);
       console.log(`📛 Simulation error:`, error);
     }
     
