@@ -604,45 +604,11 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
       ) as any;
     }
     
-    // Step 2: Simulate to get actual CU consumption
-    const compiledTest = compileTransaction(testMessageCompressed);
-    const testTx = new Uint8Array(compiledTest.messageBytes);
-    
-    // DEBUG: Log base64 transaction for manual testing
-    const base64Tx = Buffer.from(testTx).toString('base64');
-    console.log('🧪 Test transaction for simulation (base64):', base64Tx);
-    console.log('🧪 Curl command:');
-    console.log(`curl -X POST https://api.dev.astrolabefinance.com/surfpool -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1,"method":"simulateTransaction","params":["${base64Tx}",{"encoding":"base64","replaceRecentBlockhash":true,"sigVerify":false}]}'`);
-    
-    // Fallback CU limit - used when simulation fails (e.g., CORS in browser)
-    // The backend will re-estimate CU via simulation before signing, so this is just a placeholder.
+    // Step 2: CU limit placeholder
+    // NOTE: Frontend no longer simulates - backend handles accurate CU estimation in Phase 2b.
+    // This is just a placeholder value that will be replaced by backend simulation.
     // Using 800K as a safe default that handles most 2-hop swaps with smart account overhead.
-    let optimalCULimit = 800_000; 
-    
-    try {
-      // Use simulateTransaction RPC method (may fail due to CORS on some endpoints)
-      const base64Tx = Buffer.from(testTx).toString('base64') as any; // Cast to any to work with branded type
-      const simulationResult = await rpc
-        .simulateTransaction(base64Tx, {
-          replaceRecentBlockhash: true,
-          sigVerify: false,
-          encoding: 'base64',
-        })
-        .send();
-      
-      if (simulationResult.value.unitsConsumed) {
-        // Convert bigint to number and add 30% margin for smart account overhead + safety buffer
-        // (Helius recommends 10%, we need more for smart accounts)
-        const consumedCU = Number(simulationResult.value.unitsConsumed);
-        optimalCULimit = Math.ceil(consumedCU * 1.3);
-        console.log(`🔧 Simulated CU consumption: ${consumedCU}, setting limit to ${optimalCULimit} (30% margin)`);
-      } else {
-        console.log('⚠️  Simulation did not return CU consumption, using fallback: 1M CU');
-      }
-    } catch (error) {
-      console.log(`⚠️  Transaction simulation failed (likely CORS), using fallback: 1M CU`);
-      console.log(`📛 Simulation error:`, error);
-    }
+    const optimalCULimit = 800_000;
     
     // Step 3: Create execute transaction with optimal CU limit
     const setCULimitIx = getSetComputeUnitLimitInstruction({ units: optimalCULimit });

@@ -7,9 +7,21 @@ edition = "2021"
 [workspace]
 
 [dependencies]
-anchor-lang = "0.30.1"
-solana-program = "1.18"
-borsh = "0.10"
+# Solana 2.x modular crates (compatible with backend's solana-sdk 2.2.x)
+# Enable borsh feature for Pubkey serialization
+solana-pubkey = { version = "2.2", features = ["borsh"] }
+solana-instruction = "2.2"
+solana-account-info = "2.2"
+solana-program-error = "2.2"
+solana-cpi = "2.2"
+
+# Serialization (derive feature needed for #[derive(BorshSerialize, BorshDeserialize)])
+borsh = { version = "1.5", features = ["derive"] }
+
+# Error handling (used by generated error types)
+thiserror = "2.0"
+num-derive = "0.4"
+num-traits = "0.2"
 
 [lib]
 name = "astrolabe_smart_account_client"
