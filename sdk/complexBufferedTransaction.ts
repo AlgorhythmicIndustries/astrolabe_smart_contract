@@ -565,53 +565,11 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     // NOTE: We set fee payer and blockhash here for compilation, but caller should refresh before signing
     // IMPORTANT: We MUST compress with ALTs to keep under the 1232 byte limit
     
-    // CRITICAL: Simulate transaction first to determine optimal CU limit (Helius best practice)
-    // Step 1: Create a test transaction with max CU limit to ensure simulation succeeds
-    const testCULimitIx = getSetComputeUnitLimitInstruction({ units: 1_400_000 });
-    const testMessage = pipe(
-      createTransactionMessage({ version: 0 }),
-      tx => setTransactionMessageFeePayerSigner(feePayerSigner, tx),
-      tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
-      tx => appendTransactionMessageInstructions([testCULimitIx, executeIxWithAccounts], tx)
-    );
-    
-    // Compress test transaction if needed
-    let testMessageCompressed = testMessage;
-    if (execLookups.length > 0) {
-      const addressesByLookupTableAddress: Record<string, Address[]> = {};
-      for (const lookup of execLookups) {
-        const info = await rpc
-          .getAccountInfo(toAddress(lookup.accountKey), { encoding: 'base64', commitment: 'finalized' })
-          .send();
-        if (!info.value?.data) continue;
-        const b64 = Array.isArray(info.value.data) ? info.value.data[0] : (info.value.data as string);
-        const dataBuf = Buffer.from(b64, 'base64');
-        const data = new Uint8Array(dataBuf.buffer, dataBuf.byteOffset, dataBuf.byteLength);
-        const HEADER_SIZE = 56;
-        const PUBKEY_SIZE = 32;
-        const total = Math.floor((data.length - HEADER_SIZE) / PUBKEY_SIZE);
-        const addrs: Address[] = [];
-        for (let i = 0; i < total; i++) {
-          const off = HEADER_SIZE + i * PUBKEY_SIZE;
-          const keyBytes = data.subarray(off, off + PUBKEY_SIZE);
-          addrs.push(address(bs58.encode(keyBytes)));
-        }
-        addressesByLookupTableAddress[lookup.accountKey.toString()] = addrs;
-      }
-      testMessageCompressed = compressTransactionMessageUsingAddressLookupTables(
-        testMessage as any,
-        addressesByLookupTableAddress as any
-      ) as any;
-    }
-    
-    // Step 2: CU limit placeholder
-    // NOTE: Frontend no longer simulates - backend handles accurate CU estimation in Phase 2b.
-    // This is just a placeholder value that will be replaced by backend simulation.
+    // CU limit placeholder - backend handles accurate CU estimation in Phase 2b after
+    // the Proposal PDA exists on-chain, enabling accurate simulation.
     // Using 800K as a safe default that handles most 2-hop swaps with smart account overhead.
-    const optimalCULimit = 800_000;
-    
-    // Step 3: Create execute transaction with optimal CU limit
-    const setCULimitIx = getSetComputeUnitLimitInstruction({ units: optimalCULimit });
+    const placeholderCULimit = 800_000;
+    const setCULimitIx = getSetComputeUnitLimitInstruction({ units: placeholderCULimit });
     
     let executeMsgLocal = pipe(
       createTransactionMessage({ version: 0 }),
