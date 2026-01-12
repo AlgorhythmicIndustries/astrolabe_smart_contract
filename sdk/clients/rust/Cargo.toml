@@ -3,9 +3,6 @@ name = "astrolabe-smart-account-client"
 version = "0.1.0"
 edition = "2021"
 
-# Empty workspace table to keep this crate independent from the parent workspace
-[workspace]
-
 [dependencies]
 # Solana 2.x modular crates (compatible with backend's solana-sdk 2.2.x)
 # Enable borsh feature for Pubkey serialization
