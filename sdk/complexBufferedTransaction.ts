@@ -292,17 +292,33 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
   
   const finalStaticAccountsLen = finalStaticAccounts.length;
 
+  // Normalize lookups so we can safely reuse them for both message encoding
+  // and ExecuteTransaction remaining accounts.
+  const rawLookups = (addressTableLookups?.length
+    ? addressTableLookups
+    : (compiled.addressTableLookups || [])) as any[];
+  const normalizedLookups = rawLookups
+    .map((lookup: any, index: number) => {
+      const accountKeyRaw = lookup?.accountKey ?? lookup?.lookupTableAddress;
+      if (!accountKeyRaw) {
+        console.warn(`⚠️ Missing lookup table address at index ${index}, skipping`);
+        return null;
+      }
+      return {
+        accountKey: toAddress(accountKeyRaw),
+        writableIndexes: new Uint8Array(lookup?.writableIndexes ?? []),
+        readonlyIndexes: new Uint8Array(lookup?.readonlyIndexes ?? []),
+      };
+    })
+    .filter(Boolean) as { accountKey: Address; writableIndexes: Uint8Array; readonlyIndexes: Uint8Array }[];
+
   const transactionMessage = {
     numSigners: numSignerAccounts,
     numWritableSigners: Math.max(0, numSignerAccounts - numReadonlySignerAccounts),
     numWritableNonSigners: Math.max(0, (finalStaticAccountsLen - numSignerAccounts) - finalNumReadonlyNonSignerAccounts),
     accountKeys: finalStaticAccounts,
     instructions: finalInstructions,
-    addressTableLookups: (addressTableLookups || []).map(lookup => ({
-      accountKey: lookup.accountKey,
-      writableIndexes: new Uint8Array(lookup.writableIndexes ?? []),
-      readonlyIndexes: new Uint8Array(lookup.readonlyIndexes ?? []),
-    })),
+    addressTableLookups: normalizedLookups,
   };
 
   // Encode as the TransactionMessage format expected by smart contract
@@ -492,7 +508,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
 
     // 1) ALT table accounts first (readonly), in the order of address_table_lookups
     // Use the addressTableLookups from params (the inner Jupiter transaction), not from compiled (outer wrapper)
-    const execLookups = ((addressTableLookups || []) as any[]).filter((l: any) => l && l.accountKey);
+    const execLookups = normalizedLookups;
     for (const lookup of execLookups) {
       resultAccounts.push({ address: toAddress(lookup.accountKey), role: AccountRole.READONLY });
     }
