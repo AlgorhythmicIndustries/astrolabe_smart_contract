@@ -107,7 +107,7 @@ impl<'info> SyncSettingsTransaction<'info> {
             settings: (***settings).clone(),
             changes: args.actions.clone(),
         };
-        
+
         let log_authority_info = LogAuthorityInfo {
             authority: settings.to_account_info(),
             authority_seeds: get_settings_signer_seeds(settings.seed),

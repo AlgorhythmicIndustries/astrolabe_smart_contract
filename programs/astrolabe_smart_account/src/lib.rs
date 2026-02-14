@@ -10,18 +10,17 @@ use anchor_lang::prelude::*;
 #[cfg(not(feature = "no-entrypoint"))]
 use solana_security_txt::security_txt;
 
+pub use events::*;
 pub use instructions::ProgramConfig;
 pub use instructions::*;
 pub use state::*;
 pub use utils::SmallVec;
-pub use events::*;
 
 pub mod errors;
+pub mod events;
 pub mod instructions;
 pub mod state;
 mod utils;
-pub mod events;
-
 
 #[cfg(not(feature = "no-entrypoint"))]
 security_txt! {
@@ -79,6 +78,15 @@ pub mod astrolabe_smart_account {
         args: ProgramConfigSetTreasuryArgs,
     ) -> Result<()> {
         ProgramConfig::set_treasury(ctx, args)
+    }
+
+    /// Set the `buffer_rent_collector` parameter of the program config.
+    #[instruction(discriminator = [35])]
+    pub fn set_program_config_buffer_rent_collector(
+        ctx: Context<ProgramConfig>,
+        args: ProgramConfigSetBufferRentCollectorArgs,
+    ) -> Result<()> {
+        ProgramConfig::set_buffer_rent_collector(ctx, args)
     }
     /// Create a smart account.
     #[instruction(discriminator = [5])]
@@ -207,7 +215,9 @@ pub mod astrolabe_smart_account {
     /// Execute a smart account transaction.
     /// The transaction must be `Approved`.
     #[instruction(discriminator = [19])]
-    pub fn execute_transaction<'info>(ctx: Context<'_, '_, 'info, 'info, ExecuteTransaction<'info>>) -> Result<()> {
+    pub fn execute_transaction<'info>(
+        ctx: Context<'_, '_, 'info, 'info, ExecuteTransaction<'info>>,
+    ) -> Result<()> {
         ExecuteTransaction::execute_transaction(ctx)
     }
 
@@ -228,7 +238,9 @@ pub mod astrolabe_smart_account {
 
     /// Execute a transaction from the batch.
     #[instruction(discriminator = [22])]
-    pub fn execute_batch_transaction<'info>(ctx: Context<'_, '_, 'info, 'info, ExecuteBatchTransaction<'info>>) -> Result<()> {
+    pub fn execute_batch_transaction<'info>(
+        ctx: Context<'_, '_, 'info, 'info, ExecuteBatchTransaction<'info>>,
+    ) -> Result<()> {
         ExecuteBatchTransaction::execute_batch_transaction(ctx)
     }
 
@@ -322,7 +334,10 @@ pub mod astrolabe_smart_account {
     }
     /// Log an event
     #[instruction(discriminator = [34])]
-    pub fn log_event<'info>(ctx: Context<'_, '_, 'info, 'info, LogEvent<'info>>, args: LogEventArgs) -> Result<()> {
+    pub fn log_event<'info>(
+        ctx: Context<'_, '_, 'info, 'info, LogEvent<'info>>,
+        args: LogEventArgs,
+    ) -> Result<()> {
         LogEvent::log_event(ctx, args)
     }
 }

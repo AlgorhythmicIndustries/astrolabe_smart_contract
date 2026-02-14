@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{TransactionMessage, SmartAccountTransactionMessage};
+use crate::{SmartAccountTransactionMessage, TransactionMessage};
 
 /// Stores data required for serial execution of a batch of smart account transactions.
 /// A smart account transaction is a transaction that's executed on behalf of the smart account

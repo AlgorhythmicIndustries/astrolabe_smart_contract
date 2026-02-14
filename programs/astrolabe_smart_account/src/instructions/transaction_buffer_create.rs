@@ -53,33 +53,29 @@ pub struct CreateTransactionBuffer<'info> {
 }
 
 impl CreateTransactionBuffer<'_> {
-    fn validate(&self, args: &CreateTransactionBufferArgs) -> Result<()> {        
+    fn validate(&self, args: &CreateTransactionBufferArgs) -> Result<()> {
         let Self {
-            settings, buffer_creator, ..
+            settings,
+            buffer_creator,
+            ..
         } = self;
 
-        
         // buffer_creator is a signer on the smart account
         let is_signer = settings.is_signer(buffer_creator.key());
-        
-        require!(
-            is_signer.is_some(),
-            SmartAccountError::NotASigner
-        );
-        
+
+        require!(is_signer.is_some(), SmartAccountError::NotASigner);
+
         // buffer_creator has initiate permissions
-        let has_permission = settings.signer_has_permission(buffer_creator.key(), Permission::Initiate);
-        require!(
-            has_permission,
-            SmartAccountError::Unauthorized
-        );
+        let has_permission =
+            settings.signer_has_permission(buffer_creator.key(), Permission::Initiate);
+        require!(has_permission, SmartAccountError::Unauthorized);
 
         // Final Buffer Size must not exceed 4000 bytes
         require!(
             args.final_buffer_size as usize <= MAX_BUFFER_SIZE,
             SmartAccountError::FinalBufferSizeExceeded
         );
-        
+
         Ok(())
     }
 
@@ -89,7 +85,6 @@ impl CreateTransactionBuffer<'_> {
         ctx: Context<Self>,
         args: CreateTransactionBufferArgs,
     ) -> Result<()> {
-        
         // Readonly Accounts
         let transaction_buffer = &mut ctx.accounts.transaction_buffer;
         let settings = &ctx.accounts.settings;

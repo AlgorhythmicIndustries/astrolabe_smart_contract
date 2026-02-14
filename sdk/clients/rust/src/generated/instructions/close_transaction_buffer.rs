@@ -15,9 +15,13 @@ pub const CLOSE_TRANSACTION_BUFFER_DISCRIMINATOR: [u8; 1] = [16];
 pub struct CloseTransactionBuffer {
     pub settings: solana_pubkey::Pubkey,
 
+    pub program_config: solana_pubkey::Pubkey,
+
     pub transaction_buffer: solana_pubkey::Pubkey,
     /// The signer on the smart account that created the TransactionBuffer.
     pub creator: solana_pubkey::Pubkey,
+
+    pub buffer_rent_collector: solana_pubkey::Pubkey,
 }
 
 impl CloseTransactionBuffer {
@@ -30,9 +34,13 @@ impl CloseTransactionBuffer {
         &self,
         remaining_accounts: &[solana_instruction::AccountMeta],
     ) -> solana_instruction::Instruction {
-        let mut accounts = Vec::with_capacity(3 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(5 + remaining_accounts.len());
         accounts.push(solana_instruction::AccountMeta::new_readonly(
             self.settings,
+            false,
+        ));
+        accounts.push(solana_instruction::AccountMeta::new_readonly(
+            self.program_config,
             false,
         ));
         accounts.push(solana_instruction::AccountMeta::new(
@@ -42,6 +50,10 @@ impl CloseTransactionBuffer {
         accounts.push(solana_instruction::AccountMeta::new_readonly(
             self.creator,
             true,
+        ));
+        accounts.push(solana_instruction::AccountMeta::new(
+            self.buffer_rent_collector,
+            false,
         ));
         accounts.extend_from_slice(remaining_accounts);
         let data = CloseTransactionBufferInstructionData::new()
@@ -85,13 +97,17 @@ impl Default for CloseTransactionBufferInstructionData {
 /// ### Accounts:
 ///
 ///   0. `[]` settings
-///   1. `[writable]` transaction_buffer
-///   2. `[signer]` creator
+///   1. `[]` program_config
+///   2. `[writable]` transaction_buffer
+///   3. `[signer]` creator
+///   4. `[writable]` buffer_rent_collector
 #[derive(Clone, Debug, Default)]
 pub struct CloseTransactionBufferBuilder {
     settings: Option<solana_pubkey::Pubkey>,
+    program_config: Option<solana_pubkey::Pubkey>,
     transaction_buffer: Option<solana_pubkey::Pubkey>,
     creator: Option<solana_pubkey::Pubkey>,
+    buffer_rent_collector: Option<solana_pubkey::Pubkey>,
     __remaining_accounts: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -105,6 +121,11 @@ impl CloseTransactionBufferBuilder {
         self
     }
     #[inline(always)]
+    pub fn program_config(&mut self, program_config: solana_pubkey::Pubkey) -> &mut Self {
+        self.program_config = Some(program_config);
+        self
+    }
+    #[inline(always)]
     pub fn transaction_buffer(&mut self, transaction_buffer: solana_pubkey::Pubkey) -> &mut Self {
         self.transaction_buffer = Some(transaction_buffer);
         self
@@ -113,6 +134,14 @@ impl CloseTransactionBufferBuilder {
     #[inline(always)]
     pub fn creator(&mut self, creator: solana_pubkey::Pubkey) -> &mut Self {
         self.creator = Some(creator);
+        self
+    }
+    #[inline(always)]
+    pub fn buffer_rent_collector(
+        &mut self,
+        buffer_rent_collector: solana_pubkey::Pubkey,
+    ) -> &mut Self {
+        self.buffer_rent_collector = Some(buffer_rent_collector);
         self
     }
     /// Add an additional account to the instruction.
@@ -134,10 +163,14 @@ impl CloseTransactionBufferBuilder {
     pub fn instruction(&self) -> solana_instruction::Instruction {
         let accounts = CloseTransactionBuffer {
             settings: self.settings.expect("settings is not set"),
+            program_config: self.program_config.expect("program_config is not set"),
             transaction_buffer: self
                 .transaction_buffer
                 .expect("transaction_buffer is not set"),
             creator: self.creator.expect("creator is not set"),
+            buffer_rent_collector: self
+                .buffer_rent_collector
+                .expect("buffer_rent_collector is not set"),
         };
 
         accounts.instruction_with_remaining_accounts(&self.__remaining_accounts)
@@ -148,9 +181,13 @@ impl CloseTransactionBufferBuilder {
 pub struct CloseTransactionBufferCpiAccounts<'a, 'b> {
     pub settings: &'b solana_account_info::AccountInfo<'a>,
 
+    pub program_config: &'b solana_account_info::AccountInfo<'a>,
+
     pub transaction_buffer: &'b solana_account_info::AccountInfo<'a>,
     /// The signer on the smart account that created the TransactionBuffer.
     pub creator: &'b solana_account_info::AccountInfo<'a>,
+
+    pub buffer_rent_collector: &'b solana_account_info::AccountInfo<'a>,
 }
 
 /// `close_transaction_buffer` CPI instruction.
@@ -160,9 +197,13 @@ pub struct CloseTransactionBufferCpi<'a, 'b> {
 
     pub settings: &'b solana_account_info::AccountInfo<'a>,
 
+    pub program_config: &'b solana_account_info::AccountInfo<'a>,
+
     pub transaction_buffer: &'b solana_account_info::AccountInfo<'a>,
     /// The signer on the smart account that created the TransactionBuffer.
     pub creator: &'b solana_account_info::AccountInfo<'a>,
+
+    pub buffer_rent_collector: &'b solana_account_info::AccountInfo<'a>,
 }
 
 impl<'a, 'b> CloseTransactionBufferCpi<'a, 'b> {
@@ -173,8 +214,10 @@ impl<'a, 'b> CloseTransactionBufferCpi<'a, 'b> {
         Self {
             __program: program,
             settings: accounts.settings,
+            program_config: accounts.program_config,
             transaction_buffer: accounts.transaction_buffer,
             creator: accounts.creator,
+            buffer_rent_collector: accounts.buffer_rent_collector,
         }
     }
     #[inline(always)]
@@ -200,9 +243,13 @@ impl<'a, 'b> CloseTransactionBufferCpi<'a, 'b> {
         signers_seeds: &[&[&[u8]]],
         remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)],
     ) -> solana_program_error::ProgramResult {
-        let mut accounts = Vec::with_capacity(3 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(5 + remaining_accounts.len());
         accounts.push(solana_instruction::AccountMeta::new_readonly(
             *self.settings.key,
+            false,
+        ));
+        accounts.push(solana_instruction::AccountMeta::new_readonly(
+            *self.program_config.key,
             false,
         ));
         accounts.push(solana_instruction::AccountMeta::new(
@@ -212,6 +259,10 @@ impl<'a, 'b> CloseTransactionBufferCpi<'a, 'b> {
         accounts.push(solana_instruction::AccountMeta::new_readonly(
             *self.creator.key,
             true,
+        ));
+        accounts.push(solana_instruction::AccountMeta::new(
+            *self.buffer_rent_collector.key,
+            false,
         ));
         remaining_accounts.iter().for_each(|remaining_account| {
             accounts.push(solana_instruction::AccountMeta {
@@ -229,11 +280,13 @@ impl<'a, 'b> CloseTransactionBufferCpi<'a, 'b> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(4 + remaining_accounts.len());
+        let mut account_infos = Vec::with_capacity(6 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.settings.clone());
+        account_infos.push(self.program_config.clone());
         account_infos.push(self.transaction_buffer.clone());
         account_infos.push(self.creator.clone());
+        account_infos.push(self.buffer_rent_collector.clone());
         remaining_accounts
             .iter()
             .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
@@ -251,8 +304,10 @@ impl<'a, 'b> CloseTransactionBufferCpi<'a, 'b> {
 /// ### Accounts:
 ///
 ///   0. `[]` settings
-///   1. `[writable]` transaction_buffer
-///   2. `[signer]` creator
+///   1. `[]` program_config
+///   2. `[writable]` transaction_buffer
+///   3. `[signer]` creator
+///   4. `[writable]` buffer_rent_collector
 #[derive(Clone, Debug)]
 pub struct CloseTransactionBufferCpiBuilder<'a, 'b> {
     instruction: Box<CloseTransactionBufferCpiBuilderInstruction<'a, 'b>>,
@@ -263,8 +318,10 @@ impl<'a, 'b> CloseTransactionBufferCpiBuilder<'a, 'b> {
         let instruction = Box::new(CloseTransactionBufferCpiBuilderInstruction {
             __program: program,
             settings: None,
+            program_config: None,
             transaction_buffer: None,
             creator: None,
+            buffer_rent_collector: None,
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
@@ -272,6 +329,14 @@ impl<'a, 'b> CloseTransactionBufferCpiBuilder<'a, 'b> {
     #[inline(always)]
     pub fn settings(&mut self, settings: &'b solana_account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.settings = Some(settings);
+        self
+    }
+    #[inline(always)]
+    pub fn program_config(
+        &mut self,
+        program_config: &'b solana_account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.program_config = Some(program_config);
         self
     }
     #[inline(always)]
@@ -286,6 +351,14 @@ impl<'a, 'b> CloseTransactionBufferCpiBuilder<'a, 'b> {
     #[inline(always)]
     pub fn creator(&mut self, creator: &'b solana_account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.creator = Some(creator);
+        self
+    }
+    #[inline(always)]
+    pub fn buffer_rent_collector(
+        &mut self,
+        buffer_rent_collector: &'b solana_account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.buffer_rent_collector = Some(buffer_rent_collector);
         self
     }
     /// Add an additional account to the instruction.
@@ -327,12 +400,22 @@ impl<'a, 'b> CloseTransactionBufferCpiBuilder<'a, 'b> {
 
             settings: self.instruction.settings.expect("settings is not set"),
 
+            program_config: self
+                .instruction
+                .program_config
+                .expect("program_config is not set"),
+
             transaction_buffer: self
                 .instruction
                 .transaction_buffer
                 .expect("transaction_buffer is not set"),
 
             creator: self.instruction.creator.expect("creator is not set"),
+
+            buffer_rent_collector: self
+                .instruction
+                .buffer_rent_collector
+                .expect("buffer_rent_collector is not set"),
         };
         instruction.invoke_signed_with_remaining_accounts(
             signers_seeds,
@@ -345,8 +428,10 @@ impl<'a, 'b> CloseTransactionBufferCpiBuilder<'a, 'b> {
 struct CloseTransactionBufferCpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_account_info::AccountInfo<'a>,
     settings: Option<&'b solana_account_info::AccountInfo<'a>>,
+    program_config: Option<&'b solana_account_info::AccountInfo<'a>>,
     transaction_buffer: Option<&'b solana_account_info::AccountInfo<'a>>,
     creator: Option<&'b solana_account_info::AccountInfo<'a>>,
+    buffer_rent_collector: Option<&'b solana_account_info::AccountInfo<'a>>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(&'b solana_account_info::AccountInfo<'a>, bool, bool)>,
 }

@@ -42,7 +42,7 @@ pub struct InitProgramConfig<'info> {
 
     #[account(mut)]
     pub fee_payer: Signer<'info>,
-    
+
     pub system_program: Program<'info, System>,
 }
 
@@ -54,6 +54,9 @@ impl InitProgramConfig<'_> {
         program_config.authority = args.authority;
         program_config.smart_account_creation_fee = args.smart_account_creation_fee;
         program_config.treasury = args.treasury;
+        // Default to treasury on first init. Older deployments are also supported
+        // via runtime fallback to treasury when this key is default.
+        program_config.buffer_rent_collector = args.treasury;
         program_config.smart_account_index = 0;
 
         program_config.invariant()?;

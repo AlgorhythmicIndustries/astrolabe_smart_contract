@@ -23,10 +23,7 @@ pub struct SettingsTransaction {
 
 impl SettingsTransaction {
     pub fn size(actions: &[SettingsAction]) -> usize {
-        let actions_size: usize = actions
-            .iter()
-            .map(|action| action.borsh_size())
-            .sum();
+        let actions_size: usize = actions.iter().map(|action| action.borsh_size()).sum();
 
         8 +   // anchor account discriminator
         32 +  // settings
@@ -51,7 +48,9 @@ pub enum SettingsAction {
     /// Change the `time_lock` of the settings.
     SetTimeLock { new_time_lock: u32 },
     /// Set the `archival_authority` config parameter of the settings.
-    SetArchivalAuthority { new_archival_authority: Option<Pubkey> },
+    SetArchivalAuthority {
+        new_archival_authority: Option<Pubkey>,
+    },
 }
 
 impl SettingsAction {

@@ -1,6 +1,4 @@
-use anchor_lang::{
-    prelude::*, solana_program::program::invoke_signed, Discriminator,
-};
+use anchor_lang::{prelude::*, solana_program::program::invoke_signed, Discriminator};
 
 use crate::LogEventArgs;
 
@@ -13,7 +11,7 @@ pub enum SmartAccountEvent {
     SynchronousTransactionEvent(SynchronousTransactionEvent),
     SynchronousSettingsTransactionEvent(SynchronousSettingsTransactionEvent),
     AuthoritySettingsEvent(AuthoritySettingsEvent),
-    AuthorityChangeEvent(AuthorityChangeEvent)
+    AuthorityChangeEvent(AuthorityChangeEvent),
 }
 
 pub struct LogAuthorityInfo<'info> {

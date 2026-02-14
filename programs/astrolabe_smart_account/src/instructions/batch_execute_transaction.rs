@@ -143,7 +143,8 @@ impl<'info> ExecuteBatchTransaction<'info> {
             .get(..num_lookups)
             .ok_or(SmartAccountError::InvalidNumberOfAccounts)?;
 
-        let smart_account_pubkey = Pubkey::create_program_address(smart_account_seeds, ctx.program_id).unwrap();
+        let smart_account_pubkey =
+            Pubkey::create_program_address(smart_account_seeds, ctx.program_id).unwrap();
 
         let (ephemeral_signer_keys, ephemeral_signer_seeds) =
             derive_ephemeral_signers(batch_key, &transaction.ephemeral_signer_bumps);

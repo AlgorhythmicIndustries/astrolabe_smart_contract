@@ -1,6 +1,6 @@
+use crate::{errors::*, id, state::*, utils::*, SettingsAction};
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
-use crate::{errors::*, id, state::*, utils::*, SettingsAction};
 
 pub const MAX_TIME_LOCK: u32 = 3 * 30 * 24 * 60 * 60; // 3 months
 

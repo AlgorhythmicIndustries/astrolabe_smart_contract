@@ -62,6 +62,15 @@ export type ProgramConfig = {
   smartAccountCreationFee: bigint;
   /** The treasury account to send charged fees to. */
   treasury: Address;
+  /**
+   * Collector account that receives lamports reclaimed when closing
+   * `TransactionBuffer` accounts.
+   *
+   * Backward compatibility note:
+   * older `ProgramConfig` accounts store zeros in this slot (reserved bytes),
+   * so runtime logic falls back to `treasury` when this is default.
+   */
+  bufferRentCollector: Address;
   /** Reserved for future use. */
   reserved: ReadonlyUint8Array;
 };
@@ -78,6 +87,15 @@ export type ProgramConfigArgs = {
   smartAccountCreationFee: number | bigint;
   /** The treasury account to send charged fees to. */
   treasury: Address;
+  /**
+   * Collector account that receives lamports reclaimed when closing
+   * `TransactionBuffer` accounts.
+   *
+   * Backward compatibility note:
+   * older `ProgramConfig` accounts store zeros in this slot (reserved bytes),
+   * so runtime logic falls back to `treasury` when this is default.
+   */
+  bufferRentCollector: Address;
   /** Reserved for future use. */
   reserved: ReadonlyUint8Array;
 };
@@ -90,7 +108,8 @@ export function getProgramConfigEncoder(): FixedSizeEncoder<ProgramConfigArgs> {
       ['authority', getAddressEncoder()],
       ['smartAccountCreationFee', getU64Encoder()],
       ['treasury', getAddressEncoder()],
-      ['reserved', fixEncoderSize(getBytesEncoder(), 64)],
+      ['bufferRentCollector', getAddressEncoder()],
+      ['reserved', fixEncoderSize(getBytesEncoder(), 32)],
     ]),
     (value) => ({ ...value, discriminator: PROGRAM_CONFIG_DISCRIMINATOR })
   );
@@ -103,7 +122,8 @@ export function getProgramConfigDecoder(): FixedSizeDecoder<ProgramConfig> {
     ['authority', getAddressDecoder()],
     ['smartAccountCreationFee', getU64Decoder()],
     ['treasury', getAddressDecoder()],
-    ['reserved', fixDecoderSize(getBytesDecoder(), 64)],
+    ['bufferRentCollector', getAddressDecoder()],
+    ['reserved', fixDecoderSize(getBytesDecoder(), 32)],
   ]);
 }
 

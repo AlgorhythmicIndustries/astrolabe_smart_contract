@@ -27,6 +27,10 @@ pub struct CreateTransactionFromBuffer {
     pub transaction_buffer: solana_pubkey::Pubkey,
 
     pub from_buffer_creator: solana_pubkey::Pubkey,
+
+    pub program_config: solana_pubkey::Pubkey,
+
+    pub buffer_rent_collector: solana_pubkey::Pubkey,
 }
 
 impl CreateTransactionFromBuffer {
@@ -43,7 +47,7 @@ impl CreateTransactionFromBuffer {
         args: CreateTransactionFromBufferInstructionArgs,
         remaining_accounts: &[solana_instruction::AccountMeta],
     ) -> solana_instruction::Instruction {
-        let mut accounts = Vec::with_capacity(7 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(9 + remaining_accounts.len());
         accounts.push(solana_instruction::AccountMeta::new(self.settings, false));
         accounts.push(solana_instruction::AccountMeta::new(
             self.transaction,
@@ -65,6 +69,14 @@ impl CreateTransactionFromBuffer {
         accounts.push(solana_instruction::AccountMeta::new(
             self.from_buffer_creator,
             true,
+        ));
+        accounts.push(solana_instruction::AccountMeta::new_readonly(
+            self.program_config,
+            false,
+        ));
+        accounts.push(solana_instruction::AccountMeta::new(
+            self.buffer_rent_collector,
+            false,
         ));
         accounts.extend_from_slice(remaining_accounts);
         let mut data = CreateTransactionFromBufferInstructionData::new()
@@ -128,6 +140,8 @@ impl CreateTransactionFromBufferInstructionArgs {
 ///   4. `[optional]` system_program (default to `11111111111111111111111111111111`)
 ///   5. `[writable]` transaction_buffer
 ///   6. `[writable, signer]` from_buffer_creator
+///   7. `[]` program_config
+///   8. `[writable]` buffer_rent_collector
 #[derive(Clone, Debug, Default)]
 pub struct CreateTransactionFromBufferBuilder {
     settings: Option<solana_pubkey::Pubkey>,
@@ -137,6 +151,8 @@ pub struct CreateTransactionFromBufferBuilder {
     system_program: Option<solana_pubkey::Pubkey>,
     transaction_buffer: Option<solana_pubkey::Pubkey>,
     from_buffer_creator: Option<solana_pubkey::Pubkey>,
+    program_config: Option<solana_pubkey::Pubkey>,
+    buffer_rent_collector: Option<solana_pubkey::Pubkey>,
     args: Option<CreateTransactionArgs>,
     __remaining_accounts: Vec<solana_instruction::AccountMeta>,
 }
@@ -184,6 +200,19 @@ impl CreateTransactionFromBufferBuilder {
         self
     }
     #[inline(always)]
+    pub fn program_config(&mut self, program_config: solana_pubkey::Pubkey) -> &mut Self {
+        self.program_config = Some(program_config);
+        self
+    }
+    #[inline(always)]
+    pub fn buffer_rent_collector(
+        &mut self,
+        buffer_rent_collector: solana_pubkey::Pubkey,
+    ) -> &mut Self {
+        self.buffer_rent_collector = Some(buffer_rent_collector);
+        self
+    }
+    #[inline(always)]
     pub fn args(&mut self, args: CreateTransactionArgs) -> &mut Self {
         self.args = Some(args);
         self
@@ -219,6 +248,10 @@ impl CreateTransactionFromBufferBuilder {
             from_buffer_creator: self
                 .from_buffer_creator
                 .expect("from_buffer_creator is not set"),
+            program_config: self.program_config.expect("program_config is not set"),
+            buffer_rent_collector: self
+                .buffer_rent_collector
+                .expect("buffer_rent_collector is not set"),
         };
         let args = CreateTransactionFromBufferInstructionArgs {
             args: self.args.clone().expect("args is not set"),
@@ -243,6 +276,10 @@ pub struct CreateTransactionFromBufferCpiAccounts<'a, 'b> {
     pub transaction_buffer: &'b solana_account_info::AccountInfo<'a>,
 
     pub from_buffer_creator: &'b solana_account_info::AccountInfo<'a>,
+
+    pub program_config: &'b solana_account_info::AccountInfo<'a>,
+
+    pub buffer_rent_collector: &'b solana_account_info::AccountInfo<'a>,
 }
 
 /// `create_transaction_from_buffer` CPI instruction.
@@ -263,6 +300,10 @@ pub struct CreateTransactionFromBufferCpi<'a, 'b> {
     pub transaction_buffer: &'b solana_account_info::AccountInfo<'a>,
 
     pub from_buffer_creator: &'b solana_account_info::AccountInfo<'a>,
+
+    pub program_config: &'b solana_account_info::AccountInfo<'a>,
+
+    pub buffer_rent_collector: &'b solana_account_info::AccountInfo<'a>,
     /// The arguments for the instruction.
     pub __args: CreateTransactionFromBufferInstructionArgs,
 }
@@ -282,6 +323,8 @@ impl<'a, 'b> CreateTransactionFromBufferCpi<'a, 'b> {
             system_program: accounts.system_program,
             transaction_buffer: accounts.transaction_buffer,
             from_buffer_creator: accounts.from_buffer_creator,
+            program_config: accounts.program_config,
+            buffer_rent_collector: accounts.buffer_rent_collector,
             __args: args,
         }
     }
@@ -308,7 +351,7 @@ impl<'a, 'b> CreateTransactionFromBufferCpi<'a, 'b> {
         signers_seeds: &[&[&[u8]]],
         remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)],
     ) -> solana_program_error::ProgramResult {
-        let mut accounts = Vec::with_capacity(7 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(9 + remaining_accounts.len());
         accounts.push(solana_instruction::AccountMeta::new(
             *self.settings.key,
             false,
@@ -337,6 +380,14 @@ impl<'a, 'b> CreateTransactionFromBufferCpi<'a, 'b> {
             *self.from_buffer_creator.key,
             true,
         ));
+        accounts.push(solana_instruction::AccountMeta::new_readonly(
+            *self.program_config.key,
+            false,
+        ));
+        accounts.push(solana_instruction::AccountMeta::new(
+            *self.buffer_rent_collector.key,
+            false,
+        ));
         remaining_accounts.iter().for_each(|remaining_account| {
             accounts.push(solana_instruction::AccountMeta {
                 pubkey: *remaining_account.0.key,
@@ -355,7 +406,7 @@ impl<'a, 'b> CreateTransactionFromBufferCpi<'a, 'b> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(8 + remaining_accounts.len());
+        let mut account_infos = Vec::with_capacity(10 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.settings.clone());
         account_infos.push(self.transaction.clone());
@@ -364,6 +415,8 @@ impl<'a, 'b> CreateTransactionFromBufferCpi<'a, 'b> {
         account_infos.push(self.system_program.clone());
         account_infos.push(self.transaction_buffer.clone());
         account_infos.push(self.from_buffer_creator.clone());
+        account_infos.push(self.program_config.clone());
+        account_infos.push(self.buffer_rent_collector.clone());
         remaining_accounts
             .iter()
             .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
@@ -387,6 +440,8 @@ impl<'a, 'b> CreateTransactionFromBufferCpi<'a, 'b> {
 ///   4. `[]` system_program
 ///   5. `[writable]` transaction_buffer
 ///   6. `[writable, signer]` from_buffer_creator
+///   7. `[]` program_config
+///   8. `[writable]` buffer_rent_collector
 #[derive(Clone, Debug)]
 pub struct CreateTransactionFromBufferCpiBuilder<'a, 'b> {
     instruction: Box<CreateTransactionFromBufferCpiBuilderInstruction<'a, 'b>>,
@@ -403,6 +458,8 @@ impl<'a, 'b> CreateTransactionFromBufferCpiBuilder<'a, 'b> {
             system_program: None,
             transaction_buffer: None,
             from_buffer_creator: None,
+            program_config: None,
+            buffer_rent_collector: None,
             args: None,
             __remaining_accounts: Vec::new(),
         });
@@ -455,6 +512,22 @@ impl<'a, 'b> CreateTransactionFromBufferCpiBuilder<'a, 'b> {
         from_buffer_creator: &'b solana_account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.from_buffer_creator = Some(from_buffer_creator);
+        self
+    }
+    #[inline(always)]
+    pub fn program_config(
+        &mut self,
+        program_config: &'b solana_account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.program_config = Some(program_config);
+        self
+    }
+    #[inline(always)]
+    pub fn buffer_rent_collector(
+        &mut self,
+        buffer_rent_collector: &'b solana_account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.buffer_rent_collector = Some(buffer_rent_collector);
         self
     }
     #[inline(always)]
@@ -527,6 +600,16 @@ impl<'a, 'b> CreateTransactionFromBufferCpiBuilder<'a, 'b> {
                 .instruction
                 .from_buffer_creator
                 .expect("from_buffer_creator is not set"),
+
+            program_config: self
+                .instruction
+                .program_config
+                .expect("program_config is not set"),
+
+            buffer_rent_collector: self
+                .instruction
+                .buffer_rent_collector
+                .expect("buffer_rent_collector is not set"),
             __args: args,
         };
         instruction.invoke_signed_with_remaining_accounts(
@@ -546,6 +629,8 @@ struct CreateTransactionFromBufferCpiBuilderInstruction<'a, 'b> {
     system_program: Option<&'b solana_account_info::AccountInfo<'a>>,
     transaction_buffer: Option<&'b solana_account_info::AccountInfo<'a>>,
     from_buffer_creator: Option<&'b solana_account_info::AccountInfo<'a>>,
+    program_config: Option<&'b solana_account_info::AccountInfo<'a>>,
+    buffer_rent_collector: Option<&'b solana_account_info::AccountInfo<'a>>,
     args: Option<CreateTransactionArgs>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(&'b solana_account_info::AccountInfo<'a>, bool, bool)>,

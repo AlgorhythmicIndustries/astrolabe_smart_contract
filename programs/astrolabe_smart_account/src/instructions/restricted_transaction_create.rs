@@ -4,7 +4,7 @@ use crate::errors::*;
 use crate::state::*;
 use crate::utils::validate_settings_actions;
 
-use crate::state::{Settings, RestrictedSmartAccountSigner, RestrictedPermission};
+use crate::state::{RestrictedPermission, RestrictedSmartAccountSigner, Settings};
 
 #[derive(Accounts)]
 pub struct RestrictedEmergencyExit<'info> {
@@ -18,7 +18,10 @@ pub fn emergency_exit(ctx: Context<RestrictedEmergencyExit>) -> Result<()> {
     let signer_key = ctx.accounts.restricted_signer.key();
     // Check if the signer is a restricted signer with EmergencyExit permission
     let allowed = settings.restricted_signers.iter().any(|rs| {
-        rs.key == signer_key && rs.restricted_permissions.has(RestrictedPermission::EmergencyExit)
+        rs.key == signer_key
+            && rs
+                .restricted_permissions
+                .has(RestrictedPermission::EmergencyExit)
     });
     require!(allowed, CustomError::UnauthorizedRestrictedSigner);
     // Stub: actual emergency exit logic goes here
@@ -27,6 +30,6 @@ pub fn emergency_exit(ctx: Context<RestrictedEmergencyExit>) -> Result<()> {
 
 #[error_code]
 pub enum CustomError {
-    #[msg("Unauthorized restricted signer")] 
+    #[msg("Unauthorized restricted signer")]
     UnauthorizedRestrictedSigner,
 }

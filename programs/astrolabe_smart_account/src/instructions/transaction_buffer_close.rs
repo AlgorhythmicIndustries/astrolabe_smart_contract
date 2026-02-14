@@ -12,9 +12,15 @@ pub struct CloseTransactionBuffer<'info> {
     pub settings: Account<'info, Settings>,
 
     #[account(
+        seeds = [SEED_PREFIX, SEED_PROGRAM_CONFIG],
+        bump,
+    )]
+    pub program_config: Account<'info, ProgramConfig>,
+
+    #[account(
         mut,
-        // Rent gets returned to the creator
-        close = creator,
+        // Rent gets returned to the configured collector.
+        close = buffer_rent_collector,
         // Only the creator can close the buffer
         constraint = transaction_buffer.creator == creator.key() @ SmartAccountError::Unauthorized,
         // Account can be closed anytime by the creator, regardless of the
@@ -32,10 +38,19 @@ pub struct CloseTransactionBuffer<'info> {
 
     /// The signer on the smart account that created the TransactionBuffer.
     pub creator: Signer<'info>,
+
+    /// CHECK: validated in `validate` against `program_config`.
+    #[account(mut)]
+    pub buffer_rent_collector: UncheckedAccount<'info>,
 }
 
 impl CloseTransactionBuffer<'_> {
     fn validate(&self) -> Result<()> {
+        require_keys_eq!(
+            self.buffer_rent_collector.key(),
+            self.program_config.effective_buffer_rent_collector(),
+            SmartAccountError::InvalidAccount
+        );
         Ok(())
     }
 

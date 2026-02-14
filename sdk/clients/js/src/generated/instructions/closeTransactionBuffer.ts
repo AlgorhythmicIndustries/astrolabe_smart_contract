@@ -12,6 +12,7 @@ import {
   fixEncoderSize,
   getBytesDecoder,
   getBytesEncoder,
+  getProgramDerivedAddress,
   getStructDecoder,
   getStructEncoder,
   transformEncoder,
@@ -44,8 +45,10 @@ export function getCloseTransactionBufferDiscriminatorBytes() {
 export type CloseTransactionBufferInstruction<
   TProgram extends string = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
   TAccountSettings extends string | AccountMeta<string> = string,
+  TAccountProgramConfig extends string | AccountMeta<string> = string,
   TAccountTransactionBuffer extends string | AccountMeta<string> = string,
   TAccountCreator extends string | AccountMeta<string> = string,
+  TAccountBufferRentCollector extends string | AccountMeta<string> = string,
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
@@ -54,6 +57,9 @@ export type CloseTransactionBufferInstruction<
       TAccountSettings extends string
         ? ReadonlyAccount<TAccountSettings>
         : TAccountSettings,
+      TAccountProgramConfig extends string
+        ? ReadonlyAccount<TAccountProgramConfig>
+        : TAccountProgramConfig,
       TAccountTransactionBuffer extends string
         ? WritableAccount<TAccountTransactionBuffer>
         : TAccountTransactionBuffer,
@@ -61,6 +67,9 @@ export type CloseTransactionBufferInstruction<
         ? ReadonlySignerAccount<TAccountCreator> &
             AccountSignerMeta<TAccountCreator>
         : TAccountCreator,
+      TAccountBufferRentCollector extends string
+        ? WritableAccount<TAccountBufferRentCollector>
+        : TAccountBufferRentCollector,
       ...TRemainingAccounts,
     ]
   >;
@@ -97,35 +106,47 @@ export function getCloseTransactionBufferInstructionDataCodec(): FixedSizeCodec<
   );
 }
 
-export type CloseTransactionBufferInput<
+export type CloseTransactionBufferAsyncInput<
   TAccountSettings extends string = string,
+  TAccountProgramConfig extends string = string,
   TAccountTransactionBuffer extends string = string,
   TAccountCreator extends string = string,
+  TAccountBufferRentCollector extends string = string,
 > = {
   settings: Address<TAccountSettings>;
+  programConfig?: Address<TAccountProgramConfig>;
   transactionBuffer: Address<TAccountTransactionBuffer>;
   /** The signer on the smart account that created the TransactionBuffer. */
   creator: TransactionSigner<TAccountCreator>;
+  bufferRentCollector: Address<TAccountBufferRentCollector>;
 };
 
-export function getCloseTransactionBufferInstruction<
+export async function getCloseTransactionBufferInstructionAsync<
   TAccountSettings extends string,
+  TAccountProgramConfig extends string,
   TAccountTransactionBuffer extends string,
   TAccountCreator extends string,
+  TAccountBufferRentCollector extends string,
   TProgramAddress extends
     Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
 >(
-  input: CloseTransactionBufferInput<
+  input: CloseTransactionBufferAsyncInput<
     TAccountSettings,
+    TAccountProgramConfig,
     TAccountTransactionBuffer,
-    TAccountCreator
+    TAccountCreator,
+    TAccountBufferRentCollector
   >,
   config?: { programAddress?: TProgramAddress }
-): CloseTransactionBufferInstruction<
-  TProgramAddress,
-  TAccountSettings,
-  TAccountTransactionBuffer,
-  TAccountCreator
+): Promise<
+  CloseTransactionBufferInstruction<
+    TProgramAddress,
+    TAccountSettings,
+    TAccountProgramConfig,
+    TAccountTransactionBuffer,
+    TAccountCreator,
+    TAccountBufferRentCollector
+  >
 > {
   // Program address.
   const programAddress =
@@ -134,11 +155,119 @@ export function getCloseTransactionBufferInstruction<
   // Original accounts.
   const originalAccounts = {
     settings: { value: input.settings ?? null, isWritable: false },
+    programConfig: { value: input.programConfig ?? null, isWritable: false },
     transactionBuffer: {
       value: input.transactionBuffer ?? null,
       isWritable: true,
     },
     creator: { value: input.creator ?? null, isWritable: false },
+    bufferRentCollector: {
+      value: input.bufferRentCollector ?? null,
+      isWritable: true,
+    },
+  };
+  const accounts = originalAccounts as Record<
+    keyof typeof originalAccounts,
+    ResolvedAccount
+  >;
+
+  // Resolve default values.
+  if (!accounts.programConfig.value) {
+    accounts.programConfig.value = await getProgramDerivedAddress({
+      programAddress,
+      seeds: [
+        getBytesEncoder().encode(
+          new Uint8Array([
+            115, 109, 97, 114, 116, 95, 97, 99, 99, 111, 117, 110, 116,
+          ])
+        ),
+        getBytesEncoder().encode(
+          new Uint8Array([
+            112, 114, 111, 103, 114, 97, 109, 95, 99, 111, 110, 102, 105, 103,
+          ])
+        ),
+      ],
+    });
+  }
+
+  const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
+  return Object.freeze({
+    accounts: [
+      getAccountMeta(accounts.settings),
+      getAccountMeta(accounts.programConfig),
+      getAccountMeta(accounts.transactionBuffer),
+      getAccountMeta(accounts.creator),
+      getAccountMeta(accounts.bufferRentCollector),
+    ],
+    data: getCloseTransactionBufferInstructionDataEncoder().encode({}),
+    programAddress,
+  } as CloseTransactionBufferInstruction<
+    TProgramAddress,
+    TAccountSettings,
+    TAccountProgramConfig,
+    TAccountTransactionBuffer,
+    TAccountCreator,
+    TAccountBufferRentCollector
+  >);
+}
+
+export type CloseTransactionBufferInput<
+  TAccountSettings extends string = string,
+  TAccountProgramConfig extends string = string,
+  TAccountTransactionBuffer extends string = string,
+  TAccountCreator extends string = string,
+  TAccountBufferRentCollector extends string = string,
+> = {
+  settings: Address<TAccountSettings>;
+  programConfig: Address<TAccountProgramConfig>;
+  transactionBuffer: Address<TAccountTransactionBuffer>;
+  /** The signer on the smart account that created the TransactionBuffer. */
+  creator: TransactionSigner<TAccountCreator>;
+  bufferRentCollector: Address<TAccountBufferRentCollector>;
+};
+
+export function getCloseTransactionBufferInstruction<
+  TAccountSettings extends string,
+  TAccountProgramConfig extends string,
+  TAccountTransactionBuffer extends string,
+  TAccountCreator extends string,
+  TAccountBufferRentCollector extends string,
+  TProgramAddress extends
+    Address = typeof ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+>(
+  input: CloseTransactionBufferInput<
+    TAccountSettings,
+    TAccountProgramConfig,
+    TAccountTransactionBuffer,
+    TAccountCreator,
+    TAccountBufferRentCollector
+  >,
+  config?: { programAddress?: TProgramAddress }
+): CloseTransactionBufferInstruction<
+  TProgramAddress,
+  TAccountSettings,
+  TAccountProgramConfig,
+  TAccountTransactionBuffer,
+  TAccountCreator,
+  TAccountBufferRentCollector
+> {
+  // Program address.
+  const programAddress =
+    config?.programAddress ?? ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS;
+
+  // Original accounts.
+  const originalAccounts = {
+    settings: { value: input.settings ?? null, isWritable: false },
+    programConfig: { value: input.programConfig ?? null, isWritable: false },
+    transactionBuffer: {
+      value: input.transactionBuffer ?? null,
+      isWritable: true,
+    },
+    creator: { value: input.creator ?? null, isWritable: false },
+    bufferRentCollector: {
+      value: input.bufferRentCollector ?? null,
+      isWritable: true,
+    },
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
@@ -149,16 +278,20 @@ export function getCloseTransactionBufferInstruction<
   return Object.freeze({
     accounts: [
       getAccountMeta(accounts.settings),
+      getAccountMeta(accounts.programConfig),
       getAccountMeta(accounts.transactionBuffer),
       getAccountMeta(accounts.creator),
+      getAccountMeta(accounts.bufferRentCollector),
     ],
     data: getCloseTransactionBufferInstructionDataEncoder().encode({}),
     programAddress,
   } as CloseTransactionBufferInstruction<
     TProgramAddress,
     TAccountSettings,
+    TAccountProgramConfig,
     TAccountTransactionBuffer,
-    TAccountCreator
+    TAccountCreator,
+    TAccountBufferRentCollector
   >);
 }
 
@@ -169,9 +302,11 @@ export type ParsedCloseTransactionBufferInstruction<
   programAddress: Address<TProgram>;
   accounts: {
     settings: TAccountMetas[0];
-    transactionBuffer: TAccountMetas[1];
+    programConfig: TAccountMetas[1];
+    transactionBuffer: TAccountMetas[2];
     /** The signer on the smart account that created the TransactionBuffer. */
-    creator: TAccountMetas[2];
+    creator: TAccountMetas[3];
+    bufferRentCollector: TAccountMetas[4];
   };
   data: CloseTransactionBufferInstructionData;
 };
@@ -184,7 +319,7 @@ export function parseCloseTransactionBufferInstruction<
     InstructionWithAccounts<TAccountMetas> &
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedCloseTransactionBufferInstruction<TProgram, TAccountMetas> {
-  if (instruction.accounts.length < 3) {
+  if (instruction.accounts.length < 5) {
     // TODO: Coded error.
     throw new Error('Not enough accounts');
   }
@@ -198,8 +333,10 @@ export function parseCloseTransactionBufferInstruction<
     programAddress: instruction.programAddress,
     accounts: {
       settings: getNextAccount(),
+      programConfig: getNextAccount(),
       transactionBuffer: getNextAccount(),
       creator: getNextAccount(),
+      bufferRentCollector: getNextAccount(),
     },
     data: getCloseTransactionBufferInstructionDataDecoder().decode(
       instruction.data

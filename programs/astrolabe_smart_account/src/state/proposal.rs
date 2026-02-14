@@ -153,7 +153,12 @@ impl Proposal {
             return Ok(false);
         }
         // Reallocate more space.
-        realloc(&proposal, account_size_to_fit_signers, fee_payer, system_program)?;
+        realloc(
+            &proposal,
+            account_size_to_fit_signers,
+            fee_payer,
+            system_program,
+        )?;
 
         Ok(true)
     }
@@ -169,10 +174,7 @@ impl Proposal {
                 proposal_rent_collector.key() == proposal.rent_collector,
                 SmartAccountError::InvalidRentCollector
             );
-            utils::close(
-                proposal_info,
-                proposal_rent_collector,
-            )?;
+            utils::close(proposal_info, proposal_rent_collector)?;
         }
         Ok(())
     }

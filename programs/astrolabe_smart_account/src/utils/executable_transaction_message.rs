@@ -93,10 +93,14 @@ impl<'a, 'info> ExecutableTransactionMessage<'a, 'info> {
                 if rp.key == account_key {
                     rp
                 } else {
-                    remaining_accounts_iter.next().ok_or(SmartAccountError::InvalidNumberOfAccounts)?
+                    remaining_accounts_iter
+                        .next()
+                        .ok_or(SmartAccountError::InvalidNumberOfAccounts)?
                 }
             } else {
-                remaining_accounts_iter.next().ok_or(SmartAccountError::InvalidNumberOfAccounts)?
+                remaining_accounts_iter
+                    .next()
+                    .ok_or(SmartAccountError::InvalidNumberOfAccounts)?
             };
             require_keys_eq!(
                 *account_info.key,

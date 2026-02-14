@@ -96,7 +96,7 @@ impl SmartAccountTransactionMessage {
     pub fn borsh_size(&self) -> usize {
         // Calculate size of account_keys: Vec<Pubkey>
         let account_keys_size = 4 + (self.account_keys.len() * 32); // u32 length + 32 bytes per Pubkey
-        
+
         // Calculate size of instructions: Vec<SmartAccountCompiledInstruction>
         let instructions_size: usize = 4 + // u32 Vec length prefix
             self.instructions.iter().map(|ix| {
@@ -104,7 +104,7 @@ impl SmartAccountTransactionMessage {
                 4 + ix.account_indexes.len() +   // Vec<u8> length prefix + data
                 4 + ix.data.len()                // Vec<u8> length prefix + data
             }).sum::<usize>();
-        
+
         // Calculate size of address_table_lookups: Vec<SmartAccountMessageAddressTableLookup>
         let lookups_size: usize = 4 + // u32 Vec length prefix
             self.address_table_lookups.iter().map(|lookup| {
@@ -112,7 +112,7 @@ impl SmartAccountTransactionMessage {
                 4 + lookup.writable_indexes.len() +     // Vec<u8> length prefix + data
                 4 + lookup.readonly_indexes.len()       // Vec<u8> length prefix + data
             }).sum::<usize>();
-        
+
         1 +                    // num_signers (u8)
         1 +                    // num_writable_signers (u8)
         1 +                    // num_writable_non_signers (u8)

@@ -31,6 +31,7 @@ import {
   getExecuteTransactionInstruction,
 } from './clients/js/src/generated/instructions';
 import { fetchSettings } from './clients/js/src/generated/accounts/settings';
+import { fetchProgramConfig } from './clients/js/src/generated/accounts/programConfig';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from './clients/js/src/generated/programs';
 import {
   deriveTransactionPda,
@@ -339,6 +340,19 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
 
   const feePayerSigner = createNoopSigner(feePayer);
   const latestBlockhash = (await rpc.getLatestBlockhash().send()).value;
+  const [programConfigPda] = await getProgramDerivedAddress({
+    programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+    seeds: [
+      new Uint8Array(Buffer.from('smart_account')),
+      new Uint8Array(Buffer.from('program_config')),
+    ],
+  });
+  const programConfig = await fetchProgramConfig(rpc, programConfigPda);
+  const defaultCollector = address('11111111111111111111111111111111');
+  const bufferRentCollector =
+    programConfig.data.bufferRentCollector.toString() === defaultCollector.toString()
+      ? programConfig.data.treasury
+      : programConfig.data.bufferRentCollector;
 
   // Dynamic chunk sizing: Calculate optimal chunk size based on transaction size limits
   // CreateFromBuffer transaction breakdown:
@@ -422,6 +436,8 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     systemProgram: address('11111111111111111111111111111111'),
     transactionBuffer: transactionBufferPda,
     fromBufferCreator: signer,
+    programConfig: programConfigPda,
+    bufferRentCollector,
     args: {
       accountIndex,
       accountBump: smartAccountPdaBump,
@@ -482,7 +498,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     feePayer: feePayerSigner,
   });
   // Note: We don't need to close the buffer - CreateTransactionFromBuffer already does that
-  // with `close = from_buffer_creator` in the Rust code
+  // and routes reclaimed lamports to ProgramConfig.buffer_rent_collector.
   
   // Build remaining accounts for execute instruction (match complexTransaction.ts)
   {

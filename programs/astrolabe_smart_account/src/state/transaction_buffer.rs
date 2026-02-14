@@ -49,7 +49,7 @@ impl TransactionBuffer {
             message_buffer_hash.to_bytes() == self.final_buffer_hash,
             SmartAccountError::FinalBufferHashMismatch
         );
-        
+
         Ok(())
     }
     pub fn validate_size(&self) -> Result<()> {
@@ -66,7 +66,7 @@ impl TransactionBuffer {
             self.final_buffer_size as usize <= MAX_BUFFER_SIZE,
             SmartAccountError::FinalBufferSizeExceeded
         );
-       
+
         require!(
             self.buffer.len() <= self.final_buffer_size as usize,
             SmartAccountError::FinalBufferSizeMismatch

@@ -1,6 +1,7 @@
 use account_events::SynchronousTransactionEvent;
 use anchor_lang::prelude::*;
 
+use crate::utils::*;
 use crate::{
     errors::*,
     events::*,
@@ -8,7 +9,6 @@ use crate::{
     state::*,
     utils::{validate_synchronous_consensus, SynchronousTransactionMessage},
 };
-use crate::utils::*;
 
 use super::CompiledInstruction;
 
@@ -109,4 +109,3 @@ impl SyncTransaction<'_> {
         Ok(())
     }
 }
-

@@ -18,6 +18,11 @@ pub struct ProgramConfigSetTreasuryArgs {
     pub new_treasury: Pubkey,
 }
 
+#[derive(AnchorSerialize, AnchorDeserialize)]
+pub struct ProgramConfigSetBufferRentCollectorArgs {
+    pub new_buffer_rent_collector: Pubkey,
+}
+
 #[derive(Accounts)]
 pub struct ProgramConfig<'info> {
     #[account(
@@ -48,10 +53,7 @@ impl ProgramConfig<'_> {
     }
 
     #[access_control(ctx.accounts.validate())]
-    pub fn set_authority(
-        ctx: Context<Self>,
-        args: ProgramConfigSetAuthorityArgs,
-    ) -> Result<()> {
+    pub fn set_authority(ctx: Context<Self>, args: ProgramConfigSetAuthorityArgs) -> Result<()> {
         let program_config = &mut ctx.accounts.program_config;
 
         program_config.authority = args.new_authority;
@@ -76,14 +78,30 @@ impl ProgramConfig<'_> {
     }
 
     #[access_control(ctx.accounts.validate())]
-    pub fn set_treasury(
-        ctx: Context<Self>,
-        args: ProgramConfigSetTreasuryArgs,
-    ) -> Result<()> {
+    pub fn set_treasury(ctx: Context<Self>, args: ProgramConfigSetTreasuryArgs) -> Result<()> {
         let program_config = &mut ctx.accounts.program_config;
 
         program_config.treasury = args.new_treasury;
 
+        program_config.invariant()?;
+
+        Ok(())
+    }
+
+    #[access_control(ctx.accounts.validate())]
+    pub fn set_buffer_rent_collector(
+        ctx: Context<Self>,
+        args: ProgramConfigSetBufferRentCollectorArgs,
+    ) -> Result<()> {
+        let program_config = &mut ctx.accounts.program_config;
+
+        require_keys_neq!(
+            args.new_buffer_rent_collector,
+            Pubkey::default(),
+            SmartAccountError::InvalidAccount
+        );
+
+        program_config.buffer_rent_collector = args.new_buffer_rent_collector;
         program_config.invariant()?;
 
         Ok(())

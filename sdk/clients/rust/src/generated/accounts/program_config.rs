@@ -30,9 +30,19 @@ pub struct ProgramConfig {
         serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
     )]
     pub treasury: Pubkey,
+    /// Collector account that receives lamports reclaimed when closing
+    /// `TransactionBuffer` accounts.
+    ///
+    /// Backward compatibility note:
+    /// older `ProgramConfig` accounts store zeros in this slot (reserved bytes),
+    /// so runtime logic falls back to `treasury` when this is default.
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
+    pub buffer_rent_collector: Pubkey,
     /// Reserved for future use.
-    #[cfg_attr(feature = "serde", serde(with = "serde_with::As::<serde_with::Bytes>"))]
-    pub reserved: [u8; 64],
+    pub reserved: [u8; 32],
 }
 
 pub const PROGRAM_CONFIG_DISCRIMINATOR: [u8; 8] = [196, 210, 90, 231, 144, 149, 140, 63];

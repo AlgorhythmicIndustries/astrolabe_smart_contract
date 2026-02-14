@@ -45,6 +45,7 @@ import {
   type ParsedSetArchivalAuthorityAsAuthorityInstruction,
   type ParsedSetNewSettingsAuthorityAsAuthorityInstruction,
   type ParsedSetProgramConfigAuthorityInstruction,
+  type ParsedSetProgramConfigBufferRentCollectorInstruction,
   type ParsedSetProgramConfigSmartAccountCreationFeeInstruction,
   type ParsedSetProgramConfigTreasuryInstruction,
   type ParsedSetTimeLockAsAuthorityInstruction,
@@ -193,6 +194,7 @@ export enum AstrolabeSmartAccountInstruction {
   SetArchivalAuthorityAsAuthority,
   SetNewSettingsAuthorityAsAuthority,
   SetProgramConfigAuthority,
+  SetProgramConfigBufferRentCollector,
   SetProgramConfigSmartAccountCreationFee,
   SetProgramConfigTreasury,
   SetTimeLockAsAuthority,
@@ -484,6 +486,15 @@ export function identifyAstrolabeSmartAccountInstruction(
   if (
     containsBytes(
       data,
+      fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([35])),
+      0
+    )
+  ) {
+    return AstrolabeSmartAccountInstruction.SetProgramConfigBufferRentCollector;
+  }
+  if (
+    containsBytes(
+      data,
       fixEncoderSize(getBytesEncoder(), 1).encode(new Uint8Array([3])),
       0
     )
@@ -609,6 +620,9 @@ export type ParsedAstrolabeSmartAccountInstruction<
   | ({
       instructionType: AstrolabeSmartAccountInstruction.SetProgramConfigAuthority;
     } & ParsedSetProgramConfigAuthorityInstruction<TProgram>)
+  | ({
+      instructionType: AstrolabeSmartAccountInstruction.SetProgramConfigBufferRentCollector;
+    } & ParsedSetProgramConfigBufferRentCollectorInstruction<TProgram>)
   | ({
       instructionType: AstrolabeSmartAccountInstruction.SetProgramConfigSmartAccountCreationFee;
     } & ParsedSetProgramConfigSmartAccountCreationFeeInstruction<TProgram>)

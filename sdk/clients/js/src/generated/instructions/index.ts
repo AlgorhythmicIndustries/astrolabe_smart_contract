@@ -37,6 +37,7 @@ export * from './removeSignerAsAuthority';
 export * from './setArchivalAuthorityAsAuthority';
 export * from './setNewSettingsAuthorityAsAuthority';
 export * from './setProgramConfigAuthority';
+export * from './setProgramConfigBufferRentCollector';
 export * from './setProgramConfigSmartAccountCreationFee';
 export * from './setProgramConfigTreasury';
 export * from './setTimeLockAsAuthority';

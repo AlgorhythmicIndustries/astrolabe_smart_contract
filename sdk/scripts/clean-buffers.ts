@@ -16,6 +16,7 @@ import {
 import * as bs58 from 'bs58';
 import * as fs from 'fs';
 import { getCloseTransactionBufferInstruction } from '../clients/js/src/generated/instructions';
+import { fetchProgramConfig } from '../clients/js/src/generated/accounts/programConfig';
 import { ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS } from '../clients/js/src/generated/programs';
 
 async function cleanBuffers() {
@@ -34,6 +35,20 @@ async function cleanBuffers() {
   const smartAccountSettings = address(testState.smartAccountSettings);
   
   console.log('📂 Smart account settings:', smartAccountSettings);
+
+  const [programConfigPda] = await getProgramDerivedAddress({
+    programAddress: ASTROLABE_SMART_ACCOUNT_PROGRAM_ADDRESS,
+    seeds: [
+      new Uint8Array(Buffer.from('smart_account')),
+      new Uint8Array(Buffer.from('program_config')),
+    ],
+  });
+  const programConfig = await fetchProgramConfig(rpc, programConfigPda);
+  const defaultCollector = address('11111111111111111111111111111111');
+  const bufferRentCollector =
+    programConfig.data.bufferRentCollector.toString() === defaultCollector.toString()
+      ? programConfig.data.treasury
+      : programConfig.data.bufferRentCollector;
 
   // Load creator signer (use the default Solana CLI keypair)
   const creatorKeypairFile = fs.readFileSync('/Users/algorhythmic/.config/solana/id.json');
@@ -79,9 +94,10 @@ async function cleanBuffers() {
         // Create close buffer instruction
         const closeBufferIx = getCloseTransactionBufferInstruction({
           settings: smartAccountSettings,
+          programConfig: programConfigPda,
           transactionBuffer: transactionBufferPda,
-          bufferCreator: creatorSigner,
-          systemProgram: address('11111111111111111111111111111111'),
+          creator: creatorSigner,
+          bufferRentCollector,
         });
 
         const closeBufferMsg = pipe(

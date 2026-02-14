@@ -1,8 +1,8 @@
 use crate::errors::*;
 use crate::instructions::*;
 use crate::state::*;
-use anchor_lang::{prelude::*, system_program};
 use anchor_lang::solana_program::hash::hash;
+use anchor_lang::{prelude::*, system_program};
 
 #[derive(Accounts)]
 pub struct CreateTransactionFromBuffer<'info> {
@@ -11,9 +11,9 @@ pub struct CreateTransactionFromBuffer<'info> {
 
     #[account(
         mut,
-        close = from_buffer_creator,
-        // Only the creator can turn the buffer into a transaction and reclaim
-        // the rent
+        // Rent gets returned to the configured collector.
+        close = buffer_rent_collector,
+        // Only the creator can turn the buffer into a transaction.
         constraint = transaction_buffer.creator == from_buffer_creator.key() @ SmartAccountError::Unauthorized,
         seeds = [
             SEED_PREFIX,
@@ -33,12 +33,21 @@ pub struct CreateTransactionFromBuffer<'info> {
         address = transaction_create.creator.key(),
     )]
     pub from_buffer_creator: Signer<'info>,
+
+    #[account(
+        seeds = [SEED_PREFIX, SEED_PROGRAM_CONFIG],
+        bump,
+    )]
+    pub program_config: Account<'info, crate::state::ProgramConfig>,
+
+    /// CHECK: validated in `validate` against `program_config`.
+    #[account(mut)]
+    pub buffer_rent_collector: UncheckedAccount<'info>,
 }
 
 impl<'info> CreateTransactionFromBuffer<'info> {
     pub fn validate(&self, args: &CreateTransactionArgs) -> Result<()> {
         let transaction_buffer_account = &self.transaction_buffer;
-        let from_buffer_creator = &self.from_buffer_creator;
 
         // Accept either an empty args.transaction_message (old clients)
         // or a populated one that matches the buffer (new clients provide
@@ -67,6 +76,12 @@ impl<'info> CreateTransactionFromBuffer<'info> {
 
         // Validate that the final size is correct
         transaction_buffer_account.validate_size()?;
+
+        require_keys_eq!(
+            self.buffer_rent_collector.key(),
+            self.program_config.effective_buffer_rent_collector(),
+            SmartAccountError::InvalidAccount
+        );
         Ok(())
     }
     /// Create a new Transaction from a completed transaction buffer account.
@@ -81,11 +96,7 @@ impl<'info> CreateTransactionFromBuffer<'info> {
             .transaction_create
             .transaction
             .to_account_info();
-        let fee_payer_account_info = &ctx
-            .accounts
-            .transaction_create
-            .fee_payer
-            .to_account_info();
+        let fee_payer_account_info = &ctx.accounts.transaction_create.fee_payer.to_account_info();
 
         let system_program = &ctx
             .accounts
