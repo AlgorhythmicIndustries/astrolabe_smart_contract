@@ -128,7 +128,7 @@ impl RemoveSignerAsAuthorityInstructionArgs {
 ///   1. `[signer]` settings_authority
 ///   2. `[writable, signer, optional]` fee_payer
 ///   3. `[optional]` system_program (default to `11111111111111111111111111111111`)
-///   4. `[optional]` program (default to `aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh`)
+///   4. `[optional]` program (default to `7DhtuVpz4WuAN1dfJH2pK7ACKq3f1VUaqcvrzuNwc2rS`)
 #[derive(Clone, Debug, Default)]
 pub struct RemoveSignerAsAuthorityBuilder {
     settings: Option<solana_pubkey::Pubkey>,
@@ -172,7 +172,7 @@ impl RemoveSignerAsAuthorityBuilder {
         self.system_program = system_program;
         self
     }
-    /// `[optional account, default to 'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh']`
+    /// `[optional account, default to '7DhtuVpz4WuAN1dfJH2pK7ACKq3f1VUaqcvrzuNwc2rS']`
     #[inline(always)]
     pub fn program(&mut self, program: solana_pubkey::Pubkey) -> &mut Self {
         self.program = Some(program);
@@ -214,7 +214,7 @@ impl RemoveSignerAsAuthorityBuilder {
             fee_payer: self.fee_payer,
             system_program: self.system_program,
             program: self.program.unwrap_or(solana_pubkey::pubkey!(
-                "aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh"
+                "7DhtuVpz4WuAN1dfJH2pK7ACKq3f1VUaqcvrzuNwc2rS"
             )),
         };
         let args = RemoveSignerAsAuthorityInstructionArgs {

@@ -10,7 +10,7 @@ skip-lint = false
 astrolabe_smart_account = "aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh"
 
 [programs.mainnet]
-astrolabe_smart_account = "aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh"
+astrolabe_smart_account = "7DhtuVpz4WuAN1dfJH2pK7ACKq3f1VUaqcvrzuNwc2rS"
 
 [registry]
 url = "https://api.apr.dev"
