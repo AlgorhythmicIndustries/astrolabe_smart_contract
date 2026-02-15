@@ -42,6 +42,7 @@ import {
   type Option,
   type OptionOrNullable,
   type ReadonlyAccount,
+  type ReadonlySignerAccount,
   type ReadonlyUint8Array,
   type TransactionSigner,
   type WritableAccount,
@@ -74,12 +75,13 @@ export type CreateSmartAccountInstruction<
   TAccountSettings extends string | AccountMeta<string> = string,
   TAccountTreasury extends string | AccountMeta<string> = string,
   TAccountCreator extends string | AccountMeta<string> = string,
+  TAccountFeePayer extends string | AccountMeta<string> = string,
   TAccountSystemProgram extends
     | string
     | AccountMeta<string> = '11111111111111111111111111111111',
   TAccountProgram extends
     | string
-    | AccountMeta<string> = 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q',
+    | AccountMeta<string> = 'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh',
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
@@ -95,9 +97,13 @@ export type CreateSmartAccountInstruction<
         ? WritableAccount<TAccountTreasury>
         : TAccountTreasury,
       TAccountCreator extends string
-        ? WritableSignerAccount<TAccountCreator> &
+        ? ReadonlySignerAccount<TAccountCreator> &
             AccountSignerMeta<TAccountCreator>
         : TAccountCreator,
+      TAccountFeePayer extends string
+        ? WritableSignerAccount<TAccountFeePayer> &
+            AccountSignerMeta<TAccountFeePayer>
+        : TAccountFeePayer,
       TAccountSystemProgram extends string
         ? ReadonlyAccount<TAccountSystemProgram>
         : TAccountSystemProgram,
@@ -213,6 +219,7 @@ export type CreateSmartAccountAsyncInput<
   TAccountSettings extends string = string,
   TAccountTreasury extends string = string,
   TAccountCreator extends string = string,
+  TAccountFeePayer extends string = string,
   TAccountSystemProgram extends string = string,
   TAccountProgram extends string = string,
 > = {
@@ -222,8 +229,10 @@ export type CreateSmartAccountAsyncInput<
   settings: Address<TAccountSettings>;
   /** The treasury where the creation fee is transferred to. */
   treasury: Address<TAccountTreasury>;
-  /** The creator of the smart account. */
+  /** The creator of the smart account (defines signers, not necessarily paying for fees). */
   creator: TransactionSigner<TAccountCreator>;
+  /** The account that pays for rent and creation fees. */
+  feePayer: TransactionSigner<TAccountFeePayer>;
   systemProgram?: Address<TAccountSystemProgram>;
   program?: Address<TAccountProgram>;
   settingsAuthority: CreateSmartAccountInstructionDataArgs['settingsAuthority'];
@@ -240,6 +249,7 @@ export async function getCreateSmartAccountInstructionAsync<
   TAccountSettings extends string,
   TAccountTreasury extends string,
   TAccountCreator extends string,
+  TAccountFeePayer extends string,
   TAccountSystemProgram extends string,
   TAccountProgram extends string,
   TProgramAddress extends
@@ -250,6 +260,7 @@ export async function getCreateSmartAccountInstructionAsync<
     TAccountSettings,
     TAccountTreasury,
     TAccountCreator,
+    TAccountFeePayer,
     TAccountSystemProgram,
     TAccountProgram
   >,
@@ -261,6 +272,7 @@ export async function getCreateSmartAccountInstructionAsync<
     TAccountSettings,
     TAccountTreasury,
     TAccountCreator,
+    TAccountFeePayer,
     TAccountSystemProgram,
     TAccountProgram
   >
@@ -274,7 +286,8 @@ export async function getCreateSmartAccountInstructionAsync<
     programConfig: { value: input.programConfig ?? null, isWritable: true },
     settings: { value: input.settings ?? null, isWritable: true },
     treasury: { value: input.treasury ?? null, isWritable: true },
-    creator: { value: input.creator ?? null, isWritable: true },
+    creator: { value: input.creator ?? null, isWritable: false },
+    feePayer: { value: input.feePayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
   };
@@ -310,7 +323,7 @@ export async function getCreateSmartAccountInstructionAsync<
   }
   if (!accounts.program.value) {
     accounts.program.value =
-      'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q' as Address<'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q'>;
+      'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh' as Address<'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh'>;
   }
 
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
@@ -320,6 +333,7 @@ export async function getCreateSmartAccountInstructionAsync<
       getAccountMeta(accounts.settings),
       getAccountMeta(accounts.treasury),
       getAccountMeta(accounts.creator),
+      getAccountMeta(accounts.feePayer),
       getAccountMeta(accounts.systemProgram),
       getAccountMeta(accounts.program),
     ],
@@ -333,6 +347,7 @@ export async function getCreateSmartAccountInstructionAsync<
     TAccountSettings,
     TAccountTreasury,
     TAccountCreator,
+    TAccountFeePayer,
     TAccountSystemProgram,
     TAccountProgram
   >);
@@ -343,6 +358,7 @@ export type CreateSmartAccountInput<
   TAccountSettings extends string = string,
   TAccountTreasury extends string = string,
   TAccountCreator extends string = string,
+  TAccountFeePayer extends string = string,
   TAccountSystemProgram extends string = string,
   TAccountProgram extends string = string,
 > = {
@@ -352,8 +368,10 @@ export type CreateSmartAccountInput<
   settings: Address<TAccountSettings>;
   /** The treasury where the creation fee is transferred to. */
   treasury: Address<TAccountTreasury>;
-  /** The creator of the smart account. */
+  /** The creator of the smart account (defines signers, not necessarily paying for fees). */
   creator: TransactionSigner<TAccountCreator>;
+  /** The account that pays for rent and creation fees. */
+  feePayer: TransactionSigner<TAccountFeePayer>;
   systemProgram?: Address<TAccountSystemProgram>;
   program?: Address<TAccountProgram>;
   settingsAuthority: CreateSmartAccountInstructionDataArgs['settingsAuthority'];
@@ -370,6 +388,7 @@ export function getCreateSmartAccountInstruction<
   TAccountSettings extends string,
   TAccountTreasury extends string,
   TAccountCreator extends string,
+  TAccountFeePayer extends string,
   TAccountSystemProgram extends string,
   TAccountProgram extends string,
   TProgramAddress extends
@@ -380,6 +399,7 @@ export function getCreateSmartAccountInstruction<
     TAccountSettings,
     TAccountTreasury,
     TAccountCreator,
+    TAccountFeePayer,
     TAccountSystemProgram,
     TAccountProgram
   >,
@@ -390,6 +410,7 @@ export function getCreateSmartAccountInstruction<
   TAccountSettings,
   TAccountTreasury,
   TAccountCreator,
+  TAccountFeePayer,
   TAccountSystemProgram,
   TAccountProgram
 > {
@@ -402,7 +423,8 @@ export function getCreateSmartAccountInstruction<
     programConfig: { value: input.programConfig ?? null, isWritable: true },
     settings: { value: input.settings ?? null, isWritable: true },
     treasury: { value: input.treasury ?? null, isWritable: true },
-    creator: { value: input.creator ?? null, isWritable: true },
+    creator: { value: input.creator ?? null, isWritable: false },
+    feePayer: { value: input.feePayer ?? null, isWritable: true },
     systemProgram: { value: input.systemProgram ?? null, isWritable: false },
     program: { value: input.program ?? null, isWritable: false },
   };
@@ -421,7 +443,7 @@ export function getCreateSmartAccountInstruction<
   }
   if (!accounts.program.value) {
     accounts.program.value =
-      'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q' as Address<'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q'>;
+      'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh' as Address<'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh'>;
   }
 
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
@@ -431,6 +453,7 @@ export function getCreateSmartAccountInstruction<
       getAccountMeta(accounts.settings),
       getAccountMeta(accounts.treasury),
       getAccountMeta(accounts.creator),
+      getAccountMeta(accounts.feePayer),
       getAccountMeta(accounts.systemProgram),
       getAccountMeta(accounts.program),
     ],
@@ -444,6 +467,7 @@ export function getCreateSmartAccountInstruction<
     TAccountSettings,
     TAccountTreasury,
     TAccountCreator,
+    TAccountFeePayer,
     TAccountSystemProgram,
     TAccountProgram
   >);
@@ -461,10 +485,12 @@ export type ParsedCreateSmartAccountInstruction<
     settings: TAccountMetas[1];
     /** The treasury where the creation fee is transferred to. */
     treasury: TAccountMetas[2];
-    /** The creator of the smart account. */
+    /** The creator of the smart account (defines signers, not necessarily paying for fees). */
     creator: TAccountMetas[3];
-    systemProgram: TAccountMetas[4];
-    program: TAccountMetas[5];
+    /** The account that pays for rent and creation fees. */
+    feePayer: TAccountMetas[4];
+    systemProgram: TAccountMetas[5];
+    program: TAccountMetas[6];
   };
   data: CreateSmartAccountInstructionData;
 };
@@ -477,7 +503,7 @@ export function parseCreateSmartAccountInstruction<
     InstructionWithAccounts<TAccountMetas> &
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedCreateSmartAccountInstruction<TProgram, TAccountMetas> {
-  if (instruction.accounts.length < 6) {
+  if (instruction.accounts.length < 7) {
     // TODO: Coded error.
     throw new Error('Not enough accounts');
   }
@@ -494,6 +520,7 @@ export function parseCreateSmartAccountInstruction<
       settings: getNextAccount(),
       treasury: getNextAccount(),
       creator: getNextAccount(),
+      feePayer: getNextAccount(),
       systemProgram: getNextAccount(),
       program: getNextAccount(),
     },

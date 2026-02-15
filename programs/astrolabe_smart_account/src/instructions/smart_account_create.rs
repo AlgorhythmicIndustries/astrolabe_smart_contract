@@ -40,7 +40,7 @@ pub struct CreateSmartAccount<'info> {
     /// The settings account for the smart account.
     #[account(
         init,
-        payer = creator,
+        payer = fee_payer,
         seeds = [
             SEED_PREFIX,
             SEED_SETTINGS,
@@ -56,9 +56,12 @@ pub struct CreateSmartAccount<'info> {
     #[account(mut)]
     pub treasury: AccountInfo<'info>,
 
-    /// The creator of the smart account.
-    #[account(mut)]
+    /// The creator of the smart account (defines signers, not necessarily paying for fees).
     pub creator: Signer<'info>,
+
+    /// The account that pays for rent and creation fees.
+    #[account(mut)]
+    pub fee_payer: Signer<'info>,
 
     pub system_program: Program<'info, System>,
     pub program: Program<'info, AstrolabeSmartAccount>,
@@ -117,7 +120,7 @@ impl<'info> CreateSmartAccount<'info> {
                 CpiContext::new(
                     ctx.accounts.system_program.to_account_info(),
                     system_program::Transfer {
-                        from: ctx.accounts.creator.to_account_info(),
+                        from: ctx.accounts.fee_payer.to_account_info(),
                         to: ctx.accounts.treasury.to_account_info(),
                     },
                 ),

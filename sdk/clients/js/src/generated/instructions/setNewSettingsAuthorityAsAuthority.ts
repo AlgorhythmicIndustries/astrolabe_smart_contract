@@ -65,7 +65,7 @@ export type SetNewSettingsAuthorityAsAuthorityInstruction<
     | AccountMeta<string> = '11111111111111111111111111111111',
   TAccountProgram extends
     | string
-    | AccountMeta<string> = 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q',
+    | AccountMeta<string> = 'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh',
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
@@ -223,7 +223,7 @@ export function getSetNewSettingsAuthorityAsAuthorityInstruction<
   }
   if (!accounts.program.value) {
     accounts.program.value =
-      'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q' as Address<'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q'>;
+      'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh' as Address<'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh'>;
   }
 
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');

@@ -181,7 +181,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
   let finalNumReadonlyNonSignerAccounts = numReadonlyNonSignerAccounts;
   
   if (!hasComputeUnitLimit) {
-    console.log('⚠️  No compute unit limit instruction found - adding one with 1.2M CU for smart account swap');
+    console.log('⚠️  No compute unit limit instruction found - adding placeholder (backend will re-estimate)');
     
     // Add ComputeBudget program to accounts if not already there
     if (computeBudgetProgramIndex === -1) {
@@ -195,8 +195,8 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
       finalComputeBudgetProgramIndex = computeBudgetProgramIndex;
     }
     
-    // Create SetComputeUnitLimit instruction (1.2M CU for complex swaps with smart account overhead)
-    const CU_LIMIT = 600_000;
+    // Create SetComputeUnitLimit instruction (placeholder - backend will re-estimate via simulation)
+    const CU_LIMIT = 800_000;
     const cuLimitData = new Uint8Array(5);
     cuLimitData[0] = 2; // SetComputeUnitLimit discriminator
     cuLimitData[1] = CU_LIMIT & 0xff;
@@ -293,17 +293,33 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
   
   const finalStaticAccountsLen = finalStaticAccounts.length;
 
+  // Normalize lookups so we can safely reuse them for both message encoding
+  // and ExecuteTransaction remaining accounts.
+  const rawLookups = (addressTableLookups?.length
+    ? addressTableLookups
+    : (compiled.addressTableLookups || [])) as any[];
+  const normalizedLookups = rawLookups
+    .map((lookup: any, index: number) => {
+      const accountKeyRaw = lookup?.accountKey ?? lookup?.lookupTableAddress;
+      if (!accountKeyRaw) {
+        console.warn(`⚠️ Missing lookup table address at index ${index}, skipping`);
+        return null;
+      }
+      return {
+        accountKey: toAddress(accountKeyRaw),
+        writableIndexes: new Uint8Array(lookup?.writableIndexes ?? []),
+        readonlyIndexes: new Uint8Array(lookup?.readonlyIndexes ?? []),
+      };
+    })
+    .filter(Boolean) as { accountKey: Address; writableIndexes: Uint8Array; readonlyIndexes: Uint8Array }[];
+
   const transactionMessage = {
     numSigners: numSignerAccounts,
     numWritableSigners: Math.max(0, numSignerAccounts - numReadonlySignerAccounts),
     numWritableNonSigners: Math.max(0, (finalStaticAccountsLen - numSignerAccounts) - finalNumReadonlyNonSignerAccounts),
     accountKeys: finalStaticAccounts,
     instructions: finalInstructions,
-    addressTableLookups: (addressTableLookups || []).map(lookup => ({
-      accountKey: lookup.accountKey,
-      writableIndexes: new Uint8Array(lookup.writableIndexes ?? []),
-      readonlyIndexes: new Uint8Array(lookup.readonlyIndexes ?? []),
-    })),
+    addressTableLookups: normalizedLookups,
   };
 
   // Encode as the TransactionMessage format expected by smart contract
@@ -377,7 +393,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
   let transactionBufferPda = await deriveBufferPda(smartAccountSettings, signer.address, chosenBufferIndex);
   // Probe and find a free buffer index if current exists.
   for (let attempts = 0; attempts < 256; attempts++) {
-    const info = await rpc.getAccountInfo(transactionBufferPda, { commitment: 'processed' as any }).send();
+    const info = await rpc.getAccountInfo(transactionBufferPda, { encoding: 'base64', commitment: 'processed' as any }).send();
     if (!info.value) break; // free
     chosenBufferIndex = (chosenBufferIndex + 1) & 0xff;
     transactionBufferPda = await deriveBufferPda(smartAccountSettings, signer.address, chosenBufferIndex);
@@ -508,7 +524,7 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
 
     // 1) ALT table accounts first (readonly), in the order of address_table_lookups
     // Use the addressTableLookups from params (the inner Jupiter transaction), not from compiled (outer wrapper)
-    const execLookups = ((addressTableLookups || []) as any[]).filter((l: any) => l && l.accountKey);
+    const execLookups = normalizedLookups;
     for (const lookup of execLookups) {
       resultAccounts.push({ address: toAddress(lookup.accountKey), role: AccountRole.READONLY });
     }
@@ -581,86 +597,11 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     // NOTE: We set fee payer and blockhash here for compilation, but caller should refresh before signing
     // IMPORTANT: We MUST compress with ALTs to keep under the 1232 byte limit
     
-    // CRITICAL: Simulate transaction first to determine optimal CU limit (Helius best practice)
-    // Step 1: Create a test transaction with max CU limit to ensure simulation succeeds
-    const testCULimitIx = getSetComputeUnitLimitInstruction({ units: 1_400_000 });
-    const testMessage = pipe(
-      createTransactionMessage({ version: 0 }),
-      tx => setTransactionMessageFeePayerSigner(feePayerSigner, tx),
-      tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
-      tx => appendTransactionMessageInstructions([testCULimitIx, executeIxWithAccounts], tx)
-    );
-    
-    // Compress test transaction if needed
-    let testMessageCompressed = testMessage;
-    if (execLookups.length > 0) {
-      const addressesByLookupTableAddress: Record<string, Address[]> = {};
-      for (const lookup of execLookups) {
-        const info = await rpc
-          .getAccountInfo(toAddress(lookup.accountKey), { encoding: 'base64', commitment: 'finalized' })
-          .send();
-        if (!info.value?.data) continue;
-        const b64 = Array.isArray(info.value.data) ? info.value.data[0] : (info.value.data as string);
-        const dataBuf = Buffer.from(b64, 'base64');
-        const data = new Uint8Array(dataBuf.buffer, dataBuf.byteOffset, dataBuf.byteLength);
-        const HEADER_SIZE = 56;
-        const PUBKEY_SIZE = 32;
-        const total = Math.floor((data.length - HEADER_SIZE) / PUBKEY_SIZE);
-        const addrs: Address[] = [];
-        for (let i = 0; i < total; i++) {
-          const off = HEADER_SIZE + i * PUBKEY_SIZE;
-          const keyBytes = data.subarray(off, off + PUBKEY_SIZE);
-          addrs.push(address(bs58.encode(keyBytes)));
-        }
-        addressesByLookupTableAddress[lookup.accountKey.toString()] = addrs;
-      }
-      testMessageCompressed = compressTransactionMessageUsingAddressLookupTables(
-        testMessage as any,
-        addressesByLookupTableAddress as any
-      ) as any;
-    }
-    
-    // Step 2: Simulate to get actual CU consumption
-    const compiledTest = compileTransaction(testMessageCompressed);
-    const testTx = new Uint8Array(compiledTest.messageBytes);
-    
-    // DEBUG: Log base64 transaction for manual testing
-    const base64Tx = Buffer.from(testTx).toString('base64');
-    console.log('🧪 Test transaction for simulation (base64):', base64Tx);
-    console.log('🧪 Curl command:');
-    console.log(`curl -X POST https://api.dev.astrolabefinance.com/surfpool -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1,"method":"simulateTransaction","params":["${base64Tx}",{"encoding":"base64","replaceRecentBlockhash":true,"sigVerify":false}]}'`);
-    
-    // Fallback based on real-world data: ExecuteTransaction typically uses 200-250K CU for complex swaps
-    // Using 400K provides ~80% safety margin and avoids overpaying for CUs
-    let optimalCULimit = 400_000; 
-    
-    try {
-      // Use simulateTransaction RPC method (may fail due to CORS on some endpoints)
-      const base64Tx = Buffer.from(testTx).toString('base64') as any; // Cast to any to work with branded type
-      const simulationResult = await rpc
-        .simulateTransaction(base64Tx, {
-          replaceRecentBlockhash: true,
-          sigVerify: false,
-          encoding: 'base64',
-        })
-        .send();
-      
-      if (simulationResult.value.unitsConsumed) {
-        // Convert bigint to number and add 30% margin for smart account overhead + safety buffer
-        // (Helius recommends 10%, we need more for smart accounts)
-        const consumedCU = Number(simulationResult.value.unitsConsumed);
-        optimalCULimit = Math.ceil(consumedCU * 1.3);
-        console.log(`🔧 Simulated CU consumption: ${consumedCU}, setting limit to ${optimalCULimit} (30% margin)`);
-      } else {
-        console.log('⚠️  Simulation did not return CU consumption, using data-driven fallback: 400K CU');
-      }
-    } catch (error) {
-      console.log(`⚠️  Transaction simulation failed (likely CORS), using data-driven fallback: 400K CU`);
-      // Don't log full error as it's expected to fail on some RPC endpoints due to CORS
-    }
-    
-    // Step 3: Create execute transaction with optimal CU limit
-    const setCULimitIx = getSetComputeUnitLimitInstruction({ units: optimalCULimit });
+    // CU limit placeholder - backend handles accurate CU estimation in Phase 2b after
+    // the Proposal PDA exists on-chain, enabling accurate simulation.
+    // Using 800K as a safe default that handles most 2-hop swaps with smart account overhead.
+    const placeholderCULimit = 800_000;
+    const setCULimitIx = getSetComputeUnitLimitInstruction({ units: placeholderCULimit });
     
     let executeMsgLocal = pipe(
       createTransactionMessage({ version: 0 }),

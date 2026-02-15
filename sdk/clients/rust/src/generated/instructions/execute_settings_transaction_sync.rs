@@ -124,7 +124,7 @@ impl ExecuteSettingsTransactionSyncInstructionArgs {
 ///   0. `[writable]` settings
 ///   1. `[writable, signer, optional]` fee_payer
 ///   2. `[optional]` system_program (default to `11111111111111111111111111111111`)
-///   3. `[optional]` program (default to `ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q`)
+///   3. `[optional]` program (default to `aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh`)
 #[derive(Clone, Debug, Default)]
 pub struct ExecuteSettingsTransactionSyncBuilder {
     settings: Option<solana_pubkey::Pubkey>,
@@ -162,7 +162,7 @@ impl ExecuteSettingsTransactionSyncBuilder {
         self.system_program = system_program;
         self
     }
-    /// `[optional account, default to 'ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q']`
+    /// `[optional account, default to 'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh']`
     #[inline(always)]
     pub fn program(&mut self, program: solana_pubkey::Pubkey) -> &mut Self {
         self.program = Some(program);
@@ -206,7 +206,7 @@ impl ExecuteSettingsTransactionSyncBuilder {
             fee_payer: self.fee_payer,
             system_program: self.system_program,
             program: self.program.unwrap_or(solana_pubkey::pubkey!(
-                "ASTRjN4RRXupfb6d2HD24ozu8Gbwqf6JmS32UnNeGQ6q"
+                "aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh"
             )),
         };
         let args = ExecuteSettingsTransactionSyncInstructionArgs {

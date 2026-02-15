@@ -234,7 +234,7 @@ const rpcSubscriptions = createSolanaRpcSubscriptions('ws://localhost:8900');
       const swapResponse = await getSwapTransaction(
         quote,
         smartAccountInfo.smartAccountPda, // Use smart account as the user
-        true, // wrapAndUnwrapSol
+        false, // wrapAndUnwrapSol - DISABLED so rent from WSOL closure goes to fee payer
         true, // dynamicComputeUnitLimit
         'auto' // prioritizationFeeLamports
       );

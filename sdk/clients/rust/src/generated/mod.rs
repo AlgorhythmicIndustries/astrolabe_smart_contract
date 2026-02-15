@@ -12,4 +12,4 @@ pub mod programs;
 pub mod shared;
 pub mod types;
 
-pub(crate) use programs::*;
+pub use programs::*;

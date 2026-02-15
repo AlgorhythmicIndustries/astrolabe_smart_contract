@@ -408,32 +408,26 @@ export async function createSimpleTransaction(
     const accountKeyStr = accountKey.toString().trim();
 
     // Check if this account should be a signer
-    if (accountKeyStr === feePayerStr || accountKey.toString() === feePayer.toString()) {
+    if (accountKeyStr === feePayerStr) {
       console.log('  ✅ MATCHED FEE PAYER:', accountKeyStr, '-> Skipping (passed as named account)');
       continue;
-    } else if (accountKeyStr === signerStr) {
-      console.log('  ✅ MATCHED FEE PAYER:', accountKeyStr, '-> Setting WRITABLE_SIGNER');
-      // Attach the signer explicitly!
-      executeTransactionInstruction.accounts.push({
-        address: accountKey,
-        role: AccountRole.WRITABLE_SIGNER,
-        signer: createNoopSigner(accountKey),
-      } as AccountSignerMeta);
-    } else if (accountKeyStr === signerStr) {
+    }
+
+    if (accountKeyStr === signerStr) {
       console.log('  ✅ MATCHED USER SIGNER:', accountKeyStr, '-> Setting WRITABLE_SIGNER');
-      // Attach the signer explicitly!
       executeTransactionInstruction.accounts.push({
         address: accountKey,
         role: AccountRole.WRITABLE_SIGNER,
         signer: signer, // User signer is already a TransactionSigner
       } as AccountSignerMeta);
-    } else {
-      // For other accounts, mark as WRITABLE
-      executeTransactionInstruction.accounts.push({
-        address: accountKey,
-        role: AccountRole.WRITABLE,
-      });
+      continue;
     }
+
+    // For other accounts, mark as WRITABLE
+    executeTransactionInstruction.accounts.push({
+      address: accountKey,
+      role: AccountRole.WRITABLE,
+    });
   }
 
   // 🔍 Verify the pushed accounts
