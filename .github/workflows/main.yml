@@ -33,6 +33,33 @@ jobs:
     - name: Test remote access
       run: |
         git ls-remote astrolabe-sdk-remote
+
+    - name: Validate Rust generated instruction files
+      run: |
+        set -euo pipefail
+        MOD_FILE="sdk/clients/rust/src/generated/instructions/mod.rs"
+        if [ ! -f "$MOD_FILE" ]; then
+          echo "Missing $MOD_FILE"
+          exit 1
+        fi
+
+        missing=0
+        while IFS= read -r line; do
+          module_name="$(echo "$line" | sed -E 's/^pub\(crate\) mod r#([a-z0-9_]+);$/\1/')"
+          [ -z "$module_name" ] && continue
+          file_path="sdk/clients/rust/src/generated/instructions/${module_name}.rs"
+          if [ ! -f "$file_path" ]; then
+            echo "Missing generated Rust instruction file: $file_path"
+            missing=1
+          fi
+        done < <(grep -E '^pub\(crate\) mod r#[a-z0-9_]+;$' "$MOD_FILE")
+
+        if [ "$missing" -ne 0 ]; then
+          echo "Rust generated instructions are inconsistent with mod.rs"
+          exit 1
+        fi
+
+        echo "Rust generated instructions are consistent"
     
     - name: Push subtree to SDK repository
       run: |
