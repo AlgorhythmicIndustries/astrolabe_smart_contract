@@ -7,21 +7,22 @@
 
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
+use solana_pubkey::Pubkey;
 
-pub const EXECUTE_TRANSACTION_SYNC_DISCRIMINATOR: [u8; 1] = [32];
+pub const SET_PROGRAM_CONFIG_BUFFER_RENT_COLLECTOR_DISCRIMINATOR: [u8; 1] = [35];
 
 /// Accounts.
 #[derive(Debug)]
-pub struct ExecuteTransactionSync {
-    pub settings: solana_pubkey::Pubkey,
+pub struct SetProgramConfigBufferRentCollector {
+    pub program_config: solana_pubkey::Pubkey,
 
-    pub program: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
-impl ExecuteTransactionSync {
+impl SetProgramConfigBufferRentCollector {
     pub fn instruction(
         &self,
-        args: ExecuteTransactionSyncInstructionArgs,
+        args: SetProgramConfigBufferRentCollectorInstructionArgs,
     ) -> solana_instruction::Instruction {
         self.instruction_with_remaining_accounts(args, &[])
     }
@@ -29,20 +30,20 @@ impl ExecuteTransactionSync {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction_with_remaining_accounts(
         &self,
-        args: ExecuteTransactionSyncInstructionArgs,
+        args: SetProgramConfigBufferRentCollectorInstructionArgs,
         remaining_accounts: &[solana_instruction::AccountMeta],
     ) -> solana_instruction::Instruction {
         let mut accounts = Vec::with_capacity(2 + remaining_accounts.len());
-        accounts.push(solana_instruction::AccountMeta::new_readonly(
-            self.settings,
+        accounts.push(solana_instruction::AccountMeta::new(
+            self.program_config,
             false,
         ));
         accounts.push(solana_instruction::AccountMeta::new_readonly(
-            self.program,
-            false,
+            self.authority,
+            true,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = ExecuteTransactionSyncInstructionData::new()
+        let mut data = SetProgramConfigBufferRentCollectorInstructionData::new()
             .try_to_vec()
             .unwrap();
         let mut args = args.try_to_vec().unwrap();
@@ -58,14 +59,14 @@ impl ExecuteTransactionSync {
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ExecuteTransactionSyncInstructionData {
+pub struct SetProgramConfigBufferRentCollectorInstructionData {
     discriminator: [u8; 1],
 }
 
-impl ExecuteTransactionSyncInstructionData {
+impl SetProgramConfigBufferRentCollectorInstructionData {
     pub fn new() -> Self {
         Self {
-            discriminator: [32],
+            discriminator: [35],
         }
     }
 
@@ -74,7 +75,7 @@ impl ExecuteTransactionSyncInstructionData {
     }
 }
 
-impl Default for ExecuteTransactionSyncInstructionData {
+impl Default for SetProgramConfigBufferRentCollectorInstructionData {
     fn default() -> Self {
         Self::new()
     }
@@ -82,62 +83,47 @@ impl Default for ExecuteTransactionSyncInstructionData {
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ExecuteTransactionSyncInstructionArgs {
-    pub account_index: u8,
-    pub num_signers: u8,
-    pub instructions: Vec<u8>,
+pub struct SetProgramConfigBufferRentCollectorInstructionArgs {
+    pub new_buffer_rent_collector: Pubkey,
 }
 
-impl ExecuteTransactionSyncInstructionArgs {
+impl SetProgramConfigBufferRentCollectorInstructionArgs {
     pub(crate) fn try_to_vec(&self) -> Result<Vec<u8>, std::io::Error> {
         borsh::to_vec(self)
     }
 }
 
-/// Instruction builder for `ExecuteTransactionSync`.
+/// Instruction builder for `SetProgramConfigBufferRentCollector`.
 ///
 /// ### Accounts:
 ///
-///   0. `[]` settings
-///   1. `[optional]` program (default to `aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh`)
+///   0. `[writable]` program_config
+///   1. `[signer]` authority
 #[derive(Clone, Debug, Default)]
-pub struct ExecuteTransactionSyncBuilder {
-    settings: Option<solana_pubkey::Pubkey>,
-    program: Option<solana_pubkey::Pubkey>,
-    account_index: Option<u8>,
-    num_signers: Option<u8>,
-    instructions: Option<Vec<u8>>,
+pub struct SetProgramConfigBufferRentCollectorBuilder {
+    program_config: Option<solana_pubkey::Pubkey>,
+    authority: Option<solana_pubkey::Pubkey>,
+    new_buffer_rent_collector: Option<Pubkey>,
     __remaining_accounts: Vec<solana_instruction::AccountMeta>,
 }
 
-impl ExecuteTransactionSyncBuilder {
+impl SetProgramConfigBufferRentCollectorBuilder {
     pub fn new() -> Self {
         Self::default()
     }
     #[inline(always)]
-    pub fn settings(&mut self, settings: solana_pubkey::Pubkey) -> &mut Self {
-        self.settings = Some(settings);
-        self
-    }
-    /// `[optional account, default to 'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh']`
-    #[inline(always)]
-    pub fn program(&mut self, program: solana_pubkey::Pubkey) -> &mut Self {
-        self.program = Some(program);
+    pub fn program_config(&mut self, program_config: solana_pubkey::Pubkey) -> &mut Self {
+        self.program_config = Some(program_config);
         self
     }
     #[inline(always)]
-    pub fn account_index(&mut self, account_index: u8) -> &mut Self {
-        self.account_index = Some(account_index);
+    pub fn authority(&mut self, authority: solana_pubkey::Pubkey) -> &mut Self {
+        self.authority = Some(authority);
         self
     }
     #[inline(always)]
-    pub fn num_signers(&mut self, num_signers: u8) -> &mut Self {
-        self.num_signers = Some(num_signers);
-        self
-    }
-    #[inline(always)]
-    pub fn instructions(&mut self, instructions: Vec<u8>) -> &mut Self {
-        self.instructions = Some(instructions);
+    pub fn new_buffer_rent_collector(&mut self, new_buffer_rent_collector: Pubkey) -> &mut Self {
+        self.new_buffer_rent_collector = Some(new_buffer_rent_collector);
         self
     }
     /// Add an additional account to the instruction.
@@ -157,54 +143,50 @@ impl ExecuteTransactionSyncBuilder {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn instruction(&self) -> solana_instruction::Instruction {
-        let accounts = ExecuteTransactionSync {
-            settings: self.settings.expect("settings is not set"),
-            program: self.program.unwrap_or(solana_pubkey::pubkey!(
-                "aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh"
-            )),
+        let accounts = SetProgramConfigBufferRentCollector {
+            program_config: self.program_config.expect("program_config is not set"),
+            authority: self.authority.expect("authority is not set"),
         };
-        let args = ExecuteTransactionSyncInstructionArgs {
-            account_index: self
-                .account_index
+        let args = SetProgramConfigBufferRentCollectorInstructionArgs {
+            new_buffer_rent_collector: self
+                .new_buffer_rent_collector
                 .clone()
-                .expect("account_index is not set"),
-            num_signers: self.num_signers.clone().expect("num_signers is not set"),
-            instructions: self.instructions.clone().expect("instructions is not set"),
+                .expect("new_buffer_rent_collector is not set"),
         };
 
         accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
     }
 }
 
-/// `execute_transaction_sync` CPI accounts.
-pub struct ExecuteTransactionSyncCpiAccounts<'a, 'b> {
-    pub settings: &'b solana_account_info::AccountInfo<'a>,
+/// `set_program_config_buffer_rent_collector` CPI accounts.
+pub struct SetProgramConfigBufferRentCollectorCpiAccounts<'a, 'b> {
+    pub program_config: &'b solana_account_info::AccountInfo<'a>,
 
-    pub program: &'b solana_account_info::AccountInfo<'a>,
+    pub authority: &'b solana_account_info::AccountInfo<'a>,
 }
 
-/// `execute_transaction_sync` CPI instruction.
-pub struct ExecuteTransactionSyncCpi<'a, 'b> {
+/// `set_program_config_buffer_rent_collector` CPI instruction.
+pub struct SetProgramConfigBufferRentCollectorCpi<'a, 'b> {
     /// The program to invoke.
     pub __program: &'b solana_account_info::AccountInfo<'a>,
 
-    pub settings: &'b solana_account_info::AccountInfo<'a>,
+    pub program_config: &'b solana_account_info::AccountInfo<'a>,
 
-    pub program: &'b solana_account_info::AccountInfo<'a>,
+    pub authority: &'b solana_account_info::AccountInfo<'a>,
     /// The arguments for the instruction.
-    pub __args: ExecuteTransactionSyncInstructionArgs,
+    pub __args: SetProgramConfigBufferRentCollectorInstructionArgs,
 }
 
-impl<'a, 'b> ExecuteTransactionSyncCpi<'a, 'b> {
+impl<'a, 'b> SetProgramConfigBufferRentCollectorCpi<'a, 'b> {
     pub fn new(
         program: &'b solana_account_info::AccountInfo<'a>,
-        accounts: ExecuteTransactionSyncCpiAccounts<'a, 'b>,
-        args: ExecuteTransactionSyncInstructionArgs,
+        accounts: SetProgramConfigBufferRentCollectorCpiAccounts<'a, 'b>,
+        args: SetProgramConfigBufferRentCollectorInstructionArgs,
     ) -> Self {
         Self {
             __program: program,
-            settings: accounts.settings,
-            program: accounts.program,
+            program_config: accounts.program_config,
+            authority: accounts.authority,
             __args: args,
         }
     }
@@ -232,13 +214,13 @@ impl<'a, 'b> ExecuteTransactionSyncCpi<'a, 'b> {
         remaining_accounts: &[(&'b solana_account_info::AccountInfo<'a>, bool, bool)],
     ) -> solana_program_error::ProgramResult {
         let mut accounts = Vec::with_capacity(2 + remaining_accounts.len());
-        accounts.push(solana_instruction::AccountMeta::new_readonly(
-            *self.settings.key,
+        accounts.push(solana_instruction::AccountMeta::new(
+            *self.program_config.key,
             false,
         ));
         accounts.push(solana_instruction::AccountMeta::new_readonly(
-            *self.program.key,
-            false,
+            *self.authority.key,
+            true,
         ));
         remaining_accounts.iter().for_each(|remaining_account| {
             accounts.push(solana_instruction::AccountMeta {
@@ -247,7 +229,7 @@ impl<'a, 'b> ExecuteTransactionSyncCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = ExecuteTransactionSyncInstructionData::new()
+        let mut data = SetProgramConfigBufferRentCollectorInstructionData::new()
             .try_to_vec()
             .unwrap();
         let mut args = self.__args.try_to_vec().unwrap();
@@ -260,8 +242,8 @@ impl<'a, 'b> ExecuteTransactionSyncCpi<'a, 'b> {
         };
         let mut account_infos = Vec::with_capacity(3 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
-        account_infos.push(self.settings.clone());
-        account_infos.push(self.program.clone());
+        account_infos.push(self.program_config.clone());
+        account_infos.push(self.authority.clone());
         remaining_accounts
             .iter()
             .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
@@ -274,53 +256,44 @@ impl<'a, 'b> ExecuteTransactionSyncCpi<'a, 'b> {
     }
 }
 
-/// Instruction builder for `ExecuteTransactionSync` via CPI.
+/// Instruction builder for `SetProgramConfigBufferRentCollector` via CPI.
 ///
 /// ### Accounts:
 ///
-///   0. `[]` settings
-///   1. `[]` program
+///   0. `[writable]` program_config
+///   1. `[signer]` authority
 #[derive(Clone, Debug)]
-pub struct ExecuteTransactionSyncCpiBuilder<'a, 'b> {
-    instruction: Box<ExecuteTransactionSyncCpiBuilderInstruction<'a, 'b>>,
+pub struct SetProgramConfigBufferRentCollectorCpiBuilder<'a, 'b> {
+    instruction: Box<SetProgramConfigBufferRentCollectorCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a, 'b> ExecuteTransactionSyncCpiBuilder<'a, 'b> {
+impl<'a, 'b> SetProgramConfigBufferRentCollectorCpiBuilder<'a, 'b> {
     pub fn new(program: &'b solana_account_info::AccountInfo<'a>) -> Self {
-        let instruction = Box::new(ExecuteTransactionSyncCpiBuilderInstruction {
+        let instruction = Box::new(SetProgramConfigBufferRentCollectorCpiBuilderInstruction {
             __program: program,
-            settings: None,
-            program: None,
-            account_index: None,
-            num_signers: None,
-            instructions: None,
+            program_config: None,
+            authority: None,
+            new_buffer_rent_collector: None,
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
     #[inline(always)]
-    pub fn settings(&mut self, settings: &'b solana_account_info::AccountInfo<'a>) -> &mut Self {
-        self.instruction.settings = Some(settings);
+    pub fn program_config(
+        &mut self,
+        program_config: &'b solana_account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.program_config = Some(program_config);
         self
     }
     #[inline(always)]
-    pub fn program(&mut self, program: &'b solana_account_info::AccountInfo<'a>) -> &mut Self {
-        self.instruction.program = Some(program);
+    pub fn authority(&mut self, authority: &'b solana_account_info::AccountInfo<'a>) -> &mut Self {
+        self.instruction.authority = Some(authority);
         self
     }
     #[inline(always)]
-    pub fn account_index(&mut self, account_index: u8) -> &mut Self {
-        self.instruction.account_index = Some(account_index);
-        self
-    }
-    #[inline(always)]
-    pub fn num_signers(&mut self, num_signers: u8) -> &mut Self {
-        self.instruction.num_signers = Some(num_signers);
-        self
-    }
-    #[inline(always)]
-    pub fn instructions(&mut self, instructions: Vec<u8>) -> &mut Self {
-        self.instruction.instructions = Some(instructions);
+    pub fn new_buffer_rent_collector(&mut self, new_buffer_rent_collector: Pubkey) -> &mut Self {
+        self.instruction.new_buffer_rent_collector = Some(new_buffer_rent_collector);
         self
     }
     /// Add an additional account to the instruction.
@@ -357,29 +330,22 @@ impl<'a, 'b> ExecuteTransactionSyncCpiBuilder<'a, 'b> {
     #[allow(clippy::clone_on_copy)]
     #[allow(clippy::vec_init_then_push)]
     pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program_error::ProgramResult {
-        let args = ExecuteTransactionSyncInstructionArgs {
-            account_index: self
+        let args = SetProgramConfigBufferRentCollectorInstructionArgs {
+            new_buffer_rent_collector: self
                 .instruction
-                .account_index
+                .new_buffer_rent_collector
                 .clone()
-                .expect("account_index is not set"),
-            num_signers: self
-                .instruction
-                .num_signers
-                .clone()
-                .expect("num_signers is not set"),
-            instructions: self
-                .instruction
-                .instructions
-                .clone()
-                .expect("instructions is not set"),
+                .expect("new_buffer_rent_collector is not set"),
         };
-        let instruction = ExecuteTransactionSyncCpi {
+        let instruction = SetProgramConfigBufferRentCollectorCpi {
             __program: self.instruction.__program,
 
-            settings: self.instruction.settings.expect("settings is not set"),
+            program_config: self
+                .instruction
+                .program_config
+                .expect("program_config is not set"),
 
-            program: self.instruction.program.expect("program is not set"),
+            authority: self.instruction.authority.expect("authority is not set"),
             __args: args,
         };
         instruction.invoke_signed_with_remaining_accounts(
@@ -390,13 +356,11 @@ impl<'a, 'b> ExecuteTransactionSyncCpiBuilder<'a, 'b> {
 }
 
 #[derive(Clone, Debug)]
-struct ExecuteTransactionSyncCpiBuilderInstruction<'a, 'b> {
+struct SetProgramConfigBufferRentCollectorCpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_account_info::AccountInfo<'a>,
-    settings: Option<&'b solana_account_info::AccountInfo<'a>>,
-    program: Option<&'b solana_account_info::AccountInfo<'a>>,
-    account_index: Option<u8>,
-    num_signers: Option<u8>,
-    instructions: Option<Vec<u8>>,
+    program_config: Option<&'b solana_account_info::AccountInfo<'a>>,
+    authority: Option<&'b solana_account_info::AccountInfo<'a>>,
+    new_buffer_rent_collector: Option<Pubkey>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(&'b solana_account_info::AccountInfo<'a>, bool, bool)>,
 }
