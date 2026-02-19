@@ -48,7 +48,7 @@ export type ExecuteTransactionSyncInstruction<
   TAccountSettings extends string | AccountMeta<string> = string,
   TAccountProgram extends
     | string
-    | AccountMeta<string> = 'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh',
+    | AccountMeta<string> = '7DhtuVpz4WuAN1dfJH2pK7ACKq3f1VUaqcvrzuNwc2rS',
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
@@ -164,7 +164,7 @@ export function getExecuteTransactionSyncInstruction<
   // Resolve default values.
   if (!accounts.program.value) {
     accounts.program.value =
-      'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh' as Address<'aStRoeLaWJCg8wy8wcUGHYBJJaoSUVQrgoUZZdQcWRh'>;
+      '7DhtuVpz4WuAN1dfJH2pK7ACKq3f1VUaqcvrzuNwc2rS' as Address<'7DhtuVpz4WuAN1dfJH2pK7ACKq3f1VUaqcvrzuNwc2rS'>;
   }
 
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
