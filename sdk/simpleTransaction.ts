@@ -66,6 +66,13 @@ export type SimpleTransactionParams = {
   closeTokenAccountOwner?: Address;
   /** Offset to add to the current transaction index (for chaining transactions) */
   transactionIndexOffset?: number;
+  /** Additional already-executed transactions to close in this outer transaction */
+  closeTransactionTargets?: Array<{
+    proposal: Address;
+    transaction: Address;
+    proposalRentCollector?: Address;
+    transactionRentCollector?: Address;
+  }>;
 };
 
 /**
@@ -138,6 +145,7 @@ export async function createSimpleTransaction(
   const closeTokenAccountMint = params.closeTokenAccountMint;
   const closeTokenAccountOwner = params.closeTokenAccountOwner;
   const transactionIndexOffset = params.transactionIndexOffset || 0;
+  const closeTransactionTargets = params.closeTransactionTargets || [];
 
   console.log('✅ Destructuring completed');
 
@@ -446,12 +454,25 @@ export async function createSimpleTransaction(
     systemProgram: address('11111111111111111111111111111111'),
   });
 
+  // 9b. Optionally close additional previously executed transactions (e.g. buffered swap tx)
+  const additionalCloseTransactionInstructions = closeTransactionTargets.map((target) =>
+    getCloseTransactionInstruction({
+      settings: smartAccountSettings,
+      proposal: target.proposal,
+      transaction: target.transaction,
+      proposalRentCollector: target.proposalRentCollector ?? feePayer,
+      transactionRentCollector: target.transactionRentCollector ?? feePayer,
+      systemProgram: address('11111111111111111111111111111111'),
+    })
+  );
+
   // 10. Combine all instructions into a single transaction
   const allInstructions = [
     createTransactionInstruction,
     createProposalInstruction,
     approveProposalInstruction,
     executeTransactionInstruction,
+    ...additionalCloseTransactionInstructions,
     closeTransactionInstruction, // Close accounts and reclaim rent
   ];
 
