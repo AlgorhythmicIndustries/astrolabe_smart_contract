@@ -114,6 +114,18 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     if (typeof s === 'string') return address(s);
     throw new Error('Unsupported account key type');
   };
+  const decodeLookupTableAddresses = (rawData: Uint8Array): Address[] => {
+    const HEADER_SIZE = 56;
+    const PUBKEY_SIZE = 32;
+    const total = Math.max(0, Math.floor((rawData.length - HEADER_SIZE) / PUBKEY_SIZE));
+    const addrs: Address[] = [];
+    for (let i = 0; i < total; i++) {
+      const off = HEADER_SIZE + i * PUBKEY_SIZE;
+      const keyBytes = rawData.subarray(off, off + PUBKEY_SIZE);
+      addrs.push(address(bs58.encode(keyBytes)));
+    }
+    return addrs;
+  };
 
   const header = (compiled.header || {}) as any;
   const numSignerAccounts: number = header?.numSignerAccounts ?? 1;
@@ -312,6 +324,28 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
       };
     })
     .filter(Boolean) as { accountKey: Address; writableIndexes: Uint8Array; readonlyIndexes: Uint8Array }[];
+  const lookupFetchStartedAt = Date.now();
+  const uniqueLookupTableKeys = Array.from(new Set(normalizedLookups.map(lookup => lookup.accountKey.toString())));
+  const lookupTableAddressEntries = await Promise.all(
+    uniqueLookupTableKeys.map(async (lookupTableKey) => {
+      const info = await rpc
+        .getAccountInfo(address(lookupTableKey), { encoding: 'base64', commitment: 'confirmed' as any })
+        .send();
+      if (!info.value?.data) {
+        return [lookupTableKey, [] as Address[]] as const;
+      }
+      const b64 = Array.isArray(info.value.data) ? info.value.data[0] : (info.value.data as string);
+      const dataBuf = Buffer.from(b64, 'base64');
+      const data = new Uint8Array(dataBuf.buffer, dataBuf.byteOffset, dataBuf.byteLength);
+      return [lookupTableKey, decodeLookupTableAddresses(data)] as const;
+    })
+  );
+  const addressesByLookupTableAddress: Record<string, Address[]> = Object.fromEntries(lookupTableAddressEntries);
+  if (uniqueLookupTableKeys.length > 0) {
+    console.log(
+      `⚡ Preloaded ${uniqueLookupTableKeys.length} ALT account(s) in ${Date.now() - lookupFetchStartedAt}ms (commitment: confirmed)`
+    );
+  }
 
   const transactionMessage = {
     numSigners: numSignerAccounts,
@@ -558,22 +592,8 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     // 3) ALT-resolved: writable then readonly for each table (in order)
     if (execLookups.length > 0) {
       for (const lookup of execLookups) {
-        const info = await rpc
-          .getAccountInfo(toAddress(lookup.accountKey), { encoding: 'base64', commitment: 'finalized' })
-          .send();
-        if (!info.value?.data) continue;
-        const b64 = Array.isArray(info.value.data) ? info.value.data[0] : (info.value.data as string);
-        const dataBuf = Buffer.from(b64, 'base64');
-        const data = new Uint8Array(dataBuf.buffer, dataBuf.byteOffset, dataBuf.byteLength);
-        const HEADER_SIZE = 56;
-        const PUBKEY_SIZE = 32;
-        const total = Math.floor((data.length - HEADER_SIZE) / PUBKEY_SIZE);
-        const getAddr = (i: number): Address | null => {
-          if (i < 0 || i >= total) return null;
-          const off = HEADER_SIZE + i * PUBKEY_SIZE;
-          const keyBytes = data.subarray(off, off + PUBKEY_SIZE);
-          return address(bs58.encode(keyBytes));
-        };
+        const tableAddresses = addressesByLookupTableAddress[lookup.accountKey.toString()] ?? [];
+        const getAddr = (i: number): Address | null => (i >= 0 && i < tableAddresses.length ? tableAddresses[i] : null);
         const writableIdxs: number[] = Array.from(lookup.writableIndexes ?? []);
         const readonlyIdxs: number[] = Array.from(lookup.readonlyIndexes ?? []);
         for (const wi of writableIdxs) {
@@ -612,26 +632,6 @@ export async function createComplexBufferedTransaction(params: BufferedTransacti
     
     // Compress with ALTs if they exist
     if (execLookups.length > 0) {
-      const addressesByLookupTableAddress: Record<string, Address[]> = {};
-      for (const lookup of execLookups) {
-        const info = await rpc
-          .getAccountInfo(toAddress(lookup.accountKey), { encoding: 'base64', commitment: 'finalized' })
-          .send();
-        if (!info.value?.data) continue;
-        const b64 = Array.isArray(info.value.data) ? info.value.data[0] : (info.value.data as string);
-        const dataBuf = Buffer.from(b64, 'base64');
-        const data = new Uint8Array(dataBuf.buffer, dataBuf.byteOffset, dataBuf.byteLength);
-        const HEADER_SIZE = 56;
-        const PUBKEY_SIZE = 32;
-        const total = Math.floor((data.length - HEADER_SIZE) / PUBKEY_SIZE);
-        const addrs: Address[] = [];
-        for (let i = 0; i < total; i++) {
-          const off = HEADER_SIZE + i * PUBKEY_SIZE;
-          const keyBytes = data.subarray(off, off + PUBKEY_SIZE);
-          addrs.push(address(bs58.encode(keyBytes)));
-        }
-        addressesByLookupTableAddress[lookup.accountKey.toString()] = addrs;
-      }
       executeMsgLocal = compressTransactionMessageUsingAddressLookupTables(
         executeMsgLocal as any,
         addressesByLookupTableAddress as any
